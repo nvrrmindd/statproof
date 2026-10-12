@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StatProof — доказательный ИИ-аналитик</title>
+<script>/*__PLOTLY__*/</script>
+<style>
+:root{
+  --bg:#f7f7f5; --surface:#ffffff; --surface-2:#f0efec; --line:#e2e1dc;
+  --text:#121212; --text-2:#52514e; --muted:#7a7972;
+  --s1:#2a78d6; --s2:#eb6834; --accent:#1c5cab;
+  --good:#0f7a3d; --good-bg:#e5f4ea; --warn:#9a5b00; --warn-bg:#fdf1dc; --bad:#b4232a; --bad-bg:#fbe7e6;
+  --mono: ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#121211; --surface:#1a1a19; --surface-2:#242422; --line:#33332f;
+  --text:#f0efec; --text-2:#c3c2b7; --muted:#8f8e86;
+  --s1:#3987e5; --s2:#d95926; --accent:#86b6ef;
+  --good:#5fd08a; --good-bg:#16301f; --warn:#f0b75a; --warn-bg:#33270f; --bad:#ff8a84; --bad-bg:#3a1a19;
+  color-scheme: dark; }}
+:root[data-theme="dark"]{
+  --bg:#121211; --surface:#1a1a19; --surface-2:#242422; --line:#33332f;
+  --text:#f0efec; --text-2:#c3c2b7; --muted:#8f8e86;
+  --s1:#3987e5; --s2:#d95926; --accent:#86b6ef;
+  --good:#5fd08a; --good-bg:#16301f; --warn:#f0b75a; --warn-bg:#33270f; --bad:#ff8a84; --bad-bg:#3a1a19;
+  color-scheme: dark; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 -apple-system,"Segoe UI",Inter,Roboto,sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:32px 16px 80px}
+header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.eyebrow{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+h1{font-size:34px;line-height:1.15;margin:0 0 10px;letter-spacing:-.01em}
+h2{font-size:22px;margin:0 0 6px}
+h3{font-size:16px;margin:0 0 6px}
+.lede{color:var(--text-2);max-width:760px;margin:0}
+.toggle{border:1px solid var(--line);background:var(--surface);color:var(--text-2);border-radius:8px;padding:6px 10px;cursor:pointer;font:inherit;font-size:14px}
+section{margin-top:44px}
+.sub{color:var(--text-2);margin:0 0 18px;max-width:800px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,1fr)} .g2{grid-template-columns:1.25fr 1fr} .g3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:860px){.g4{grid-template-columns:repeat(2,1fr)}.g2,.g3{grid-template-columns:1fr}}
+.tile .v{font-size:32px;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tile .l{color:var(--text-2);font-size:14px}
+.ask{display:flex;gap:8px;flex-wrap:wrap}
+.ask input{flex:1 1 320px;min-width:0;font:inherit;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text)}
+.ask button{font:inherit;padding:12px 18px;border-radius:10px;border:0;background:var(--accent);color:var(--surface);cursor:pointer;font-weight:600}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
+.chip{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--surface-2);color:var(--text-2);border-radius:999px;padding:5px 12px;cursor:pointer}
+.chip:hover{color:var(--text)}
+.badge{display:inline-flex;gap:6px;align-items:center;font-weight:650;font-size:14px;padding:4px 10px;border-radius:999px}
+.b-HOUSEHOLD{color:var(--good);background:var(--good-bg)} .b-REGIONAL{color:var(--warn);background:var(--warn-bg)} .b-NONE{color:var(--bad);background:var(--bad-bg)}
+.verdict{font-size:18px;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:13px}
+td.num{font-family:var(--mono);white-space:nowrap}
+.note{color:var(--text-2);font-size:14px}
+.caveat{border-left:3px solid var(--warn);padding:8px 12px;background:var(--warn-bg);color:var(--text);border-radius:0 8px 8px 0;font-size:14px;margin-top:12px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:inherit;font-size:14px;border:0;background:var(--surface);color:var(--text-2);padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface-2);color:var(--text);font-weight:600}
+.plot{width:100%;height:420px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--text-2);margin-top:8px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.scroll{overflow-x:auto}
+ol.steps{padding-left:20px;margin:0} ol.steps li{margin:0 0 8px}
+.arch{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-items:stretch}
+.arch div{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:14px}
+.arch b{display:block;margin-bottom:4px}
+@media (max-width:860px){.arch{grid-template-columns:1fr}}
+code{font-family:var(--mono);font-size:.9em;background:var(--surface-2);padding:1px 5px;border-radius:4px}
+footer{margin-top:56px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <p class="eyebrow">STAT.DATATHON-2026 · трек AI for Official Statistics</p>
+    <h1>StatProof: ИИ-аналитик, который знает границы данных</h1>
+    <p class="lede">Система отвечает на вопросы о качестве жизни домохозяйств Казахстана только тем, что может доказать. Каждый вывод получает уровень доказательности: подтверждён по домохозяйствам, допустим только между регионами или не подтверждается. Числа в ответе считает статистический движок, а не языковая модель.</p>
+  </div>
+  <button class="toggle" id="theme" type="button">Тема</button>
+</header>
+
+<section>
+  <div class="grid g4" id="tiles"></div>
+</section>
+
+<section id="ask">
+  <h2>Спросите данные</h2>
+  <p class="sub">Сформулируйте вопрос о связи двух показателей. StatProof найдёт переменные, проверит связь на уровне домохозяйств (бутстрап, перестановочный тест внутри ячеек регион × город/село × год) и между регионами (два года), а затем вынесет вердикт.</p>
+  <div class="card">
+    <form class="ask" id="askform"><input id="q" aria-label="Вопрос" placeholder="Например: связаны ли лишения с удовлетворённостью жизнью?"><button>Проверить</button></form>
+    <div class="chips" id="chips"></div>
+    <div id="answer" style="margin-top:18px"></div>
+  </div>
+</section>
+
+<section id="discovery">
+  <p class="eyebrow">Центральное открытие</p>
+  <h2>Парадокс достатка: где выше доходы, там чаще «обряды в долг»</h2>
+  <p class="sub" id="disc-sub"></p>
+  <div class="grid g2">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <h3 id="sc-title">Регионы: доход и доля семей с обрядами только в долг</h3>
+        <div class="seg" id="yearseg"></div>
+      </div>
+      <div id="scatter" class="plot"></div>
+      <p class="note">Каждая точка — регион. По горизонтали: медиана денежного дохода на человека в месяц (D004), по вертикали: доля домохозяйств, которые не могут провести обряды без обременительных долгов (D002). Наведите курсор на точку, чтобы увидеть значения.</p>
+    </div>
+    <div class="card">
+      <h3>Проверка устойчивости</h3>
+      <div class="scroll"><table id="robust"></table></div>
+      <p class="note" id="robust-note"></p>
+    </div>
+  </div>
+</section>
+
+<section id="trap">
+  <p class="eyebrow">Почему это важно</p>
+  <h2>Одна и та же связь: сильная между регионами, нулевая между семьями</h2>
+  <p class="sub">Обычный дашборд показал бы, что домохозяйства с большим числом лишений менее довольны жизнью. В этих данных такой вывод о семьях недоказуем: связь целиком объясняется различиями между регионами. Перенос региональной закономерности на семьи — классическая экологическая ошибка. StatProof её блокирует.</p>
+  <div class="card">
+    <div id="trapchart" class="plot" style="height:380px"></div>
+    <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>Между регионами (ρ, 2024)</span><span><i class="sw" style="background:var(--s2)"></i>Между домохозяйствами после контроля региона (ρ)</span></div>
+  </div>
+</section>
+
+<section id="map">
+  <h2>Карта доказательности</h2>
+  <p class="sub" id="map-sub"></p>
+  <div class="card scroll"><div id="heat" style="min-width:720px;height:640px"></div>
+    <div class="legend"><span><i class="sw" style="background:var(--good)"></i>✓ подтверждено по домохозяйствам</span><span><i class="sw" style="background:var(--warn)"></i>◐ только между регионами</span><span><i class="sw" style="background:var(--line)"></i>✕ не подтверждается</span></div>
+  </div>
+</section>
+
+<section id="gap">
+  <h2>Самооценка не видит лишений</h2>
+  <p class="sub" id="gap-sub"></p>
+  <div class="card"><div id="depbar" class="plot" style="height:400px"></div></div>
+</section>
+
+<section id="method">
+  <h2>Как это работает</h2>
+  <div class="arch" style="margin-bottom:16px">
+    <div><b>1. Сборка</b>D002, D004, D006, D008 связываются по <code>NOMER</code> в панель домохозяйство × год.</div>
+    <div><b>2. Аудит</b>Для каждой пары показателей: наивная ρ, ρ внутри ячеек, перестановочный тест.</div>
+    <div><b>3. Уровень</b>Связь допускается на уровне семей, только регионов или отклоняется.</div>
+    <div><b>4. Ответ</b>Вопрос сопоставляется с переменными, вердикт собирается из фактов.</div>
+    <div><b>5. Защита</b>Если подключена LLM, её текст проходит проверку: число, которого нет в фактах, блокирует ответ.</div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><h3>Методология</h3><ol class="steps">
+      <li>Индекс материальной депривации: 11 пунктов D002 в логике EU-SILC, включая казахстанский пункт об обрядах. Учитывается только ответ «не хватает средств».</li>
+      <li>Продовольственная небезопасность: 8 пунктов шкалы FAO FIES.</li>
+      <li>Доход: сумма 23 видов денежных доходов D004 за кварталы участия, приведённая к году, на человека в месяц.</li>
+      <li>Связь на уровне домохозяйств: ранговая корреляция после вычитания средних по ячейкам регион × город/село × год. Значимость оценивается перестановкой внутри ячеек (200 повторов), ДИ — бутстрапом (200 повторов).</li>
+      <li>Региональная связь: ρ Спирмена по 20 регионам. Бутстрап пересэмплирует и регионы, и домохозяйства внутри них. Вывод принимается, только если знак и значимость повторяются в 2023 и 2024 годах.</li>
+    </ol></div>
+    <div class="card"><h3>Ограничения</h3><ol class="steps">
+      <li>Данные синтетические. По документации организатора связи в них ослаблены, поэтому все величины — нижние границы и ориентиры, а не официальные оценки.</li>
+      <li>Связи между формами на уровне домохозяйств в синтетике почти полностью разорваны. Это свойство генератора, а не реальности. На реальных микроданных тот же аудит пропустит больше связей, и именно для этого он нужен.</li>
+      <li>Доход номинальный: региональных индексов цен в данных нет. Парадокс отчасти может объясняться ценами и нормами потребления.</li>
+      <li>20 регионов — малая выборка для экологической корреляции. Поэтому мы требуем репликации по годам и проверяем исключение каждого региона.</li>
+      <li>Разбор вопросов ведётся по словарю ключевых слов, а не генеративной моделью: это детерминированно и проверяемо. LLM можно подключить только для пересказа.</li>
+    </ol></div>
+  </div>
+</section>
+<footer id="foot"></footer>
+</div>
+
+<script>
+const D = /*__DATA__*/null;
+const $ = s => document.querySelector(s);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const f2 = (x, n=2) => (x>=0?'+':'−') + Math.abs(x).toFixed(n);
+const pct = x => (100*x).toFixed(1).replace('.', ',') + '%';
+const cat = D.catalog;
+const LEVEL = {HOUSEHOLD:['✓','Подтверждено по домохозяйствам'], REGIONAL:['◐','Только между регионами'], NONE:['✕','Не подтверждается']};
+const core = D.core.dep_ritual.by_year, rep = D.replication_2022;
+
+/* ---------- плитки */
+const lc = D.level_counts, total = D.pairs.length;
+$('#tiles').innerHTML = [
+  [D.meta.n_households.toLocaleString('ru-RU'), `домохозяйств, ${D.meta.years.join('–')}, ${D.meta.k_regions} регионов`],
+  [total, 'пар показателей прошли аудит'],
+  [`${lc.HOUSEHOLD||0} / ${lc.REGIONAL||0} / ${lc.NONE||0}`, 'подтверждено по семьям / только по регионам / отклонено'],
+  [f2(core['2024'].rho), `ρ доход × «обряды в долг» между регионами в 2024 (в 2023: ${f2(core['2023'].rho)}, в 2022: ${f2(rep.ritual)})`],
+].map(([v,l]) => `<div class="card tile"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+
+/* ---------- вопрос → ответ (тот же словарь, что и в engine.py) */
+function parse(q){
+  q = q.toLowerCase().replaceAll('ё','е'); const hits = [];
+  for (const [v, m] of Object.entries(cat)){
+    for (const kw of m.kw){ const p = q.indexOf(kw.replaceAll('ё','е')); if (p>=0){ hits.push([p, -kw.length, v]); break; } }
+  }
+  hits.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  return [...new Set(hits.map(h=>h[2]))].slice(0,2);
+}
+function findPair(a,b){ return D.pairs.find(p => (p.a===a&&p.b===b)||(p.a===b&&p.b===a)); }
+function pfmt(p){ return p <= 1/(D.meta.n_perm+1)+1e-9 ? `< ${(1/(D.meta.n_perm+1)).toFixed(3)}` : `= ${p.toFixed(3)}`; }
+function render(q){
+  const v = parse(q), box = $('#answer');
+  if (v.length < 2){
+    box.innerHTML = `<span class="badge b-NONE">✕ Вопрос не распознан</span><p class="verdict">Не удалось найти в вопросе два показателя из каталога. StatProof не отвечает на вопросы, которые не может проверить вычислением.</p><p class="note">Распознано: ${v.map(x=>cat[x].label).join(', ')||'ничего'}. Доступные показатели: ${Object.values(cat).map(c=>c.label).join('; ')}.</p>`;
+    return;
+  }
+  const p = findPair(v[0], v[1]); const la = cat[p.a].label, lb = cat[p.b].label;
+  const ys = Object.keys(p.reg).sort();
+  let verdict;
+  if (p.level==='HOUSEHOLD') verdict = `Связь «${la}» — «${lb}» подтверждена на уровне домохозяйств: ρ = ${f2(p.partial)} после контроля региона и типа поселения (95% ДИ ${f2(p.partial_ci[0])}…${f2(p.partial_ci[1])}, перестановочный p ${pfmt(p.p_perm)}).`;
+  else if (p.level==='REGIONAL') verdict = `О семьях вывод сделать нельзя: наивная ρ = ${f2(p.raw)} падает до ${f2(p.partial)} после контроля региона. Связь есть только между регионами: ${ys.map(y=>`ρ = ${f2(p.reg[y])} в ${y}`).join(', ')}, знак повторяется в обоих годах. Это экологический вывод.`;
+  else verdict = `Данные не подтверждают связь «${la}» — «${lb}»: на уровне домохозяйств ρ = ${f2(p.partial)} (наивная ${f2(p.raw)}), между регионами результат не воспроизводится в двух годах. Вывод не делается.`;
+  const rows = [
+    ['Наивная ρ по домохозяйствам', f2(p.raw,3), `${f2(p.raw_ci[0],3)} … ${f2(p.raw_ci[1],3)}`, `n = ${p.n.toLocaleString('ru-RU')}`],
+    ['ρ внутри регион × город/село × год', f2(p.partial,3), `${f2(p.partial_ci[0],3)} … ${f2(p.partial_ci[1],3)}`, `p ${pfmt(p.p_perm)}; 95% нулевого распределения: |ρ| < ${p.null95.toFixed(3)}`],
+    ...ys.map(y => [`ρ между 20 регионами, ${y}`, f2(p.reg[y],3), p.reg_ci ? `${f2(p.reg_ci[y][0],3)} … ${f2(p.reg_ci[y][1],3)}` : '—', ''])
+  ];
+  const caveat = (p.form_a!==p.form_b && !p.household_valid) ? `<div class="caveat">Показатели взяты из разных форм (${p.form_a} и ${p.form_b}). В синтетических данных формы связаны только через общий каркас домохозяйства: регион, тип поселения, состав семьи.</div>` : '';
+  box.innerHTML = `<span class="badge b-${p.level}">${LEVEL[p.level][0]} ${LEVEL[p.level][1]}</span>
+    <p class="note" style="margin:10px 0 0">Распознано: <b>${la}</b> (${p.form_a}) и <b>${lb}</b> (${p.form_b})</p>
+    <p class="verdict">${verdict}</p>
+    <div class="scroll"><table><tr><th>Доказательство</th><th>Оценка</th><th>95% ДИ</th><th>Детали</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="note">${r[3]}</td></tr>`).join('')}</table></div>${caveat}`;
+}
+const examples = ['Связаны ли лишения с удовлетворённостью жизнью?','Влияет ли голод на удовлетворённость жизнью?','Доход и обряды','Доход и число детей','Город или село и площадь жилья','Высшее образование и удовлетворённость финансами','Как погода влияет на урожай?'];
+$('#chips').innerHTML = examples.map(e=>`<button class="chip" type="button">${e}</button>`).join('');
+$('#chips').onclick = e => { if (e.target.classList.contains('chip')){ $('#q').value = e.target.textContent; render(e.target.textContent);} };
+$('#askform').onsubmit = e => { e.preventDefault(); render($('#q').value); };
+
+/* ---------- графики */
+function layoutBase(extra){
+  return Object.assign({paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)', font:{color:css('--text-2'), family:'-apple-system,Segoe UI,Inter,sans-serif', size:13},
+    margin:{l:56,r:16,t:12,b:48}, hoverlabel:{bgcolor:css('--surface'), bordercolor:css('--line'), font:{color:css('--text')}}}, extra);
+}
+const axis = t => ({title:{text:t, font:{size:13}}, gridcolor:css('--line'), zeroline:false, linecolor:css('--line'), tickfont:{color:css('--muted')}});
+let year = '2024';
+function drawScatter(){
+  const R = D.regions.filter(r => String(r.year)===year);
+  const xs = R.map(r=>r.income_pc), ys = R.map(r=>r.dep_ritual);
+  // линия тренда (МНК) только как визуальная подсказка
+  const mx = xs.reduce((a,b)=>a+b)/xs.length, my = ys.reduce((a,b)=>a+b)/ys.length;
+  const k = xs.reduce((s,x,i)=>s+(x-mx)*(ys[i]-my),0)/xs.reduce((s,x)=>s+(x-mx)**2,0);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const show = new Set([59,47,61,35,75,39,31,71]);
+  Plotly.react('scatter', [
+    {x:[x0,x1], y:[my+k*(x0-mx), my+k*(x1-mx)], mode:'lines', line:{color:css('--muted'), width:1.5, dash:'dot'}, hoverinfo:'skip', showlegend:false},
+    {x:xs, y:ys, mode:'markers+text', text:R.map(r=>show.has(r.region)?r.name:''), textposition:'top center', textfont:{size:11,color:css('--text-2')},
+     marker:{size:R.map(r=>8+Math.sqrt(r.n)/4), color:css('--s1'), line:{color:css('--surface'), width:2}},
+     customdata:R.map(r=>[r.name, r.n, (100*r.dep_severe).toFixed(1), r.life_sat.toFixed(2)]),
+     hovertemplate:'<b>%{customdata[0]}</b><br>Доход: %{x:,.0f} тг/чел./мес.<br>Обряды в долг: %{y:.1%}<br>Глубокая депривация: %{customdata[2]}%<br>Удовлетворённость: %{customdata[3]}<br>n = %{customdata[1]}<extra></extra>', showlegend:false}
+  ], layoutBase({xaxis:axis('Доход на человека, тг/мес.'), yaxis:Object.assign(axis('Доля «обряды только в долг»'), {tickformat:'.0%'})}), {displayModeBar:false, responsive:true});
+}
+$('#yearseg').innerHTML = ['2023','2024'].map(y=>`<button type="button" aria-pressed="${y===year}">${y}</button>`).join('');
+$('#yearseg').onclick = e => { if (e.target.tagName!=='BUTTON') return; year = e.target.textContent; [...$('#yearseg').children].forEach(b=>b.setAttribute('aria-pressed', b.textContent===year)); drawScatter(); };
+
+const c23 = core['2023'], c24 = core['2024'];
+$('#disc-sub').innerHTML = `Между регионами доля семей, которые не могут провести обряды (той, похороны, свадьбу) без обременительных долгов, растёт вместе с доходом: ρ = ${f2(c24.rho)} в 2024, ${f2(c23.rho)} в 2023 и ${f2(rep.ritual)} в 2022 (независимая репликация). В тех же регионах ниже удовлетворённость жизнью (ρ = ${f2(D.core.life_sat.by_year['2024'].rho)}). Денежный доход плохо описывает реальную финансовую устойчивость: социальные обязательства, цены и нормы потребления «съедают» его преимущество.`;
+const rrows = [
+  ['ρ Спирмена, 20 регионов', f2(c23.rho), f2(c24.rho)],
+  ['95% ДИ (бутстрап регионов и семей)', `${f2(c23.ci[0])}…${f2(c23.ci[1])}`, `${f2(c24.ci[0])}…${f2(c24.ci[1])}`],
+  ['Исключение одного региона (мин…макс)', `${f2(c23.loo_min)}…${f2(c23.loo_max)}`, `${f2(c24.loo_min)}…${f2(c24.loo_max)}`],
+  ['Без Астаны, Алматы и Шымкента', f2(c23.no_cities), f2(c24.no_cities)],
+  ['При контроле доли городского населения', f2(c23.partial_urban), f2(c24.partial_urban)],
+  ['Та же связь на уровне семей (контроль региона)', f2(findPair('income_pc','dep_ritual').partial), '—'],
+];
+$('#robust').innerHTML = `<tr><th>Проверка</th><th>2023</th><th>2024</th></tr>` + rrows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td></tr>`).join('');
+$('#robust-note').innerHTML = `Репликация на 2022 г. (${rep.n_households.toLocaleString('ru-RU')} семей, не участвовавших в подборе метода): ρ = ${f2(rep.ritual)} для обрядов, ${f2(rep.shock)} для непредвиденных расходов, ${f2(rep.life_sat)} для удовлетворённости жизнью. Последняя строка таблицы: внутри региона более обеспеченные семьи не отличаются по этому лишению, то есть закономерность региональная.`;
+
+function drawTrap(){
+  const T = D.trap.slice().reverse();
+  const lab = T.map(p => `${cat[p.a].label} × ${cat[p.b].label}`);
+  Plotly.react('trapchart', [
+    {y:lab, x:T.map(p=>p.reg['2024']), type:'bar', orientation:'h', name:'Между регионами', marker:{color:css('--s1')}, hovertemplate:'%{y}<br>ρ между регионами (2024): %{x:.2f}<extra></extra>'},
+    {y:lab, x:T.map(p=>p.partial), type:'bar', orientation:'h', name:'Между семьями', marker:{color:css('--s2')}, hovertemplate:'%{y}<br>ρ между семьями после контроля: %{x:.3f}<extra></extra>'}
+  ], layoutBase({barmode:'group', bargap:0.35, bargroupgap:0.08, showlegend:false, margin:{l:330,r:16,t:8,b:40}, xaxis:Object.assign(axis('ρ Спирмена'),{range:[-1,1], zeroline:true, zerolinecolor:css('--muted')}), yaxis:{tickfont:{size:12,color:css('--text-2')}, automargin:true}}), {displayModeBar:false, responsive:true});
+}
+
+function drawHeat(){
+  const vs = Object.keys(cat), L = vs.map(v=>cat[v].label);
+  const z = [], t = [], h = [];
+  const code = {HOUSEHOLD:2, REGIONAL:1, NONE:0};
+  for (const a of vs){ const rz=[], rt=[], rh=[]; for (const b of vs){
+      if (a===b){ rz.push(null); rt.push(''); rh.push(''); continue; }
+      const p = findPair(a,b); rz.push(code[p.level]); rt.push(p.level==='HOUSEHOLD'?f2(p.partial):(p.level==='REGIONAL'?'◐':''));
+      rh.push(`${cat[a].label} × ${cat[b].label}<br>${LEVEL[p.level][1]}<br>наивная ρ ${f2(p.raw,3)} → в ячейках ${f2(p.partial,3)}`); }
+    z.push(rz); t.push(rt); h.push(rh); }
+  Plotly.react('heat', [{z, x:L, y:L, text:t, texttemplate:'%{text}', textfont:{size:9}, customdata:h, hovertemplate:'%{customdata}<extra></extra>', type:'heatmap', xgap:2, ygap:2, showscale:false,
+    zmin:0, zmax:2, colorscale:[[0,css('--surface-2')],[0.33,css('--surface-2')],[0.34,css('--warn-bg')],[0.66,css('--warn-bg')],[0.67,css('--good-bg')],[1,css('--good-bg')]]}],
+    layoutBase({margin:{l:260,r:8,t:8,b:200}, xaxis:{tickangle:-45, tickfont:{size:11}}, yaxis:{autorange:'reversed', tickfont:{size:11}}}), {displayModeBar:false, responsive:true});
+}
+$('#map-sub').textContent = `Каждая клетка — пара показателей. Зелёные клетки с числом: связь подтверждена по домохозяйствам, число — ρ после контроля. Жёлтые (◐): связь есть только между регионами. Серые: не подтверждена. Почти все межформенные связи D002 с бюджетом, составом семьи и жильём отклонены. Внутри форм и в паре «бюджет — состав семьи» связи сохраняются.`;
+
+const g = D.gap;
+$('#gap-sub').textContent = `${pct(g.self_mid_or_above)} респондентов относят себя к среднему классу или выше, к низкой обеспеченности — лишь ${pct(g.self_below_avg)}. При этом ${pct(g.dep_ritual)} не могут провести обряды без долгов, ${pct(g.dep_holiday)} не могут позволить отпуск, ${pct(g.dep_shock)} не покроют непредвиденный расход в 30–40 тыс. тенге, а ${pct(g.dep_severe)} испытывают 3 и более лишений. Совместное распределение самооценки и лишений в синтетике разорвано, поэтому мы сравниваем только доли, что корректно.`;
+function drawDep(){
+  const it = Object.values(D.dep_items).sort((a,b)=>a.rate-b.rate);
+  Plotly.react('depbar', [{x:it.map(i=>i.rate), y:it.map(i=>i.label), type:'bar', orientation:'h', marker:{color:it.map(i=>i.label.startsWith('Не может провести')?css('--s2'):css('--s1'))},
+    text:it.map(i=>pct(i.rate)), textposition:'outside', cliponaxis:false, textfont:{color:css('--text-2')}, hovertemplate:'%{y}: %{x:.1%}<extra></extra>'}],
+    layoutBase({margin:{l:330,r:56,t:8,b:40}, xaxis:Object.assign(axis('Доля домохозяйств, 2023–2024'),{tickformat:'.0%'}), yaxis:{tickfont:{size:12,color:css('--text-2')}, automargin:true}}), {displayModeBar:false, responsive:true});
+}
+$('#foot').textContent = `Источник: синтетические микроданные БНС АСПиР РК 2021–2024 (D002, D004, D006, D008). Seed ${D.meta.seed}; бутстрап ${D.meta.n_boot}, перестановки ${D.meta.n_perm}. Все числа на странице посчитаны конвейером qol_ai/ и воспроизводимы.`;
+
+function drawAll(){ drawScatter(); drawTrap(); drawHeat(); drawDep(); }
+$('#theme').onclick = () => { const r = document.documentElement; const dark = r.dataset.theme ? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme = dark ? 'light' : 'dark'; drawAll(); render($('#q').value || examples[0]); };
+$('#q').value = examples[0]; render(examples[0]); drawAll();
+</script>
+</body>
+</html>
