@@ -3691,12 +3691,19 @@ ol.steps{padding-left:20px;margin:0} ol.steps li{margin:0 0 8px}
 .arch b{display:block;margin-bottom:4px}
 @media (max-width:860px){.arch{grid-template-columns:1fr}}
 code{font-family:var(--mono);font-size:.9em;background:var(--surface-2);padding:1px 5px;border-radius:4px}
+nav.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin:0 -16px;padding:10px 16px;display:flex;gap:6px;overflow-x:auto;white-space:nowrap}
+nav.top a{color:var(--text-2);text-decoration:none;font-size:14px;padding:4px 10px;border-radius:999px}
+nav.top a:hover{color:var(--text);background:var(--surface-2)}
+.fm{display:grid;gap:3px;font-size:13px} .fm div{padding:10px 8px;border-radius:6px;text-align:center;font-variant-numeric:tabular-nums}
+.fm .h{background:none;color:var(--muted);font-weight:600;text-align:left}
+details summary{cursor:pointer;color:var(--text-2);font-size:14px;margin-top:16px}
 footer{margin-top:56px;color:var(--muted);font-size:13px}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header>
+<nav class="top"><a href="#ask">Спросить данные</a><a href="#discovery">Открытие</a><a href="#trap">Ловушка</a><a href="#map">Карта доказательности</a><a href="#gap">Самооценка</a><a href="#method">Метод</a></nav>
+<header style="margin-top:24px">
   <div>
     <p class="eyebrow">STAT.DATATHON-2026 · трек AI for Official Statistics</p>
     <h1>StatProof: ИИ-аналитик, который знает границы данных</h1>
@@ -3738,6 +3745,11 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
       <p class="note" id="robust-note"></p>
     </div>
   </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Ранги регионов не совпадают: богаче — не значит устойчивее</h3>
+    <div id="bump" class="plot" style="height:560px"></div>
+    <p class="note">Слева регионы упорядочены по доходу на человека, справа — по доле семей с «обрядами в долг» (1 — самая высокая). Выделены регионы с самым большим сдвигом рангов. Год переключается вместе с диаграммой выше.</p>
+  </div>
 </section>
 
 <section id="trap">
@@ -3745,15 +3757,16 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
   <h2>Одна и та же связь: сильная между регионами, нулевая между семьями</h2>
   <p class="sub">Обычный дашборд показал бы, что домохозяйства с большим числом лишений менее довольны жизнью. В этих данных такой вывод о семьях недоказуем: связь целиком объясняется различиями между регионами. Перенос региональной закономерности на семьи — классическая экологическая ошибка. StatProof её блокирует.</p>
   <div class="card">
-    <div id="trapchart" class="plot" style="height:380px"></div>
-    <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>Между регионами (ρ, 2024)</span><span><i class="sw" style="background:var(--s2)"></i>Между домохозяйствами после контроля региона (ρ)</span></div>
+    <div id="trapchart" class="plot" style="height:420px"></div>
+    <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>Между регионами (ρ, 2024)</span><span><i class="sw" style="background:var(--muted)"></i>Наивная ρ по всем семьям</span><span><i class="sw" style="background:var(--s2)"></i>Между семьями после контроля региона</span></div>
   </div>
 </section>
 
 <section id="map">
   <h2>Карта доказательности</h2>
   <p class="sub" id="map-sub"></p>
-  <div class="card scroll"><div id="heat" style="min-width:720px;height:640px"></div>
+  <div class="card"><h3>Сводка по формам: сколько пар подтверждено</h3><div class="scroll"><div class="fm" id="formmatrix" style="min-width:640px"></div></div>
+    <details><summary>Показать все 253 пары</summary><div class="scroll"><div id="heat" style="min-width:720px;height:640px"></div></div></details>
     <div class="legend"><span><i class="sw" style="background:var(--good)"></i>✓ подтверждено по домохозяйствам</span><span><i class="sw" style="background:var(--warn)"></i>◐ только между регионами</span><span><i class="sw" style="background:var(--line)"></i>✕ не подтверждается</span></div>
   </div>
 </section>
@@ -3875,7 +3888,7 @@ function drawScatter(){
   ], layoutBase({xaxis:axis('Доход на человека, тг/мес.'), yaxis:Object.assign(axis('Доля «обряды только в долг»'), {tickformat:'.0%'})}), {displayModeBar:false, responsive:true});
 }
 $('#yearseg').innerHTML = ['2023','2024'].map(y=>`<button type="button" aria-pressed="${y===year}">${y}</button>`).join('');
-$('#yearseg').onclick = e => { if (e.target.tagName!=='BUTTON') return; year = e.target.textContent; [...$('#yearseg').children].forEach(b=>b.setAttribute('aria-pressed', b.textContent===year)); drawScatter(); };
+$('#yearseg').onclick = e => { if (e.target.tagName!=='BUTTON') return; year = e.target.textContent; [...$('#yearseg').children].forEach(b=>b.setAttribute('aria-pressed', b.textContent===year)); drawScatter(); drawBump(); };
 
 const c23 = core['2023'], c24 = core['2024'];
 $('#disc-sub').innerHTML = `Между регионами доля семей, которые не могут провести обряды (той, похороны, свадьбу) без обременительных долгов, растёт вместе с доходом: ρ = ${f2(c24.rho)} в 2024, ${f2(c23.rho)} в 2023 и ${f2(rep.ritual)} в 2022 (независимая репликация). В тех же регионах ниже удовлетворённость жизнью (ρ = ${f2(D.core.life_sat.by_year['2024'].rho)}). Денежный доход плохо описывает реальную финансовую устойчивость: социальные обязательства, цены и нормы потребления «съедают» его преимущество.`;
@@ -3893,10 +3906,43 @@ $('#robust-note').innerHTML = `Репликация на 2022 г. (${rep.n_house
 function drawTrap(){
   const T = D.trap.slice().reverse();
   const lab = T.map(p => `${cat[p.a].label} × ${cat[p.b].label}`);
+  const lx = [], ly = [];
+  T.forEach((p,i) => { lx.push(p.reg['2024'], p.raw, p.partial, null); ly.push(lab[i], lab[i], lab[i], null); });
+  const dot = (x, name, color, fmt, open) => ({y:lab, x, mode:'markers', type:'scatter', name, marker:{size:12, color: open ? css('--surface') : color, line:{color, width:2}}, hovertemplate:`%{y}<br>${name}: %{x:${fmt}}<extra></extra>`});
   Plotly.react('trapchart', [
-    {y:lab, x:T.map(p=>p.reg['2024']), type:'bar', orientation:'h', name:'Между регионами', marker:{color:css('--s1')}, hovertemplate:'%{y}<br>ρ между регионами (2024): %{x:.2f}<extra></extra>'},
-    {y:lab, x:T.map(p=>p.partial), type:'bar', orientation:'h', name:'Между семьями', marker:{color:css('--s2')}, hovertemplate:'%{y}<br>ρ между семьями после контроля: %{x:.3f}<extra></extra>'}
-  ], layoutBase({barmode:'group', bargap:0.35, bargroupgap:0.08, showlegend:false, margin:{l:330,r:16,t:8,b:40}, xaxis:Object.assign(axis('ρ Спирмена'),{range:[-1,1], zeroline:true, zerolinecolor:css('--muted')}), yaxis:{tickfont:{size:12,color:css('--text-2')}, automargin:true}}), {displayModeBar:false, responsive:true});
+    {x:lx, y:ly, mode:'lines', line:{color:css('--line'), width:3}, hoverinfo:'skip', showlegend:false},
+    dot(T.map(p=>p.reg['2024']), 'ρ между регионами (2024)', css('--s1'), '.2f'),
+    dot(T.map(p=>p.raw), 'наивная ρ', css('--muted'), '.3f', true),
+    dot(T.map(p=>p.partial), 'ρ между семьями после контроля', css('--s2'), '.3f'),
+  ], layoutBase({showlegend:false, margin:{l:330,r:16,t:8,b:40}, xaxis:Object.assign(axis('ρ Спирмена'),{range:[-1,0.3], zeroline:true, zerolinecolor:css('--muted'), zerolinewidth:1}), yaxis:{tickfont:{size:12,color:css('--text-2')}, automargin:true, gridcolor:'rgba(0,0,0,0)'}}), {displayModeBar:false, responsive:true});
+}
+
+function drawFormMatrix(){
+  const F = ['D002-subject','D002-ocenka','D004','D008','D006','каркас'];
+  const name = {'D002-subject':'D002 удовлетв.','D002-ocenka':'D002 лишения','D004':'D004 бюджет','D008':'D008 семья','D006':'D006 жильё','каркас':'Город/село'};
+  const cell = {}; for (const p of D.pairs){ const k=[p.form_a,p.form_b].sort().join('|'); (cell[k] ||= {HOUSEHOLD:0,REGIONAL:0,NONE:0})[p.level]++; }
+  const el = $('#formmatrix'); el.style.gridTemplateColumns = `140px repeat(${F.length},1fr)`;
+  let h = '<div class="h"></div>' + F.map(f=>`<div class="h">${name[f]}</div>`).join('');
+  F.forEach((a,i) => { h += `<div class="h">${name[a]}</div>`; F.forEach((b,j) => {
+    if (j < i){ h += '<div></div>'; return; }
+    const c = cell[[a,b].sort().join('|')]; if (!c){ h += '<div style="background:var(--surface-2);color:var(--muted)">—</div>'; return; }
+    const n = c.HOUSEHOLD+c.REGIONAL+c.NONE, sh = c.HOUSEHOLD/n;
+    const bg = sh >= .5 ? 'var(--good-bg)' : (c.REGIONAL/n >= .3 ? 'var(--warn-bg)' : 'var(--surface-2)');
+    h += `<div style="background:${bg}" title="${name[a]} × ${name[b]}: ${n} пар"><b style="color:var(--good)">✓${c.HOUSEHOLD}</b> <span style="color:var(--warn)">◐${c.REGIONAL}</span> <span style="color:var(--muted)">✕${c.NONE}</span></div>`; }); });
+  el.innerHTML = h;
+}
+
+function drawBump(){
+  const R = D.regions.filter(r => String(r.year)===year);
+  const rank = (k) => { const o = R.slice().sort((a,b)=>b[k]-a[k]); return new Map(o.map((r,i)=>[r.region, i+1])); };
+  const ri = rank('income_pc'), rr = rank('dep_ritual');
+  const shift = R.map(r => Math.abs(ri.get(r.region)-rr.get(r.region))).sort((a,b)=>b-a)[5];
+  const tr = R.map(r => { const big = Math.abs(ri.get(r.region)-rr.get(r.region)) >= shift;
+    return {x:[0,1], y:[ri.get(r.region), rr.get(r.region)], mode:'lines+markers+text', type:'scatter', cliponaxis:false,
+      line:{color: big ? css('--s2') : css('--line'), width: big ? 2.5 : 1.5}, marker:{size:8, color: big ? css('--s2') : css('--muted'), line:{color:css('--surface'),width:2}},
+      text:[`${r.name} ${ri.get(r.region)}`, `${rr.get(r.region)} ${r.name}`], textposition:['middle left','middle right'], textfont:{size:11, color: big ? css('--text') : css('--text-2')},
+      hovertemplate:`<b>${r.name}</b><br>Доход: ${r.income_pc.toLocaleString('ru-RU')} тг, место ${ri.get(r.region)}<br>Обряды в долг: ${(100*r.dep_ritual).toFixed(1)}%, место ${rr.get(r.region)}<extra></extra>`, showlegend:false}; });
+  Plotly.react('bump', tr, layoutBase({margin:{l:200,r:200,t:30,b:16}, xaxis:{range:[-0.05,1.05], showgrid:false, zeroline:false, tickvals:[0,1], ticktext:['Место по доходу','Место по «обрядам в долг»'], side:'top', tickfont:{size:13,color:css('--text')}}, yaxis:{autorange:'reversed', showgrid:false, zeroline:false, showticklabels:false}}), {displayModeBar:false, responsive:true});
 }
 
 function drawHeat(){
@@ -3912,7 +3958,7 @@ function drawHeat(){
     zmin:0, zmax:2, colorscale:[[0,css('--surface-2')],[0.33,css('--surface-2')],[0.34,css('--warn-bg')],[0.66,css('--warn-bg')],[0.67,css('--good-bg')],[1,css('--good-bg')]]}],
     layoutBase({margin:{l:260,r:8,t:8,b:200}, xaxis:{tickangle:-45, tickfont:{size:11}}, yaxis:{autorange:'reversed', tickfont:{size:11}}}), {displayModeBar:false, responsive:true});
 }
-$('#map-sub').textContent = `Каждая клетка — пара показателей. Зелёные клетки с числом: связь подтверждена по домохозяйствам, число — ρ после контроля. Жёлтые (◐): связь есть только между регионами. Серые: не подтверждена. Почти все межформенные связи D002 с бюджетом, составом семьи и жильём отклонены. Внутри форм и в паре «бюджет — состав семьи» связи сохраняются.`;
+$('#map-sub').textContent = `Каждая клетка — пара показателей. Зелёные клетки с числом: связь подтверждена по домохозяйствам, число — ρ после контроля. Жёлтые (◐): связь есть только между регионами. Серые: не подтверждена. Сводка ниже группирует пары по формам-источникам: связи внутри форм и в паре «бюджет — состав семьи» подтверждаются, а связи анкеты D002 с остальными формами — нет.`;
 
 const g = D.gap;
 $('#gap-sub').textContent = `${pct(g.self_mid_or_above)} респондентов относят себя к среднему классу или выше, к низкой обеспеченности — лишь ${pct(g.self_below_avg)}. При этом ${pct(g.dep_ritual)} не могут провести обряды без долгов, ${pct(g.dep_holiday)} не могут позволить отпуск, ${pct(g.dep_shock)} не покроют непредвиденный расход в 30–40 тыс. тенге, а ${pct(g.dep_severe)} испытывают 3 и более лишений. Совместное распределение самооценки и лишений в синтетике разорвано, поэтому мы сравниваем только доли, что корректно.`;
@@ -3924,7 +3970,8 @@ function drawDep(){
 }
 $('#foot').textContent = `Источник: синтетические микроданные БНС АСПиР РК 2021–2024 (D002, D004, D006, D008). Seed ${D.meta.seed}; бутстрап ${D.meta.n_boot}, перестановки ${D.meta.n_perm}. Все числа на странице посчитаны конвейером qol_ai/ и воспроизводимы.`;
 
-function drawAll(){ drawScatter(); drawTrap(); drawHeat(); drawDep(); }
+function drawAll(){ drawScatter(); drawBump(); drawTrap(); drawFormMatrix(); drawHeat(); drawDep(); }
+document.querySelector('details').addEventListener('toggle', () => Plotly.Plots.resize('heat'));
 $('#theme').onclick = () => { const r = document.documentElement; const dark = r.dataset.theme ? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme = dark ? 'light' : 'dark'; drawAll(); render($('#q').value || examples[0]); };
 $('#q').value = examples[0]; render(examples[0]); drawAll();
 </script>
