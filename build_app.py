@@ -1,5 +1,5 @@
-"""Шаг 4. Сборка интерактивного приложения → out/statproof.html (один файл, работает офлайн-логикой,
-Plotly грузится с CDN). Все числа берутся из out/findings.json."""
+"""Шаг 4. Сборка интерактивного приложения → out/provable.html (один файл, работает без интернета:
+Plotly встроен). Все числа берутся из out/findings.json."""
 import json
 from pathlib import Path
 
@@ -18,8 +18,8 @@ def main():
     pjs = (Path(plotly.__file__).parent / "package_data" / "plotly.min.js").read_text()
     html = TEMPLATE.read_text().replace("/*__DATA__*/null", json.dumps(f, ensure_ascii=False))
     html = html.replace("/*__PLOTLY__*/", pjs.replace("</script", "<\\/script"))
-    (OUT / "statproof.html").write_text(html)
-    print("written", OUT / "statproof.html", len(html) // 1024, "KB")
+    (OUT / "provable.html").write_text(html)
+    print("written", OUT / "provable.html", len(html) // 1024, "KB")
 
 
 if __name__ == "__main__":
