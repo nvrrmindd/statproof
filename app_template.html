@@ -83,7 +83,7 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
 </head>
 <body>
 <div class="wrap">
-<nav class="top"><a href="#ask">Спросить данные</a><a href="#discovery">Открытие</a><a href="#trap">Ловушка</a><a href="#map">Карта доказательности</a><a href="#gap">Самооценка</a><a href="#method">Метод</a></nav>
+<nav class="top"><a href="#ask">Спросить данные</a><a href="#quality">Качество ИИ</a><a href="#discovery">Открытие</a><a href="#trap">Ловушка</a><a href="#map">Карта доказательности</a><a href="#gap">Самооценка</a><a href="#method">Метод</a></nav>
 <header style="margin-top:24px">
   <div>
     <p class="eyebrow">STAT.DATATHON-2026 · трек AI for Official Statistics</p>
@@ -112,6 +112,13 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
     <div class="chips" id="claimchips"></div>
     <div id="verdict2" style="margin-top:16px"></div>
   </div>
+</section>
+
+<section id="quality" hidden>
+  <h2>Качество ИИ измерено</h2>
+  <p class="sub">Разбор вопросов и проверку утверждений мы оценили на 40 вопросах и 20 утверждениях с заранее известными ответами. Контрольный набор зафиксирован в git до первого запуска и не использовался для настройки: исправления делались только на отдельном наборе для разработки.</p>
+  <div class="card scroll"><table id="qtable"></table>
+  <p class="note" style="margin-top:12px">Оставшиеся ошибки: слова вне словаря («горожане», «недоедают»), направление связи без числа («тратят больше» при ρ = −0,38), утверждение через обратную долю («есть у 80 %» вместо «нет у 20 %»). Наборы и скрипт: <code>eval/</code>.</p></div>
 </section>
 
 <section id="discovery">
@@ -214,14 +221,24 @@ $('#tiles').innerHTML = [
 ].map(([v,l]) => `<div class="card tile"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
 
 /* ---------- вопрос → ответ (тот же словарь, что и в engine.py) */
+// Тот же разбор, что в engine.py: ключевое слово с начала слова, «$» — слово целиком
+const WB = '[^а-яёa-z0-9]';
+function kwPos(text, kw){
+  const whole = kw.endsWith('$'), k = kw.replace(/\$$/, '').replaceAll('ё','е').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const m = new RegExp('(^|' + WB + ')(' + k + ')' + (whole ? '(?=$|' + WB + ')' : '')).exec(text);
+  return m ? m.index + m[1].length : -1;
+}
 function parse(q){
   q = q.toLowerCase().replaceAll('ё','е'); let hits = [];
   for (const [v, m] of Object.entries(cat)){
-    for (const kw of m.kw){ const p = q.indexOf(kw.replaceAll('ё','е')); if (p>=0){ hits.push([p, -kw.length, v]); break; } }
+    for (const kw of m.kw){ const p = kwPos(q, kw); if (p>=0){ hits.push([p, -kw.length, v, kw]); break; } }
   }
   hits.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
-  if (hits.some(h=>h[2]==='dep_ritual')) hits = hits.filter(h=>h[2]!=='borrowed');
-  return [...new Set(hits.map(h=>h[2]))].slice(0,2);
+  const found = Object.fromEntries(hits.map(h=>[h[2], h[3]])), drop = new Set();
+  if ('dep_ritual' in found) drop.add('borrowed');
+  if ('dep_shock' in found) drop.add('spend_pc');
+  if ('fin_sat' in found && found.life_sat === 'удовлетвор') drop.add('life_sat');
+  return [...new Set(hits.map(h=>h[2]).filter(v=>!drop.has(v)))].slice(0,2);
 }
 function findPair(a,b){ return D.pairs.find(p => (p.a===a&&p.b===b)||(p.a===b&&p.b===a)); }
 function pfmt(p){ return p <= 1/(D.meta.n_perm+1)+1e-9 ? `< ${(1/(D.meta.n_perm+1)).toFixed(3)}` : `= ${p.toFixed(3)}`; }
@@ -248,33 +265,61 @@ function render(q){
     <p class="verdict">${verdict}</p>
     <div class="scroll"><table><tr><th>Доказательство</th><th>Оценка</th><th>95% ДИ</th><th>Детали</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="note">${r[3]}</td></tr>`).join('')}</table></div>${caveat}`;
 }
-function checkClaim(t){
-  const box = $('#verdict2'), v = parse(t);
-  if (v.length < 2){ box.innerHTML = `<span class="badge b-NONE">✕ Не могу проверить</span><p class="note">В утверждении не найдено двух показателей из каталога. Непроверяемое утверждение нельзя считать выводом из данных.</p>`; return; }
+// Чистая функция проверки утверждения: её же вызывает оценка качества (eval/run_eval.py)
+const REGION_STEMS = [['ско',59],['северо-казахстан',59],['вко',63],['восточно-казахстан',63],['зко',27],['западно-казахстан',27],['абай',10],['акмол',11],['актюб',15],['алматинск',19],['атырау',23],['жамбыл',31],['жетысу',33],['караганд',35],['костанай',39],['кызылорд',43],['мангист',47],['павлодар',55],['туркестан',61],['улытау',62],['астан',71],['алматы',75],['шымкент',79]];
+function claimVerdict(t){
+  const v = parse(t), tl = t.toLowerCase().replaceAll('ё','е');
+  const nums = [...t.matchAll(/[−+-]?\d+(?:[.,]\d+)?/g)].map(m => ({raw: m[0], end: m.index + m[0].length}));
+  const val = raw => parseFloat(raw.replace('−','-').replace('+','').replace(',','.'));
+  const isYear = x => Number.isInteger(x) && x >= 2021 && x <= 2024;
+  if (v.length === 1){
+    // утверждение о доле по одному показателю: сверяется с регионом, если он назван, иначе со страной
+    const k = v[0], region = (REGION_STEMS.find(([st]) => kwPos(tl, st) >= 0) || [])[1];
+    const pct = nums.filter(n => /^\s*%/.test(t.slice(n.end)));
+    if (!pct.length || !(k in D.regions[0] || k in D.gap)) return {ok: null, vars: v};
+    const shares = region ? D.regions.filter(r => r.region === region && k in r).map(r => r[k]) : (k in D.gap ? [D.gap[k]] : []);
+    if (!shares.length) return {ok: null, vars: v};
+    const rows = pct.map(n => { const ok = shares.some(f => Math.abs(val(n.raw) - 100*f) <= 0.6);
+      return [n.raw, ok ? 'есть в расчётах' : 'нет в расчётах — выдумано или из другого источника', ok ? 'good' : 'bad']; });
+    const bad = rows.filter(r => r[2]==='bad').length;
+    return {ok: bad === 0, vars: v, single: true, region, rows, bad};
+  }
+  if (v.length < 2) return {ok: null, vars: v};
   const p = findPair(v[0], v[1]);
-  const facts = [p.raw, p.partial, ...p.raw_ci, ...p.partial_ci, p.null95, p.p_perm, p.n, ...Object.values(p.reg), ...(p.reg_ci ? Object.values(p.reg_ci).flat() : [])];
-  const nums = [...t.matchAll(/[−-]?\d+(?:[.,]\d+)?/g)].map(m => m[0]);
-  const m_end = (txt, r) => txt.indexOf(r) + r.length;
+  const facts = [p.raw, p.partial, ...p.raw_ci, ...p.partial_ci, ...Object.values(p.reg), ...(p.reg_ci ? Object.values(p.reg_ci).flat() : [])];
   // доли (в %) сверяются только с долями по показателям этой пары: по регионам и по стране
   const shares = [];
   for (const k of [p.a, p.b]){ if (k in D.regions[0]) D.regions.forEach(r => shares.push(r[k])); if (k in D.gap) shares.push(D.gap[k]); }
-  const rows = nums.map(raw => {
-    const x = parseFloat(raw.replace('−','-').replace(',','.'));
-    if (Number.isInteger(x) && x >= 2021 && x <= 2024) return [raw, 'год', 'muted'];
-    const isPct = /^\s*%/.test(t.slice(m_end(t, raw)));
-    const ok = isPct ? shares.some(f => Math.abs(x - 100*f) <= 0.6) : facts.some(f => Math.abs(Math.abs(x) - Math.abs(f)) <= 0.006);
-    return [raw, ok ? 'есть в расчётах' : 'нет в расчётах — выдумано или из другого источника', ok ? 'good' : 'bad'];
+  const rows = nums.map(n => {
+    const x = val(n.raw), signed = /^[−+-]/.test(n.raw);
+    if (isYear(x)) return [n.raw, 'год', 'muted'];
+    const isPct = /^\s*%/.test(t.slice(n.end));
+    const ok = isPct ? shares.some(f => Math.abs(x - 100*f) <= 0.6)
+                     : facts.some(f => Math.abs((signed ? x : Math.abs(x)) - (signed ? f : Math.abs(f))) <= 0.006);
+    return [n.raw, ok ? 'есть в расчётах' : 'нет в расчётах или не тот знак', ok ? 'good' : 'bad'];
   });
-  const tl = t.toLowerCase();
-  const aboutFamilies = /семь|семей|домохозяйств|люд|человек|граждан/.test(tl);
-  const levelBad = aboutFamilies && p.level !== 'HOUSEHOLD';
+  // уровень вывода: «в регионах…» — региональный, иначе — об отдельных семьях и людях
+  const regional = /(^|[^а-яa-z])(регион|област)/.test(tl);
+  const levelBad = regional ? p.level === 'NONE' : p.level !== 'HOUSEHOLD';
   const bad = rows.filter(r => r[2]==='bad').length + (levelBad ? 1 : 0);
-  const head = bad ? `<span class="badge b-NONE">✕ Вывод не подтверждается: ${bad} ${bad===1?'проблема':'проблемы'}</span>` : `<span class="badge b-HOUSEHOLD">✓ Утверждение согласуется с данными</span>`;
-  const lv = aboutFamilies ? (levelBad
-      ? `<tr><td>Вывод о семьях</td><td style="color:var(--bad)">недопустим: уровень «${LEVEL[p.level][1]}». Внутри регионов ρ = ${f2(p.partial,3)}</td></tr>`
-      : `<tr><td>Вывод о семьях</td><td style="color:var(--good)">допустим: связь подтверждена внутри регионов, ρ = ${f2(p.partial,3)}</td></tr>`) : '';
+  return {ok: bad === 0, vars: v, p, rows, regional, levelBad, bad};
+}
+function checkClaim(t){
+  const box = $('#verdict2'), r = claimVerdict(t);
+  if (r.ok === null){ box.innerHTML = `<span class="badge b-NONE">✕ Не могу проверить</span><p class="note">Provable не нашёл в утверждении двух показателей из каталога или доли, которую можно сверить. Непроверяемое утверждение нельзя считать выводом из данных.</p>`; return; }
+  const head = r.bad ? `<span class="badge b-NONE">✕ Вывод не подтверждается: ${r.bad} ${r.bad===1?'проблема':'проблемы'}</span>` : `<span class="badge b-HOUSEHOLD">✓ Утверждение согласуется с данными</span>`;
+  const numRows = r.rows.map(x=>`<tr><td class="num">${x[0]}</td><td style="color:var(--${x[2]==='muted'?'muted':x[2]})">${x[1]}</td></tr>`).join('');
+  if (r.single){
+    const where = r.region ? D.regions.find(x => x.region === r.region).name : 'по стране, 2023–2024';
+    box.innerHTML = `${head}<p class="note" style="margin:10px 0">Распознано: <b>${cat[r.vars[0]].label}</b>, ${where}</p><div class="scroll"><table><tr><th>Что проверено</th><th>Результат</th></tr>${numRows}</table></div>`;
+    return;
+  }
+  const p = r.p, what = r.regional ? 'Региональный вывод' : 'Вывод об отдельных семьях и людях';
+  const lv = r.levelBad
+      ? `<tr><td>${what}</td><td style="color:var(--bad)">недопустим: уровень «${LEVEL[p.level][1]}»${r.regional ? '' : `. Внутри регионов ρ = ${f2(p.partial,3)}`}</td></tr>`
+      : `<tr><td>${what}</td><td style="color:var(--good)">допустим: уровень «${LEVEL[p.level][1]}»</td></tr>`;
   box.innerHTML = `${head}<p class="note" style="margin:10px 0">Распознано: <b>${cat[p.a].label}</b> × <b>${cat[p.b].label}</b></p>
-    <div class="scroll"><table><tr><th>Что проверено</th><th>Результат</th></tr>${lv}${rows.map(r=>`<tr><td class="num">${r[0]}</td><td style="color:var(--${r[2]==='muted'?'muted':r[2]})">${r[1]}</td></tr>`).join('')}</table></div>`;
+    <div class="scroll"><table><tr><th>Что проверено</th><th>Результат</th></tr>${lv}${numRows}</table></div>`;
 }
 const claims = ['ИИ-ассистент: «Семьи с большим числом лишений менее довольны жизнью (ρ = −0,11)»','Отчёт: «Чем выше доход семьи, тем чаще она берёт в долг на обряды; в СКО таких семей 85%»','Дашборд: «Голод снижает удовлетворённость жизнью, ρ = −0,10»'];
 $('#claimchips').innerHTML = claims.map(c=>`<button class="chip" type="button">${c}</button>`).join('');
@@ -392,6 +437,17 @@ function drawDep(){
 }
 $('#foot').textContent = `Источник: синтетические микроданные БНС АСПиР РК 2021–2024 (D002, D004, D006, D008). Seed ${D.meta.seed}; бутстрап ${D.meta.n_boot}, перестановки ${D.meta.n_perm}. Все числа на странице посчитаны конвейером qol_ai/ и воспроизводимы.`;
 
+
+if (D.eval){
+  const e = D.eval, pc = (a,b) => `${a}/${b} (${Math.round(100*a/b)} %)`;
+  const R = [['Вопросы: распознаны оба показателя или верный отказ', s => pc(s.questions_correct, s.questions_total)],
+             ['Посторонние вопросы отклонены', s => `${s.refusals_correct}/${s.refusals_total}`],
+             ['Утверждения: вердикт совпал с правильным', s => pc(s.claims_correct, s.claims_total)],
+             ['Ложные утверждения не пропущены', s => pc(s.false_claims_caught, s.false_claims_total)],
+             ['Ложное утверждение принято за верное', s => String(s.false_accepts)]];
+  $('#qtable').innerHTML = `<tr><th>Контрольный набор</th><th>Версия 1</th><th>Версия 2</th></tr>` + R.map(([l,f]) => `<tr><td>${l}</td><td class="num">${f(e.v1)}</td><td class="num"><b>${f(e.v2)}</b></td></tr>`).join('');
+  $('#quality').hidden = false;
+}
 function drawAll(){ drawScatter(); drawBump(); drawTrap(); drawFormMatrix(); drawHeat(); drawDep(); }
 document.querySelector('details').addEventListener('toggle', () => Plotly.Plots.resize('heat'));
 $('#theme').onclick = () => { const r = document.documentElement; const dark = r.dataset.theme ? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme = dark ? 'light' : 'dark'; drawAll(); render($('#q').value || examples[0]); };

@@ -17,6 +17,11 @@ def main():
         f["catalog"][k]["kw"] = kw
     trap = [p for p in f["pairs"] if p["level"] == "REGIONAL" and "D002" in p["form_a"] + p["form_b"]]
     f["trap"] = sorted(trap, key=lambda p: -abs(p["reg"]["2024"]))[:8]
+    # результаты оценки качества ИИ (eval/run_eval.py), если они посчитаны
+    ev = Path(__file__).resolve().parent / "eval"
+    if (ev / "results_test.json").exists() and (ev / "baseline_v1_test.json").exists():
+        f["eval"] = {k: json.loads((ev / fn).read_text())["summary"]
+                     for k, fn in [("v1", "baseline_v1_test.json"), ("v2", "results_test.json"), ("dev", "results_dev.json")]}
     import plotly  # plotly.js встраивается в файл: демо работает без интернета
     pjs = (Path(plotly.__file__).parent / "package_data" / "plotly.min.js").read_text()
     html = TEMPLATE.read_text().replace("/*__DATA__*/null", json.dumps(f, ensure_ascii=False))
