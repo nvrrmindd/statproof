@@ -83,7 +83,7 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
 </head>
 <body>
 <div class="wrap">
-<nav class="top"><a href="#ask">Спросить данные</a><a href="#doc">Проверка записки</a><a href="#library">Доказанные выводы</a><a href="#quality">Качество ИИ</a><a href="#discovery">Открытие</a><a href="#trap">Ловушка</a><a href="#map">Карта доказательности</a><a href="#gap">Самооценка</a><a href="#method">Метод</a></nav>
+<nav class="top"><a href="#ask">Спросить данные</a><a href="#doc">Проверка записки</a><a href="#writer">Записка</a><a href="#library">Доказанные выводы</a><a href="#quality">Качество ИИ</a><a href="#discovery">Открытие</a><a href="#trap">Ловушка</a><a href="#map">Карта доказательности</a><a href="#gap">Самооценка</a><a href="#method">Метод</a></nav>
 <header style="margin-top:24px">
   <div>
     <p class="eyebrow">STAT.DATATHON-2026 · трек AI for Official Statistics</p>
@@ -101,7 +101,7 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
   <h2>Спросите данные</h2>
   <p class="sub">Сформулируйте вопрос о связи двух показателей. Provable найдёт переменные, проверит связь на уровне домохозяйств (бутстрап, перестановочный тест внутри ячеек регион × город/село × год) и между регионами (два года), а затем вынесет вердикт.</p>
   <div class="card">
-    <form class="ask" id="askform"><input id="q" aria-label="Вопрос" placeholder="Например: связаны ли лишения с удовлетворённостью жизнью?"><button>Проверить</button></form>
+    <form class="ask" id="askform"><input id="q" aria-label="Вопрос" placeholder="Вопрос на русском или казахском: связаны ли лишения с удовлетворённостью жизнью?"><button>Проверить</button></form>
     <div class="chips" id="chips"></div>
     <div id="answer" style="margin-top:18px"></div>
   </div>
@@ -118,6 +118,15 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
     <textarea id="doctext" aria-label="Текст записки" rows="7" style="width:100%;font:inherit;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);resize:vertical">Чем больше детей в семье, тем ниже доход на человека (ρ = −0,69). Семьи с большим числом лишений менее довольны жизнью. В регионах с более высоким доходом чаще проводят обряды в долг (ρ = +0,81). В Мангистауской области лишь 5 % семей не могут провести обряды без долгов. Сельские семьи чаще испытывают лишения. Голод повышает удовлетворённость жизнью. Каждая третья семья не может провести обряды без долгов.</textarea>
     <div style="margin-top:10px"><button type="button" id="docbtn" style="font:inherit;padding:10px 18px;border-radius:10px;border:0;background:var(--accent);color:var(--surface);cursor:pointer;font-weight:600">Проверить записку</button></div>
     <div id="docout" style="margin-top:16px"></div>
+  </div>
+</section>
+
+<section id="writer">
+  <h2>Записка, в которой каждое предложение доказано</h2>
+  <p class="sub">Provable не только проверяет чужие тексты, но и пишет сам — только из доказанных выводов. Выберите тему: каждое предложение получит ссылку на доказательство, а внизу будет список связей, которые выглядят убедительно, но публиковать их нельзя.</p>
+  <div class="card">
+    <div class="chips" id="topics"></div>
+    <div id="note" style="margin-top:16px"></div>
   </div>
 </section>
 
@@ -238,7 +247,7 @@ $('#tiles').innerHTML = [
 
 /* ---------- вопрос → ответ (тот же словарь, что и в engine.py) */
 // Тот же разбор, что в engine.py: ключевое слово с начала слова, «$» — слово целиком
-const WB = '[^а-яёa-z0-9]';
+const WB = '[^а-яёa-z0-9әғқңөұүһі]';
 function kwPos(text, kw){
   const whole = kw.endsWith('$'), k = kw.replace(/\$$/, '').replaceAll('ё','е').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const m = new RegExp('(^|' + WB + ')(' + k + ')' + (whole ? '(?=$|' + WB + ')' : '')).exec(text);
@@ -253,7 +262,7 @@ function parseDetail(q){
   const found = Object.fromEntries(hits.map(h=>[h[2], h[3]])), drop = new Set();
   if ('dep_ritual' in found) drop.add('borrowed');
   if ('dep_shock' in found) drop.add('spend_pc');
-  if ('fin_sat' in found && found.life_sat === 'удовлетвор') drop.add('life_sat');
+  if ('fin_sat' in found && ['удовлетвор','қанағат'].includes(found.life_sat)) drop.add('life_sat');
   const vars = [...new Set(hits.map(h=>h[2]).filter(v=>!drop.has(v)))].slice(0,2);
   const pos = Object.fromEntries(hits.filter(h=>vars.includes(h[2])).map(h=>[h[2], h[0]]));
   return {vars, pos};
@@ -302,7 +311,20 @@ function render(q, vars){
   box.innerHTML = `<span class="badge b-${p.level}">${LEVEL[p.level][0]} ${LEVEL[p.level][1]}</span>
     <p class="note" style="margin:10px 0 0">Распознано: <b>${la}</b> (${p.form_a}) и <b>${lb}</b> (${p.form_b})</p>
     <p class="verdict">${verdict}</p>
-    <div class="scroll"><table><tr><th>Доказательство</th><th>Оценка</th><th>95% ДИ</th><th>Детали</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="note">${r[3]}</td></tr>`).join('')}</table></div>${caveat}`;
+    <div class="scroll"><table><tr><th>Доказательство</th><th>Оценка</th><th>95% ДИ</th><th>Детали</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="note">${r[3]}</td></tr>`).join('')}</table></div>${caveat}
+    ${/[әғқңөұүһі]/i.test(q) ? '<p class="note" style="margin-top:8px">Сұрақ қазақ тілінде түсінілді · вопрос понят на казахском</p>' : ''}
+    <div id="ansplot" style="height:300px;margin-top:12px"></div>
+    <p class="note">Доказательство глазами: каждая точка — среднее по региону. Наклон облака — связь между регионами (ρ = ${f2(p.reg['2024'])} в 2024). Внутри регионов, между семьями, ρ = ${f2(p.partial, 3)}.</p>`;
+  drawAnswerPlot(p);
+}
+function drawAnswerPlot(p){
+  if (!D.regmeans || typeof Plotly === 'undefined') return;
+  const tr = ['2023','2024'].map((y, i) => { const R = D.regmeans[y], ids = Object.keys(R).filter(r => p.a in R[r] && p.b in R[r]);
+    return {x: ids.map(r => R[r][p.a]), y: ids.map(r => R[r][p.b]), text: ids.map(r => D.regnames[r]), mode: 'markers', type: 'scatter', name: y,
+      marker: {size: 9, color: i ? css('--s1') : css('--surface'), line: {color: css('--s1'), width: 2}},
+      hovertemplate: '<b>%{text}</b> (' + y + ')<br>' + cat[p.a].label + ': %{x}<br>' + cat[p.b].label + ': %{y}<extra></extra>'}; });
+  Plotly.react('ansplot', tr, layoutBase({margin:{l:56,r:16,t:8,b:44}, showlegend:true, legend:{orientation:'h', y:1.12, font:{size:12}},
+    xaxis: axis(cat[p.a].label), yaxis: axis(cat[p.b].label)}), {displayModeBar:false, responsive:true});
 }
 // Чистая функция проверки утверждения: её же вызывает оценка качества (eval/run_eval.py)
 const REGION_STEMS = [['ско',59],['северо-казахстан',59],['вко',63],['восточно-казахстан',63],['зко',27],['западно-казахстан',27],['абай',10],['акмол',11],['актюб',15],['алматинск',19],['атырау',23],['жамбыл',31],['жетысу',33],['караганд',35],['костанай',39],['кызылорд',43],['мангист',47],['павлодар',55],['туркестан',61],['улытау',62],['астан',71],['алматы',75],['шымкент',79]];
@@ -400,7 +422,7 @@ $('#claimchips').innerHTML = claims.map(c=>`<button class="chip" type="button">$
 $('#claimchips').onclick = e => { if (e.target.classList.contains('chip')){ const t = e.target.textContent.replace(/^[^:]+: /,''); $('#claim').value = t; checkClaim(t);} };
 $('#checkform').onsubmit = async e => { e.preventDefault(); const t = $('#claim').value; checkClaim(t, await getU(t)); };
 
-const examples = ['Связаны ли лишения с удовлетворённостью жизнью?','Влияет ли голод на удовлетворённость жизнью?','Доход и обряды','Доход и число детей','Город или село и площадь жилья','Высшее образование и удовлетворённость жизнью','Как погода влияет на урожай?'];
+const examples = ['Связаны ли лишения с удовлетворённостью жизнью?','Табыс пен той арасында байланыс бар ма?','Влияет ли голод на удовлетворённость жизнью?','Доход и обряды','Доход и число детей','Город или село и площадь жилья','Высшее образование и удовлетворённость жизнью','Как погода влияет на урожай?'];
 $('#chips').innerHTML = examples.map(e=>`<button class="chip" type="button">${e}</button>`).join('');
 $('#chips').onclick = e => { if (e.target.classList.contains('chip')){ $('#q').value = e.target.textContent; render(e.target.textContent);} };
 $('#askform').onsubmit = async e => { e.preventDefault(); const q = $('#q').value; render(q, (await getU(q)).vars); };
@@ -564,7 +586,7 @@ function statement(p){
   else if (BIN[a]) txt = `Где ${BIN[a]}, там ${NOUN[b]} ${up ? 'выше' : 'ниже'}`;
   else txt = `Чем больше ${NOUN[a]}, тем ${up ? 'больше' : 'меньше'} ${NOUN[b]}`;
   if (reg) txt = 'Между регионами: ' + txt[0].toLowerCase() + txt.slice(1);
-  return {txt, num, level: p.level, strength: Math.abs(reg ? Math.min(...r.map(Math.abs)) : p.partial)};
+  return {txt, num, level: p.level, a: p.a, b: p.b, strength: Math.abs(reg ? Math.min(...r.map(Math.abs)) : p.partial)};
 }
 const LIB = D.pairs.filter(p => p.level !== 'NONE' && (p.level === 'REGIONAL' || Math.abs(p.partial) >= 0.05)).map(statement).sort((x,y) => y.strength - x.strength);
 $('#lib-sub').textContent = `Provable сам перебрал все пары показателей (${D.pairs.length}) и сформулировал ${LIB.length} утверждений, которые данные подтверждают: ${LIB.filter(x=>x.level==='HOUSEHOLD').length} о семьях и ${LIB.filter(x=>x.level==='REGIONAL').length} только о регионах. Их можно использовать в публикации, остальные пары — нельзя.`;
@@ -575,6 +597,29 @@ function drawLib(){
     `<tr><td>${x.txt}</td><td class="num">${x.num}</td><td><span class="badge b-${x.level}">${LEVEL[x.level][0]} ${x.level==='HOUSEHOLD'?'семьи':'регионы'}</span></td></tr>`).join('');
 }
 $('#libq').oninput = drawLib; drawLib();
+
+/* ---------- генератор проверенной записки ---------- */
+const TOPICS = {'Доходы и расходы': ['income_pc','spend_pc','borrowed','inc_social'], 'Дети и семья': ['n_children','hh_size','head_female','n_elderly'],
+  'Лишения и питание': ['dep_n','dep_ritual','dep_shock','dep_holiday','dep_heat','fies_raw'], 'Город и село': ['urban','total_area','amenities_missing'],
+  'Удовлетворённость': ['life_sat','fin_sat','self_class','optimism']};
+function writeNote(topic){
+  const vs = TOPICS[topic], has = x => vs.includes(x.a) || vs.includes(x.b);
+  // очевидные связи состава семьи («больше детей — больше семья») в записку не берём
+  const COMP = ['hh_size','n_children','n_employed','n_elderly'], obvious = x => COMP.includes(x.a) && COMP.includes(x.b);
+  const proven = LIB.filter(x => has(x) && !obvious(x)).slice(0, 6);
+  const traps = D.pairs.filter(p => (vs.includes(p.a) || vs.includes(p.b)) && p.level !== 'HOUSEHOLD' && Math.abs(p.raw) >= 0.07)
+    .sort((x, y) => Math.abs(y.raw) - Math.abs(x.raw)).slice(0, 4);
+  [...$('#topics').children].forEach(b => b.setAttribute('aria-pressed', b.textContent === topic));
+  $('#note').innerHTML = `<h3 style="margin:0 0 8px">${topic}: что подтверждают данные</h3>
+    <ol style="margin:0;padding-left:20px">${proven.map(x => `<li style="margin:6px 0">${x.txt}. <span class="note">[${x.num}; ${x.level === 'HOUSEHOLD' ? 'вывод о семьях допустим' : 'вывод только о регионах'}]</span></li>`).join('')}</ol>
+    ${traps.length ? `<h3 style="margin:18px 0 8px">Не публиковать: выглядит как связь, но не подтверждается для семей</h3>
+    <ul style="margin:0;padding-left:20px">${traps.map(p => `<li style="margin:6px 0">${cat[p.a].label} × ${cat[p.b].label}: <span class="note">по всем семьям ρ = ${f2(p.raw)}, внутри регионов ρ = ${f2(p.partial, 3)} — ${LEVEL[p.level][1].toLowerCase()}</span></li>`).join('')}</ul>` : ''}
+    <p class="note" style="margin-top:12px">Записка собрана автоматически из ${proven.length} доказанных утверждений. Ни одно число в ней не написано вручную: все взяты из расчётов. Данные синтетические, выводы — гипотезы для проверки на реальных данных БНС.</p>`;
+}
+$('#topics').innerHTML = Object.keys(TOPICS).map(t => `<button class="chip" type="button">${t}</button>`).join('');
+$('#topics').onclick = e => { if (e.target.classList.contains('chip')) writeNote(e.target.textContent); };
+writeNote('Доходы и расходы');
+
 
 function drawAll(){ drawScatter(); drawBump(); drawTrap(); drawFormMatrix(); drawHeat(); drawDep(); }
 document.querySelector('details').addEventListener('toggle', () => Plotly.Plots.resize('heat'));

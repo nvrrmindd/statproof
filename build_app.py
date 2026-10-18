@@ -27,6 +27,15 @@ def main():
                      "after": json.loads((ev / "results_team.json").read_text())["summary"]}
     if (ev / "planted_results.json").exists():
         f["planted"] = json.loads((ev / "planted_results.json").read_text())["summary"]
+    # средние по 20 регионам для каждого показателя — для графика-доказательства в ответе
+    import engine
+    hh = OUT / "households.csv"
+    if hh.exists():
+        d = engine.load(hh)
+        g = d.groupby(["year", "region"])[list(engine.CATALOG)].mean().round(4)
+        f["regmeans"] = {str(y): {str(r): row.dropna().to_dict() for (yy, r), row in g.iterrows() if yy == y}
+                         for y in sorted(d.year.unique())}
+        f["regnames"] = {str(k): v for k, v in engine.REGIONS.items()}
     import plotly  # plotly.js встраивается в файл: демо работает без интернета
     pjs = (Path(plotly.__file__).parent / "package_data" / "plotly.min.js").read_text()
     html = TEMPLATE.read_text().replace("/*__DATA__*/null", json.dumps(f, ensure_ascii=False))
