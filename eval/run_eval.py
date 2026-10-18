@@ -21,13 +21,15 @@ APP = HERE.parent / "out" / "provable.html"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 
-def run_in_app(bench: dict) -> dict:
+def run_in_app(bench: dict, llm_map=None, strategy=None) -> dict:
     inj = """<script>setTimeout(() => { try {
       const B = %s;
-      const q = B.questions.map(x => parse(x.text));
-      const c = B.claims.map(x => { const r = claimVerdict(x.text); return {ok: r.ok, vars: r.vars}; });
+      const L = %s, S = %s;
+      const U = t => L ? understand(t, L[t], S) : understandRules(t);
+      const q = B.questions.map(x => U(x.text).vars);
+      const c = B.claims.map(x => { const r = claimVerdict(x.text, U(x.text)); return {ok: r.ok, vars: r.vars}; });
       console.log('EVALRES ' + JSON.stringify({q, c}));
-    } catch (e) { console.log('EVALERR ' + e); } }, 300);</script></body>""" % json.dumps(bench, ensure_ascii=False)
+    } catch (e) { console.log('EVALERR ' + e); } }, 300);</script></body>""" % (json.dumps(bench, ensure_ascii=False), json.dumps(llm_map, ensure_ascii=False), json.dumps(strategy))
     html = APP.read_text().replace("</body>", inj)
     with tempfile.TemporaryDirectory() as d:
         page = Path(d) / "eval.html"
@@ -80,7 +82,20 @@ def score(bench: dict, res: dict) -> dict:
 def main():
     name = sys.argv[1] if len(sys.argv) > 1 else "dev"
     bench = json.loads((HERE / f"benchmark_{name}.json").read_text())
-    out = score(bench, run_in_app(bench))
+    llm_map, strategy = None, None
+    if "--llm" in sys.argv:
+        sys.path.insert(0, str(HERE.parent))
+        import llm
+        strategy = sys.argv[sys.argv.index("--llm") + 1]
+        texts = [x["text"] for x in bench["questions"] + bench["claims"]]
+        llm_map = {}
+        for t in texts:
+            u = llm.understand(t)
+            if u is None:
+                raise SystemExit("Локальная модель недоступна: запустите ollama serve")
+            llm_map[t] = u
+        name = f"{name}_llm_{strategy}"
+    out = score(bench, run_in_app(bench, llm_map, strategy))
     (HERE / f"results_{name}.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
     s = out["summary"]
     print(f"[{name}] вопросы: {s['questions_correct']}/{s['questions_total']} верно "

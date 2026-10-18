@@ -83,7 +83,7 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
 </head>
 <body>
 <div class="wrap">
-<nav class="top"><a href="#ask">Спросить данные</a><a href="#quality">Качество ИИ</a><a href="#discovery">Открытие</a><a href="#trap">Ловушка</a><a href="#map">Карта доказательности</a><a href="#gap">Самооценка</a><a href="#method">Метод</a></nav>
+<nav class="top"><a href="#ask">Спросить данные</a><a href="#doc">Проверка записки</a><a href="#library">Доказанные выводы</a><a href="#quality">Качество ИИ</a><a href="#discovery">Открытие</a><a href="#trap">Ловушка</a><a href="#map">Карта доказательности</a><a href="#gap">Самооценка</a><a href="#method">Метод</a></nav>
 <header style="margin-top:24px">
   <div>
     <p class="eyebrow">STAT.DATATHON-2026 · трек AI for Official Statistics</p>
@@ -103,6 +103,7 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
   <div class="card">
     <form class="ask" id="askform"><input id="q" aria-label="Вопрос" placeholder="Например: связаны ли лишения с удовлетворённостью жизнью?"><button>Проверить</button></form>
     <div class="chips" id="chips"></div>
+    <p class="note" id="aistatus" style="margin-top:10px"></p>
     <div id="answer" style="margin-top:18px"></div>
   </div>
   <div class="card" style="margin-top:16px" id="checker">
@@ -111,6 +112,22 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
     <form class="ask" id="checkform"><input id="claim" aria-label="Утверждение"><button>Проверить вывод</button></form>
     <div class="chips" id="claimchips"></div>
     <div id="verdict2" style="margin-top:16px"></div>
+  </div>
+  <div class="card" style="margin-top:16px" id="doc">
+    <h3>Проверить аналитическую записку целиком</h3>
+    <p class="note" style="margin-top:0">Вставьте текст отчёта перед публикацией. Provable разобьёт его на утверждения и вынесет вердикт по каждому. Пример ниже — черновик записки с намеренными ошибками.</p>
+    <textarea id="doctext" aria-label="Текст записки" rows="7" style="width:100%;font:inherit;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);resize:vertical">Чем больше детей в семье, тем ниже доход на человека (ρ = −0,69). Семьи с большим числом лишений менее довольны жизнью. В регионах с более высоким доходом чаще проводят обряды в долг (ρ = +0,81). В Мангистауской области лишь 5 % семей не могут провести обряды без долгов. Сельские семьи чаще испытывают лишения. Голод повышает удовлетворённость жизнью. Каждая третья семья не может провести обряды без долгов.</textarea>
+    <div style="margin-top:10px"><button type="button" id="docbtn" style="font:inherit;padding:10px 18px;border-radius:10px;border:0;background:var(--accent);color:var(--surface);cursor:pointer;font-weight:600">Проверить записку</button></div>
+    <div id="docout" style="margin-top:16px"></div>
+  </div>
+</section>
+
+<section id="library">
+  <h2>Библиотека доказанных выводов</h2>
+  <p class="sub" id="lib-sub"></p>
+  <div class="card">
+    <input id="libq" aria-label="Поиск по выводам" placeholder="Поиск: доход, дети, регион…" style="width:100%;font:inherit;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text)">
+    <div class="scroll" style="margin-top:12px"><table id="libtable"></table></div>
   </div>
 </section>
 
@@ -228,7 +245,7 @@ function kwPos(text, kw){
   const m = new RegExp('(^|' + WB + ')(' + k + ')' + (whole ? '(?=$|' + WB + ')' : '')).exec(text);
   return m ? m.index + m[1].length : -1;
 }
-function parse(q){
+function parseDetail(q){
   q = q.toLowerCase().replaceAll('ё','е'); let hits = [];
   for (const [v, m] of Object.entries(cat)){
     for (const kw of m.kw){ const p = kwPos(q, kw); if (p>=0){ hits.push([p, -kw.length, v, kw]); break; } }
@@ -238,12 +255,35 @@ function parse(q){
   if ('dep_ritual' in found) drop.add('borrowed');
   if ('dep_shock' in found) drop.add('spend_pc');
   if ('fin_sat' in found && found.life_sat === 'удовлетвор') drop.add('life_sat');
-  return [...new Set(hits.map(h=>h[2]).filter(v=>!drop.has(v)))].slice(0,2);
+  const vars = [...new Set(hits.map(h=>h[2]).filter(v=>!drop.has(v)))].slice(0,2);
+  const pos = Object.fromEntries(hits.filter(h=>vars.includes(h[2])).map(h=>[h[2], h[0]]));
+  return {vars, pos};
+}
+function parse(q){ return parseDetail(q).vars; }
+// Смысл утверждения без модели: направление, уровень, отрицание, доля словами
+const UP = ['больш','чаще','выше','высок','повыша','увелич','раст','рост','богаче','лучше','более'];
+const DOWN = ['меньш','реже','ниже','низк','сниж','уменьш','пада','хуже','беднее','менее'];
+const LOW_END = {urban: ['сельск','сел$','село$','селе$','селах$','аул','деревен']};   // слова, которые означают нижний конец шкалы
+const FRACTIONS = [['почти половин',50],['половин',50],['кажд\\S* трет',33.3],['треть',33.3],['кажд\\S* четв',25],['четверт',25],['кажд\\S* пят',20],['кажд\\S* десят',10]];
+function understandRules(t){
+  const tl = t.toLowerCase().replaceAll('ё','е'), d = parseDetail(t);
+  const words = [...tl.matchAll(/[а-яa-z$]+/g)].map(m => ({w: m[0], i: m.index}));
+  const cmp = words.map(o => UP.some(k => o.w.startsWith(k)) ? {s: 1, i: o.i} : DOWN.some(k => o.w.startsWith(k)) ? {s: -1, i: o.i} : null).filter(Boolean);
+  let direction = 0;
+  if (cmp.length){
+    direction = cmp.reduce((a,c) => a*c.s, 1);
+    const first = cmp[0].i;
+    for (const v of d.vars) for (const kw of (LOW_END[v] || [])){ const p = kwPos(tl, kw); if (p >= 0 && p < first){ direction *= -1; break; } }
+  }
+  const negated = /(не|никак не) связан|нет связи|не влия|не зависит/.test(tl);
+  const regional = /(^|[^а-яa-z])(регион|област)/.test(tl) && !/внутри (регион|област)/.test(tl);
+  let fracPct = null; for (const [re, v] of FRACTIONS) if (new RegExp(re).test(tl)){ fracPct = v; break; }
+  return {vars: d.vars, direction, negated, regional, fracPct, source: 'rules'};
 }
 function findPair(a,b){ return D.pairs.find(p => (p.a===a&&p.b===b)||(p.a===b&&p.b===a)); }
 function pfmt(p){ return p <= 1/(D.meta.n_perm+1)+1e-9 ? `< ${(1/(D.meta.n_perm+1)).toFixed(3)}` : `= ${p.toFixed(3)}`; }
-function render(q){
-  const v = parse(q), box = $('#answer');
+function render(q, vars){
+  const v = vars || parse(q), box = $('#answer');
   if (v.length < 2){
     box.innerHTML = `<span class="badge b-NONE">✕ Вопрос не распознан</span><p class="verdict">Не удалось найти в вопросе два показателя из каталога. Provable не отвечает на вопросы, которые не может проверить вычислением.</p><p class="note">Распознано: ${v.map(x=>cat[x].label).join(', ')||'ничего'}. Доступные показатели: ${Object.values(cat).map(c=>c.label).join('; ')}.</p>`;
     return;
@@ -267,27 +307,56 @@ function render(q){
 }
 // Чистая функция проверки утверждения: её же вызывает оценка качества (eval/run_eval.py)
 const REGION_STEMS = [['ско',59],['северо-казахстан',59],['вко',63],['восточно-казахстан',63],['зко',27],['западно-казахстан',27],['абай',10],['акмол',11],['актюб',15],['алматинск',19],['атырау',23],['жамбыл',31],['жетысу',33],['караганд',35],['костанай',39],['кызылорд',43],['мангист',47],['павлодар',55],['туркестан',61],['улытау',62],['астан',71],['алматы',75],['шымкент',79]];
-function claimVerdict(t){
-  const v = parse(t), tl = t.toLowerCase().replaceAll('ё','е');
+// Локальная модель доступна, только если страница открыта через serve.py; иначе работает словарь
+let AI = null;
+async function aiInit(){
+  try { const r = await fetch('api/health', {cache:'no-store'}); if (r.ok){ const h = await r.json(); if (h.ok) AI = h; } } catch (e) {}
+  const el = document.getElementById('aistatus');
+  if (el) el.innerHTML = AI ? `Разбор текста: словарь + локальная модель <b>${AI.model}</b> (на этом компьютере, данные никуда не уходят)` : 'Разбор текста: словарь показателей. Локальная модель подключается при запуске через <code>serve.py</code>.';
+}
+async function getU(t){
+  if (AI){ try { const r = await fetch('api/understand', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text: t})});
+    if (r.ok){ const l = await r.json(); if (l && l.vars) return understand(t, l, 'fill'); } } catch (e) {} }
+  return understandRules(t);
+}
+// Объединение: словарь главный, модель дополняет то, чего словарь не нашёл (стратегия выбрана на dev-наборе)
+function understand(t, llmU, strategy){
+  const r = understandRules(t);
+  if (!llmU) return r;
+  strategy = strategy || 'fill';
+  if (strategy === 'llm') return {...llmU, fracPct: r.fracPct, source: 'llm'};
+  // утверждение о доле по одному показателю модель не дополняет; «долг на обряды» — про обряды
+  const isShare = r.vars.length === 1 && (/%/.test(t) || r.fracPct != null);
+  let vars = (r.vars.length >= 2 || isShare) ? r.vars : [...new Set([...r.vars, ...llmU.vars])];
+  if (vars.includes('dep_ritual')) vars = vars.filter(x => x !== 'borrowed');
+  vars = vars.slice(0, 2);
+  const usedLLM = vars.length > r.vars.length;
+  return {...r, vars, direction: r.direction || (strategy === 'fill_dir' ? llmU.direction : 0),
+          regional: r.regional, negated: r.negated, source: usedLLM ? 'rules+llm' : 'rules'};
+}
+function claimVerdict(t, u){
+  u = u || understandRules(t);
+  const v = u.vars;
   const nums = [...t.matchAll(/[−+-]?\d+(?:[.,]\d+)?/g)].map(m => ({raw: m[0], end: m.index + m[0].length}));
   const val = raw => parseFloat(raw.replace('−','-').replace('+','').replace(',','.'));
   const isYear = x => Number.isInteger(x) && x >= 2021 && x <= 2024;
+  const tl = t.toLowerCase().replaceAll('ё','е');
   if (v.length === 1){
-    // утверждение о доле по одному показателю: сверяется с регионом, если он назван, иначе со страной
+    // доля по одному показателю: сверяется с регионом, если он назван, иначе со страной
     const k = v[0], region = (REGION_STEMS.find(([st]) => kwPos(tl, st) >= 0) || [])[1];
-    const pct = nums.filter(n => /^\s*%/.test(t.slice(n.end)));
-    if (!pct.length || !(k in D.regions[0] || k in D.gap)) return {ok: null, vars: v};
+    const pct = nums.filter(n => /^\s*%/.test(t.slice(n.end))).map(n => ({raw: n.raw + ' %', x: val(n.raw), tol: 0.6}));
+    if (u.fracPct != null) pct.push({raw: '≈ ' + String(u.fracPct).replace('.', ',') + ' % (словами)', x: u.fracPct, tol: 2.5});
+    if (!pct.length || !(k in D.regions[0] || k in D.gap)) return {ok: null, vars: v, u};
     const shares = region ? D.regions.filter(r => r.region === region && k in r).map(r => r[k]) : (k in D.gap ? [D.gap[k]] : []);
-    if (!shares.length) return {ok: null, vars: v};
-    const rows = pct.map(n => { const ok = shares.some(f => Math.abs(val(n.raw) - 100*f) <= 0.6);
-      return [n.raw, ok ? 'есть в расчётах' : 'нет в расчётах — выдумано или из другого источника', ok ? 'good' : 'bad']; });
+    if (!shares.length) return {ok: null, vars: v, u};
+    const rows = pct.map(n => { const ok = shares.some(f => Math.abs(n.x - 100*f) <= n.tol);
+      return [n.raw, ok ? 'есть в расчётах' : 'не совпадает с расчётами', ok ? 'good' : 'bad']; });
     const bad = rows.filter(r => r[2]==='bad').length;
-    return {ok: bad === 0, vars: v, single: true, region, rows, bad};
+    return {ok: bad === 0, vars: v, single: true, region, rows, bad, u};
   }
-  if (v.length < 2) return {ok: null, vars: v};
+  if (v.length < 2) return {ok: null, vars: v, u};
   const p = findPair(v[0], v[1]);
   const facts = [p.raw, p.partial, ...p.raw_ci, ...p.partial_ci, ...Object.values(p.reg), ...(p.reg_ci ? Object.values(p.reg_ci).flat() : [])];
-  // доли (в %) сверяются только с долями по показателям этой пары: по регионам и по стране
   const shares = [];
   for (const k of [p.a, p.b]){ if (k in D.regions[0]) D.regions.forEach(r => shares.push(r[k])); if (k in D.gap) shares.push(D.gap[k]); }
   const rows = nums.map(n => {
@@ -298,14 +367,28 @@ function claimVerdict(t){
                      : facts.some(f => Math.abs((signed ? x : Math.abs(x)) - (signed ? f : Math.abs(f))) <= 0.006);
     return [n.raw, ok ? 'есть в расчётах' : 'нет в расчётах или не тот знак', ok ? 'good' : 'bad'];
   });
-  // уровень вывода: «в регионах…» — региональный, иначе — об отдельных семьях и людях
-  const regional = /(^|[^а-яa-z])(регион|област)/.test(tl);
-  const levelBad = regional ? p.level === 'NONE' : p.level !== 'HOUSEHOLD';
-  const bad = rows.filter(r => r[2]==='bad').length + (levelBad ? 1 : 0);
-  return {ok: bad === 0, vars: v, p, rows, regional, levelBad, bad};
+  const regional = u.regional;
+  const linkExists = regional ? p.level !== 'NONE' : p.level === 'HOUSEHOLD';
+  const extra = [];
+  let levelBad;
+  if (u.negated){
+    // «не связаны»: верно, только если связи на этом уровне действительно нет
+    levelBad = linkExists;
+    extra.push(['Утверждение об отсутствии связи', levelBad ? 'неверно: связь на этом уровне есть' : 'верно: связь на этом уровне не подтверждается', levelBad ? 'bad' : 'good']);
+  } else {
+    levelBad = !linkExists;
+    if (!levelBad && u.direction){
+      const ref = regional ? Object.values(p.reg) : [p.partial];
+      const sign = ref.every(x => x > 0) ? 1 : ref.every(x => x < 0) ? -1 : 0;
+      const ok = sign === 0 || sign === u.direction;
+      extra.push(['Направление связи', ok ? `совпадает: ${u.direction > 0 ? 'прямая' : 'обратная'}` : `не совпадает: в данных связь ${sign > 0 ? 'прямая' : 'обратная'}`, ok ? 'good' : 'bad']);
+    }
+  }
+  const bad = rows.filter(r => r[2]==='bad').length + extra.filter(r => r[2]==='bad').length + (levelBad && !u.negated ? 1 : 0);
+  return {ok: bad === 0, vars: v, p, rows: [...extra, ...rows], regional, levelBad: levelBad && !u.negated, bad, u};
 }
-function checkClaim(t){
-  const box = $('#verdict2'), r = claimVerdict(t);
+function checkClaim(t, u){
+  const box = $('#verdict2'), r = claimVerdict(t, u);
   if (r.ok === null){ box.innerHTML = `<span class="badge b-NONE">✕ Не могу проверить</span><p class="note">Provable не нашёл в утверждении двух показателей из каталога или доли, которую можно сверить. Непроверяемое утверждение нельзя считать выводом из данных.</p>`; return; }
   const head = r.bad ? `<span class="badge b-NONE">✕ Вывод не подтверждается: ${r.bad} ${r.bad===1?'проблема':'проблемы'}</span>` : `<span class="badge b-HOUSEHOLD">✓ Утверждение согласуется с данными</span>`;
   const numRows = r.rows.map(x=>`<tr><td class="num">${x[0]}</td><td style="color:var(--${x[2]==='muted'?'muted':x[2]})">${x[1]}</td></tr>`).join('');
@@ -324,12 +407,12 @@ function checkClaim(t){
 const claims = ['ИИ-ассистент: «Семьи с большим числом лишений менее довольны жизнью (ρ = −0,11)»','Отчёт: «Чем выше доход семьи, тем чаще она берёт в долг на обряды; в СКО таких семей 85%»','Дашборд: «Голод снижает удовлетворённость жизнью, ρ = −0,10»'];
 $('#claimchips').innerHTML = claims.map(c=>`<button class="chip" type="button">${c}</button>`).join('');
 $('#claimchips').onclick = e => { if (e.target.classList.contains('chip')){ const t = e.target.textContent.replace(/^[^:]+: /,''); $('#claim').value = t; checkClaim(t);} };
-$('#checkform').onsubmit = e => { e.preventDefault(); checkClaim($('#claim').value); };
+$('#checkform').onsubmit = async e => { e.preventDefault(); const t = $('#claim').value; checkClaim(t, await getU(t)); };
 
 const examples = ['Связаны ли лишения с удовлетворённостью жизнью?','Влияет ли голод на удовлетворённость жизнью?','Доход и обряды','Доход и число детей','Город или село и площадь жилья','Высшее образование и удовлетворённость жизнью','Как погода влияет на урожай?'];
 $('#chips').innerHTML = examples.map(e=>`<button class="chip" type="button">${e}</button>`).join('');
 $('#chips').onclick = e => { if (e.target.classList.contains('chip')){ $('#q').value = e.target.textContent; render(e.target.textContent);} };
-$('#askform').onsubmit = e => { e.preventDefault(); render($('#q').value); };
+$('#askform').onsubmit = async e => { e.preventDefault(); const q = $('#q').value; render(q, (await getU(q)).vars); };
 
 /* ---------- графики */
 function layoutBase(extra){
@@ -448,6 +531,56 @@ if (D.eval){
   $('#qtable').innerHTML = `<tr><th>Контрольный набор</th><th>Версия 1</th><th>Версия 2</th></tr>` + R.map(([l,f]) => `<tr><td>${l}</td><td class="num">${f(e.v1)}</td><td class="num"><b>${f(e.v2)}</b></td></tr>`).join('');
   $('#quality').hidden = false;
 }
+
+/* ---------- проверка записки целиком ---------- */
+function verdictShort(r){
+  if (r.ok === null) return ['NONE', '— Не утверждение о данных из каталога или нечего сверить'];
+  if (r.ok) return ['HOUSEHOLD', '✓ Подтверждается'];
+  const why = r.rows.filter(x => x[2] === 'bad').map(x => x[0] + ': ' + x[1]);
+  if (r.levelBad) why.unshift(r.regional ? 'связь не подтверждена даже между регионами' : `вывод о семьях недопустим (уровень «${LEVEL[r.p.level][1]}»)`);
+  return ['NONE', '✕ Не подтверждается: ' + why.join('; ')];
+}
+async function checkDoc(){
+  const text = $('#doctext').value.trim();
+  const sents = text.split(/(?<=[.!?])\s+|\n+/).map(x => x.trim()).filter(x => x.length > 3);
+  const res = [];
+  for (const t of sents){ const u = await getU(t); res.push([t, claimVerdict(t, u)]); }
+  const n = k => res.filter(([,r]) => k === 'ok' ? r.ok === true : k === 'bad' ? r.ok === false : r.ok === null).length;
+  $('#docout').innerHTML = `<div class="legend" style="font-size:15px"><span><b style="color:var(--good)">✓ ${n('ok')}</b> подтверждается</span><span><b style="color:var(--bad)">✕ ${n('bad')}</b> не подтверждается</span><span><b>— ${n('na')}</b> нечего проверять</span></div>
+    <div class="scroll" style="margin-top:10px"><table><tr><th>Утверждение</th><th>Вердикт</th></tr>${res.map(([t,r]) => { const [lv, txt] = verdictShort(r);
+      return `<tr><td>${t}</td><td style="color:var(--${lv==='HOUSEHOLD'?'good':r.ok===null?'muted':'bad'});min-width:220px">${txt}</td></tr>`; }).join('')}</table></div>`;
+}
+$('#docbtn').onclick = checkDoc;
+
+/* ---------- библиотека доказанных выводов ---------- */
+const NOUN = {income_pc:'доход на человека', spend_pc:'расходы на человека', borrowed:'заёмные средства', inc_social:'соцвыплаты',
+  dep_n:'число лишений', dep_shock:'доля семей без финансовой подушки', dep_ritual:'доля «обрядов в долг»', dep_holiday:'доля семей без отпуска', dep_heat:'доля семей без тепла',
+  life_sat:'удовлетворённость жизнью', fin_sat:'удовлетворённость финансами', self_class:'самооценка достатка', optimism:'пессимизм ожиданий',
+  fies_raw:'продовольственная небезопасность', hh_size:'размер семьи', n_children:'число детей', n_elderly:'число пожилых', n_employed:'число работающих',
+  total_area:'площадь жилья', amenities_missing:'число отсутствующих удобств'};
+const BIN = {urban:'город, а не село', head_female:'глава семьи — женщина', any_higher_edu:'в семье есть высшее образование'};
+function statement(p){
+  const reg = p.level === 'REGIONAL', r = reg ? Object.values(p.reg) : [p.partial];
+  const up = r[0] > 0, [a, b] = BIN[p.a] && !BIN[p.b] ? [p.a, p.b] : [p.b, p.a];
+  const num = reg ? `ρ = ${Object.entries(p.reg).map(([y,v]) => f2(v) + ' в ' + y).join(', ')}` : `ρ = ${f2(p.partial)} внутри регионов`;
+  let txt;
+  if (BIN[a] && BIN[b]) txt = `«${BIN[a]}» и «${BIN[b]}» ${up ? 'встречаются вместе чаще' : 'встречаются вместе реже'}`;
+  else if (BIN[a]) txt = `Где ${BIN[a]}, там ${NOUN[b]} ${up ? 'выше' : 'ниже'}`;
+  else txt = `Чем больше ${NOUN[a]}, тем ${up ? 'больше' : 'меньше'} ${NOUN[b]}`;
+  if (reg) txt = 'Между регионами: ' + txt[0].toLowerCase() + txt.slice(1);
+  return {txt, num, level: p.level, strength: Math.abs(reg ? Math.min(...r.map(Math.abs)) : p.partial)};
+}
+const LIB = D.pairs.filter(p => p.level !== 'NONE' && (p.level === 'REGIONAL' || Math.abs(p.partial) >= 0.05)).map(statement).sort((x,y) => y.strength - x.strength);
+$('#lib-sub').textContent = `Provable сам перебрал все пары показателей (${D.pairs.length}) и сформулировал ${LIB.length} утверждений, которые данные подтверждают: ${LIB.filter(x=>x.level==='HOUSEHOLD').length} о семьях и ${LIB.filter(x=>x.level==='REGIONAL').length} только о регионах. Их можно использовать в публикации, остальные пары — нельзя.`;
+function drawLib(){
+  const q = ($('#libq').value || '').toLowerCase();
+  const rows = LIB.filter(x => !q || (x.txt + ' ' + x.num).toLowerCase().includes(q)).slice(0, 40);
+  $('#libtable').innerHTML = `<tr><th>Утверждение</th><th>Доказательство</th><th>Уровень</th></tr>` + rows.map(x =>
+    `<tr><td>${x.txt}</td><td class="num">${x.num}</td><td><span class="badge b-${x.level}">${LEVEL[x.level][0]} ${x.level==='HOUSEHOLD'?'семьи':'регионы'}</span></td></tr>`).join('');
+}
+$('#libq').oninput = drawLib; drawLib();
+
+aiInit();
 function drawAll(){ drawScatter(); drawBump(); drawTrap(); drawFormMatrix(); drawHeat(); drawDep(); }
 document.querySelector('details').addEventListener('toggle', () => Plotly.Plots.resize('heat'));
 $('#theme').onclick = () => { const r = document.documentElement; const dark = r.dataset.theme ? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme = dark ? 'light' : 'dark'; drawAll(); render($('#q').value || examples[0]); };

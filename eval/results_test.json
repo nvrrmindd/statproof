@@ -5,10 +5,10 @@
   "refusals_correct": 3,
   "refusals_total": 3,
   "claims_total": 20,
-  "claims_correct": 15,
+  "claims_correct": 16,
   "false_claims_total": 11,
-  "false_claims_caught": 9,
-  "false_accepts": 2,
+  "false_claims_caught": 10,
+  "false_accepts": 1,
   "false_rejects": 1,
   "unverifiable": 2
  },
@@ -597,12 +597,12 @@
   {
    "text": "Семьи, где больше работающих, тратят больше на человека",
    "gold_ok": false,
-   "pred_ok": true,
+   "pred_ok": false,
    "vars": [
     "n_employed",
     "spend_pc"
    ],
-   "result": "false_accept",
+   "result": "correct",
    "why": "направление неверное: ρ = −0,38"
   },
   {
