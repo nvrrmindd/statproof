@@ -105,6 +105,13 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
     <div class="chips" id="chips"></div>
     <div id="answer" style="margin-top:18px"></div>
   </div>
+  <div class="card" style="margin-top:16px" id="checker">
+    <h3>Проверить чужой вывод</h3>
+    <p class="note" style="margin-top:0">Вставьте фразу из отчёта, дашборда или ответа чат-бота. Provable найдёт показатели, сверит каждое число с расчётами и проверит, допустим ли вывод о семьях.</p>
+    <form class="ask" id="checkform"><input id="claim" aria-label="Утверждение"><button>Проверить вывод</button></form>
+    <div class="chips" id="claimchips"></div>
+    <div id="verdict2" style="margin-top:16px"></div>
+  </div>
 </section>
 
 <section id="discovery">
@@ -208,11 +215,12 @@ $('#tiles').innerHTML = [
 
 /* ---------- вопрос → ответ (тот же словарь, что и в engine.py) */
 function parse(q){
-  q = q.toLowerCase().replaceAll('ё','е'); const hits = [];
+  q = q.toLowerCase().replaceAll('ё','е'); let hits = [];
   for (const [v, m] of Object.entries(cat)){
     for (const kw of m.kw){ const p = q.indexOf(kw.replaceAll('ё','е')); if (p>=0){ hits.push([p, -kw.length, v]); break; } }
   }
   hits.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  if (hits.some(h=>h[2]==='dep_ritual')) hits = hits.filter(h=>h[2]!=='borrowed');
   return [...new Set(hits.map(h=>h[2]))].slice(0,2);
 }
 function findPair(a,b){ return D.pairs.find(p => (p.a===a&&p.b===b)||(p.a===b&&p.b===a)); }
@@ -240,7 +248,40 @@ function render(q){
     <p class="verdict">${verdict}</p>
     <div class="scroll"><table><tr><th>Доказательство</th><th>Оценка</th><th>95% ДИ</th><th>Детали</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="note">${r[3]}</td></tr>`).join('')}</table></div>${caveat}`;
 }
-const examples = ['Связаны ли лишения с удовлетворённостью жизнью?','Влияет ли голод на удовлетворённость жизнью?','Доход и обряды','Доход и число детей','Город или село и площадь жилья','Высшее образование и удовлетворённость финансами','Как погода влияет на урожай?'];
+function checkClaim(t){
+  const box = $('#verdict2'), v = parse(t);
+  if (v.length < 2){ box.innerHTML = `<span class="badge b-NONE">✕ Не могу проверить</span><p class="note">В утверждении не найдено двух показателей из каталога. Непроверяемое утверждение нельзя считать выводом из данных.</p>`; return; }
+  const p = findPair(v[0], v[1]);
+  const facts = [p.raw, p.partial, ...p.raw_ci, ...p.partial_ci, p.null95, p.p_perm, p.n, ...Object.values(p.reg), ...(p.reg_ci ? Object.values(p.reg_ci).flat() : [])];
+  const nums = [...t.matchAll(/[−-]?\d+(?:[.,]\d+)?/g)].map(m => m[0]);
+  const m_end = (txt, r) => txt.indexOf(r) + r.length;
+  // доли (в %) сверяются только с долями по показателям этой пары: по регионам и по стране
+  const shares = [];
+  for (const k of [p.a, p.b]){ if (k in D.regions[0]) D.regions.forEach(r => shares.push(r[k])); if (k in D.gap) shares.push(D.gap[k]); }
+  const rows = nums.map(raw => {
+    const x = parseFloat(raw.replace('−','-').replace(',','.'));
+    if (Number.isInteger(x) && x >= 2021 && x <= 2024) return [raw, 'год', 'muted'];
+    const isPct = /^\s*%/.test(t.slice(m_end(t, raw)));
+    const ok = isPct ? shares.some(f => Math.abs(x - 100*f) <= 0.6) : facts.some(f => Math.abs(Math.abs(x) - Math.abs(f)) <= 0.006);
+    return [raw, ok ? 'есть в расчётах' : 'нет в расчётах — выдумано или из другого источника', ok ? 'good' : 'bad'];
+  });
+  const tl = t.toLowerCase();
+  const aboutFamilies = /семь|семей|домохозяйств|люд|человек|граждан/.test(tl);
+  const levelBad = aboutFamilies && p.level !== 'HOUSEHOLD';
+  const bad = rows.filter(r => r[2]==='bad').length + (levelBad ? 1 : 0);
+  const head = bad ? `<span class="badge b-NONE">✕ Вывод не подтверждается: ${bad} ${bad===1?'проблема':'проблемы'}</span>` : `<span class="badge b-HOUSEHOLD">✓ Утверждение согласуется с данными</span>`;
+  const lv = aboutFamilies ? (levelBad
+      ? `<tr><td>Вывод о семьях</td><td style="color:var(--bad)">недопустим: уровень «${LEVEL[p.level][1]}». Внутри регионов ρ = ${f2(p.partial,3)}</td></tr>`
+      : `<tr><td>Вывод о семьях</td><td style="color:var(--good)">допустим: связь подтверждена внутри регионов, ρ = ${f2(p.partial,3)}</td></tr>`) : '';
+  box.innerHTML = `${head}<p class="note" style="margin:10px 0">Распознано: <b>${cat[p.a].label}</b> × <b>${cat[p.b].label}</b></p>
+    <div class="scroll"><table><tr><th>Что проверено</th><th>Результат</th></tr>${lv}${rows.map(r=>`<tr><td class="num">${r[0]}</td><td style="color:var(--${r[2]==='muted'?'muted':r[2]})">${r[1]}</td></tr>`).join('')}</table></div>`;
+}
+const claims = ['ИИ-ассистент: «Семьи с большим числом лишений менее довольны жизнью (ρ = −0,11)»','Отчёт: «Чем выше доход семьи, тем чаще она берёт в долг на обряды; в СКО таких семей 85%»','Дашборд: «Голод снижает удовлетворённость жизнью, ρ = −0,10»'];
+$('#claimchips').innerHTML = claims.map(c=>`<button class="chip" type="button">${c}</button>`).join('');
+$('#claimchips').onclick = e => { if (e.target.classList.contains('chip')){ const t = e.target.textContent.replace(/^[^:]+: /,''); $('#claim').value = t; checkClaim(t);} };
+$('#checkform').onsubmit = e => { e.preventDefault(); checkClaim($('#claim').value); };
+
+const examples = ['Связаны ли лишения с удовлетворённостью жизнью?','Влияет ли голод на удовлетворённость жизнью?','Доход и обряды','Доход и число детей','Город или село и площадь жилья','Высшее образование и удовлетворённость жизнью','Как погода влияет на урожай?'];
 $('#chips').innerHTML = examples.map(e=>`<button class="chip" type="button">${e}</button>`).join('');
 $('#chips').onclick = e => { if (e.target.classList.contains('chip')){ $('#q').value = e.target.textContent; render(e.target.textContent);} };
 $('#askform').onsubmit = e => { e.preventDefault(); render($('#q').value); };
@@ -355,6 +396,7 @@ function drawAll(){ drawScatter(); drawBump(); drawTrap(); drawFormMatrix(); dra
 document.querySelector('details').addEventListener('toggle', () => Plotly.Plots.resize('heat'));
 $('#theme').onclick = () => { const r = document.documentElement; const dark = r.dataset.theme ? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme = dark ? 'light' : 'dark'; drawAll(); render($('#q').value || examples[0]); };
 $('#q').value = examples[0]; render(examples[0]); drawAll();
+{ const t0 = claims[0].replace(/^[^:]+: /,''); $('#claim').value = t0; checkClaim(t0); }
 </script>
 </body>
 </html>

@@ -12,6 +12,9 @@ def main():
     keep = ["a", "b", "n", "raw", "raw_ci", "partial", "partial_ci", "p_perm", "null95", "household_valid",
             "form_a", "form_b", "reg", "reg_ci", "reg_robust", "level"]
     f["pairs"] = [{k: p.get(k) for k in keep} for p in f["pairs"]]
+    import engine  # ключевые слова каталога берутся из актуального engine.py
+    for k, (label, form, kw) in engine.CATALOG.items():
+        f["catalog"][k]["kw"] = kw
     trap = [p for p in f["pairs"] if p["level"] == "REGIONAL" and "D002" in p["form_a"] + p["form_b"]]
     f["trap"] = sorted(trap, key=lambda p: -abs(p["reg"]["2024"]))[:8]
     import plotly  # plotly.js встраивается в файл: демо работает без интернета
