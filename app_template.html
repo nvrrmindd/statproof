@@ -103,7 +103,6 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
   <div class="card">
     <form class="ask" id="askform"><input id="q" aria-label="Вопрос" placeholder="Например: связаны ли лишения с удовлетворённостью жизнью?"><button>Проверить</button></form>
     <div class="chips" id="chips"></div>
-    <p class="note" id="aistatus" style="margin-top:10px"></p>
     <div id="answer" style="margin-top:18px"></div>
   </div>
   <div class="card" style="margin-top:16px" id="checker">
@@ -133,9 +132,9 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
 
 <section id="quality" hidden>
   <h2>Качество ИИ измерено</h2>
-  <p class="sub">Разбор вопросов и проверку утверждений мы оценили на 40 вопросах и 20 утверждениях с заранее известными ответами. Контрольный набор зафиксирован в git до первого запуска и не использовался для настройки: исправления делались только на отдельном наборе для разработки.</p>
+  <p class="sub">Разбор вопросов и проверку утверждений мы оценили на контрольном наборе из 40 вопросов и 30 утверждений с заранее известными ответами: разговорные формулировки, направление связи, отрицания, доли словами. Набор зафиксирован в git до первого запуска и не использовался для настройки.</p>
   <div class="card scroll"><table id="qtable"></table>
-  <p class="note" style="margin-top:12px">Оставшиеся ошибки: слова вне словаря («горожане», «недоедают»), направление связи без числа («тратят больше» при ρ = −0,38), утверждение через обратную долю («есть у 80 %» вместо «нет у 20 %»). Наборы и скрипт: <code>eval/</code>.</p></div>
+  <p class="note" style="margin-top:12px">Главная слабость — разговорные слова вне словаря («горожане», «ипотека», «недоедание»): по ним вопрос не распознаётся, и система отказывается, а не угадывает. Локальную языковую модель мы проверили: 3B ошибалась чаще словаря, 7B понимала лучше, но отвечала 16 секунд на ноутбуке, поэтому в продукт не вошла. Наборы и скрипт: <code>eval/</code>.</p></div>
 </section>
 
 <section id="discovery">
@@ -307,18 +306,7 @@ function render(q, vars){
 }
 // Чистая функция проверки утверждения: её же вызывает оценка качества (eval/run_eval.py)
 const REGION_STEMS = [['ско',59],['северо-казахстан',59],['вко',63],['восточно-казахстан',63],['зко',27],['западно-казахстан',27],['абай',10],['акмол',11],['актюб',15],['алматинск',19],['атырау',23],['жамбыл',31],['жетысу',33],['караганд',35],['костанай',39],['кызылорд',43],['мангист',47],['павлодар',55],['туркестан',61],['улытау',62],['астан',71],['алматы',75],['шымкент',79]];
-// Локальная модель доступна, только если страница открыта через serve.py; иначе работает словарь
-let AI = null;
-async function aiInit(){
-  try { const r = await fetch('api/health', {cache:'no-store'}); if (r.ok){ const h = await r.json(); if (h.ok) AI = h; } } catch (e) {}
-  const el = document.getElementById('aistatus');
-  if (el) el.innerHTML = AI ? `Разбор текста: словарь + локальная модель <b>${AI.model}</b> (на этом компьютере, данные никуда не уходят)` : 'Разбор текста: словарь показателей. Локальная модель подключается при запуске через <code>serve.py</code>.';
-}
-async function getU(t){
-  if (AI){ try { const r = await fetch('api/understand', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text: t})});
-    if (r.ok){ const l = await r.json(); if (l && l.vars) return understand(t, l, 'fill'); } } catch (e) {} }
-  return understandRules(t);
-}
+async function getU(t){ return understandRules(t); }
 // Объединение: словарь главный, модель дополняет то, чего словарь не нашёл (стратегия выбрана на dev-наборе)
 function understand(t, llmU, strategy){
   const r = understandRules(t);
@@ -528,7 +516,7 @@ if (D.eval){
              ['Утверждения: вердикт совпал с правильным', s => pc(s.claims_correct, s.claims_total)],
              ['Ложные утверждения не пропущены', s => pc(s.false_claims_caught, s.false_claims_total)],
              ['Ложное утверждение принято за верное', s => String(s.false_accepts)]];
-  $('#qtable').innerHTML = `<tr><th>Контрольный набор</th><th>Версия 1</th><th>Версия 2</th></tr>` + R.map(([l,f]) => `<tr><td>${l}</td><td class="num">${f(e.v1)}</td><td class="num"><b>${f(e.v2)}</b></td></tr>`).join('');
+  $('#qtable').innerHTML = `<tr><th>Контрольный набор</th><th>Версия 2</th><th>Версия 3</th></tr>` + R.map(([l,f]) => `<tr><td>${l}</td><td class="num">${f(e.v1)}</td><td class="num"><b>${f(e.v2)}</b></td></tr>`).join('');
   $('#quality').hidden = false;
 }
 
@@ -580,7 +568,6 @@ function drawLib(){
 }
 $('#libq').oninput = drawLib; drawLib();
 
-aiInit();
 function drawAll(){ drawScatter(); drawBump(); drawTrap(); drawFormMatrix(); drawHeat(); drawDep(); }
 document.querySelector('details').addEventListener('toggle', () => Plotly.Plots.resize('heat'));
 $('#theme').onclick = () => { const r = document.documentElement; const dark = r.dataset.theme ? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme = dark ? 'light' : 'dark'; drawAll(); render($('#q').value || examples[0]); };

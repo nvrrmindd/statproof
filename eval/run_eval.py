@@ -83,18 +83,6 @@ def main():
     name = sys.argv[1] if len(sys.argv) > 1 else "dev"
     bench = json.loads((HERE / f"benchmark_{name}.json").read_text())
     llm_map, strategy = None, None
-    if "--llm" in sys.argv:
-        sys.path.insert(0, str(HERE.parent))
-        import llm
-        strategy = sys.argv[sys.argv.index("--llm") + 1]
-        texts = [x["text"] for x in bench["questions"] + bench["claims"]]
-        llm_map = {}
-        for t in texts:
-            u = llm.understand(t)
-            if u is None:
-                raise SystemExit("Локальная модель недоступна: запустите ollama serve")
-            llm_map[t] = u
-        name = f"{name}_llm_{strategy}"
     out = score(bench, run_in_app(bench, llm_map, strategy))
     (HERE / f"results_{name}.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
     s = out["summary"]

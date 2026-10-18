@@ -19,9 +19,9 @@ def main():
     f["trap"] = sorted(trap, key=lambda p: -abs(p["reg"]["2024"]))[:8]
     # результаты оценки качества ИИ (eval/run_eval.py), если они посчитаны
     ev = Path(__file__).resolve().parent / "eval"
-    if (ev / "results_test.json").exists() and (ev / "baseline_v1_test.json").exists():
+    if (ev / "results_test2.json").exists() and (ev / "results_test2_v2.json").exists():
         f["eval"] = {k: json.loads((ev / fn).read_text())["summary"]
-                     for k, fn in [("v1", "baseline_v1_test.json"), ("v2", "results_test.json"), ("dev", "results_dev.json")]}
+                     for k, fn in [("v1", "results_test2_v2.json"), ("v2", "results_test2.json")]}
     import plotly  # plotly.js встраивается в файл: демо работает без интернета
     pjs = (Path(plotly.__file__).parent / "package_data" / "plotly.min.js").read_text()
     html = TEMPLATE.read_text().replace("/*__DATA__*/null", json.dumps(f, ensure_ascii=False))

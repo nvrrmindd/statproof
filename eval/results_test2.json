@@ -1,0 +1,786 @@
+{
+ "summary": {
+  "questions_total": 40,
+  "questions_correct": 27,
+  "refusals_correct": 4,
+  "refusals_total": 4,
+  "claims_total": 30,
+  "claims_correct": 29,
+  "false_claims_total": 15,
+  "false_claims_caught": 15,
+  "false_accepts": 0,
+  "false_rejects": 0,
+  "unverifiable": 1
+ },
+ "questions": [
+  {
+   "text": "Правда ли, что у горожан квартиры меньше?",
+   "gold": [
+    "urban",
+    "total_area"
+   ],
+   "pred": [
+    "total_area"
+   ],
+   "correct": false
+  },
+  {
+   "text": "Недоедание чаще встречается в больших семьях?",
+   "gold": [
+    "fies_raw",
+    "hh_size"
+   ],
+   "pred": [],
+   "correct": false
+  },
+  {
+   "text": "Как зарплата соотносится с количеством детей на иждивении?",
+   "gold": [
+    "income_pc",
+    "n_children"
+   ],
+   "pred": [
+    "n_children"
+   ],
+   "correct": false
+  },
+  {
+   "text": "Влияет ли наличие диплома вуза на то, насколько человек доволен жизнью?",
+   "gold": [
+    "any_higher_edu",
+    "life_sat"
+   ],
+   "pred": [
+    "life_sat"
+   ],
+   "correct": false
+  },
+  {
+   "text": "Те, кто влез в кредиты, хуже оценивают своё материальное положение?",
+   "gold": [
+    "borrowed",
+    "fin_sat"
+   ],
+   "pred": [
+    "borrowed",
+    "fin_sat"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Есть ли зависимость между числом членов семьи старше 63 лет и доходом?",
+   "gold": [
+    "n_elderly",
+    "income_pc"
+   ],
+   "pred": [
+    "hh_size",
+    "n_elderly"
+   ],
+   "correct": false
+  },
+  {
+   "text": "Деревенские жители чаще живут без удобств?",
+   "gold": [
+    "urban",
+    "amenities_missing"
+   ],
+   "pred": [
+    "amenities_missing"
+   ],
+   "correct": false
+  },
+  {
+   "text": "Связано ли число работающих в семье с её подушкой на чёрный день?",
+   "gold": [
+    "n_employed",
+    "dep_shock"
+   ],
+   "pred": [
+    "n_employed",
+    "dep_shock"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Семьи, где главная — женщина: хватает ли им на еду?",
+   "gold": [
+    "head_female",
+    "fies_raw"
+   ],
+   "pred": [
+    "head_female"
+   ],
+   "correct": false
+  },
+  {
+   "text": "Как АСП связана с тем, сколько в семье детей?",
+   "gold": [
+    "inc_social",
+    "n_children"
+   ],
+   "pred": [
+    "inc_social",
+    "n_children"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Кто чаще занимает деньги — большие семьи или маленькие?",
+   "gold": [
+    "hh_size",
+    "borrowed"
+   ],
+   "pred": [],
+   "correct": false
+  },
+  {
+   "text": "Покажи связь между доходом и тем, могут ли люди провести той без долгов",
+   "gold": [
+    "income_pc",
+    "dep_ritual"
+   ],
+   "pred": [
+    "income_pc",
+    "dep_ritual"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Насколько люди оптимистичны, если им не хватает средств на отопление?",
+   "gold": [
+    "optimism",
+    "dep_heat"
+   ],
+   "pred": [
+    "dep_heat"
+   ],
+   "correct": false
+  },
+  {
+   "text": "Ощущают ли себя средним классом семьи с высшим образованием?",
+   "gold": [
+    "self_class",
+    "any_higher_edu"
+   ],
+   "pred": [
+    "self_class",
+    "any_higher_edu"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Есть ли связь между пессимизмом и уровнем доходов?",
+   "gold": [
+    "optimism",
+    "income_pc"
+   ],
+   "pred": [
+    "optimism",
+    "income_pc"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Сколько стоит бензин?",
+   "gold": "REFUSE",
+   "pred": [],
+   "correct": true
+  },
+  {
+   "text": "Напиши стихотворение про статистику",
+   "gold": "REFUSE",
+   "pred": [],
+   "correct": true
+  },
+  {
+   "text": "Кто победит на выборах?",
+   "gold": "REFUSE",
+   "pred": [],
+   "correct": true
+  },
+  {
+   "text": "Как погода в Астане влияет на доход?",
+   "gold": "REFUSE",
+   "pred": [
+    "income_pc"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Связаны ли траты семьи и число пенсионеров в ней?",
+   "gold": [
+    "spend_pc",
+    "n_elderly"
+   ],
+   "pred": [
+    "spend_pc",
+    "n_elderly"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Голодают ли чаще семьи, где меньше работающих?",
+   "gold": [
+    "fies_raw",
+    "n_employed"
+   ],
+   "pred": [
+    "fies_raw",
+    "n_employed"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Лишения и площадь дома",
+   "gold": [
+    "dep_n",
+    "total_area"
+   ],
+   "pred": [
+    "dep_n",
+    "total_area"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Сельчане довольны жизнью больше горожан?",
+   "gold": [
+    "urban",
+    "life_sat"
+   ],
+   "pred": [
+    "life_sat"
+   ],
+   "correct": false
+  },
+  {
+   "text": "Влияет ли количество квадратных метров на удовлетворённость жизнью?",
+   "gold": [
+    "total_area",
+    "life_sat"
+   ],
+   "pred": [
+    "life_sat"
+   ],
+   "correct": false
+  },
+  {
+   "text": "Есть ли связь между долговой нагрузкой и пособиями?",
+   "gold": [
+    "borrowed",
+    "inc_social"
+   ],
+   "pred": [
+    "borrowed",
+    "inc_social"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Ипотека и размер домохозяйства",
+   "gold": [
+    "borrowed",
+    "hh_size"
+   ],
+   "pred": [
+    "hh_size"
+   ],
+   "correct": false
+  },
+  {
+   "text": "Связано ли то, что глава семьи — женщина, с лишениями?",
+   "gold": [
+    "head_female",
+    "dep_n"
+   ],
+   "pred": [
+    "head_female",
+    "dep_n"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Чем больше пожилых, тем хуже с отоплением?",
+   "gold": [
+    "n_elderly",
+    "dep_heat"
+   ],
+   "pred": [
+    "n_elderly",
+    "dep_heat"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Обряды в долг: зависит ли от того, сколько членов семьи работают?",
+   "gold": [
+    "dep_ritual",
+    "n_employed"
+   ],
+   "pred": [
+    "dep_ritual",
+    "hh_size"
+   ],
+   "correct": false
+  },
+  {
+   "text": "Связь между уровнем образования и тратами",
+   "gold": [
+    "any_higher_edu",
+    "spend_pc"
+   ],
+   "pred": [
+    "any_higher_edu",
+    "spend_pc"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Финансовое положение и наличие удобств",
+   "gold": [
+    "fin_sat",
+    "amenities_missing"
+   ],
+   "pred": [
+    "fin_sat",
+    "amenities_missing"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Отношение к будущему у многодетных",
+   "gold": [
+    "optimism",
+    "hh_size"
+   ],
+   "pred": [
+    "optimism",
+    "hh_size"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Связаны ли доходы и проблемы с питанием?",
+   "gold": [
+    "income_pc",
+    "fies_raw"
+   ],
+   "pred": [
+    "income_pc",
+    "fies_raw"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Удовлетворены ли финансами те, кто не может поехать отдыхать?",
+   "gold": [
+    "fin_sat",
+    "dep_holiday"
+   ],
+   "pred": [
+    "fin_sat",
+    "dep_holiday"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Как связаны занятость и самооценка достатка?",
+   "gold": [
+    "n_employed",
+    "self_class"
+   ],
+   "pred": [
+    "n_employed",
+    "self_class"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Доля голодающих семей в городе и на селе",
+   "gold": [
+    "fies_raw",
+    "urban"
+   ],
+   "pred": [
+    "fies_raw",
+    "urban"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Непредвиденные траты и ожидания на будущее",
+   "gold": [
+    "dep_shock",
+    "optimism"
+   ],
+   "pred": [
+    "dep_shock",
+    "optimism"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Больше ли пособий получают сельские семьи?",
+   "gold": [
+    "inc_social",
+    "urban"
+   ],
+   "pred": [
+    "inc_social",
+    "urban"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Свадьбы в долг в городах и сёлах",
+   "gold": [
+    "dep_ritual",
+    "urban"
+   ],
+   "pred": [
+    "dep_ritual",
+    "urban"
+   ],
+   "correct": true
+  },
+  {
+   "text": "Счастье и кредиты",
+   "gold": [
+    "life_sat",
+    "borrowed"
+   ],
+   "pred": [
+    "life_sat",
+    "borrowed"
+   ],
+   "correct": true
+  }
+ ],
+ "claims": [
+  {
+   "text": "Чем больше детей, тем меньше доход на человека",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "n_children",
+    "income_pc"
+   ],
+   "result": "correct",
+   "why": "HOUSEHOLD, направление верное"
+  },
+  {
+   "text": "Чем больше детей, тем больше доход на человека",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "n_children",
+    "income_pc"
+   ],
+   "result": "correct",
+   "why": "направление неверное"
+  },
+  {
+   "text": "Горожане живут в меньших квартирах, чем сельские жители",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "total_area",
+    "urban"
+   ],
+   "result": "correct",
+   "why": "HOUSEHOLD, направление верное"
+  },
+  {
+   "text": "В городах квартиры больше, чем в сёлах",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "urban",
+    "total_area"
+   ],
+   "result": "correct",
+   "why": "направление неверное"
+  },
+  {
+   "text": "Голод снижает удовлетворённость жизнью",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "fies_raw",
+    "life_sat"
+   ],
+   "result": "correct",
+   "why": "HOUSEHOLD, направление верное"
+  },
+  {
+   "text": "Голод повышает удовлетворённость жизнью",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "fies_raw",
+    "life_sat"
+   ],
+   "result": "correct",
+   "why": "направление неверное"
+  },
+  {
+   "text": "Семьи, где глава — женщина, тратят на человека больше",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "head_female",
+    "spend_pc"
+   ],
+   "result": "correct",
+   "why": "HOUSEHOLD, направление верное"
+  },
+  {
+   "text": "Семьи с большим числом работающих тратят на человека меньше",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "n_employed",
+    "spend_pc"
+   ],
+   "result": "correct",
+   "why": "HOUSEHOLD, направление верное"
+  },
+  {
+   "text": "Семьи с детьми реже берут кредиты",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "n_children",
+    "borrowed"
+   ],
+   "result": "correct",
+   "why": "направление неверное: ρ = +0,16"
+  },
+  {
+   "text": "Большие семьи чаще берут кредиты (ρ = +0,19)",
+   "gold_ok": true,
+   "pred_ok": null,
+   "vars": [
+    "borrowed"
+   ],
+   "result": "unverifiable",
+   "why": "HOUSEHOLD, число верное"
+  },
+  {
+   "text": "Пособия чаще получают семьи с большим числом детей",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "inc_social",
+    "n_children"
+   ],
+   "result": "correct",
+   "why": "HOUSEHOLD, направление верное"
+  },
+  {
+   "text": "В регионах с более высоким доходом обряды в долг встречаются реже",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "income_pc",
+    "dep_ritual"
+   ],
+   "result": "correct",
+   "why": "направление неверное: ρ = +0,81"
+  },
+  {
+   "text": "В регионах с более высоким доходом ниже удовлетворённость жизнью",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "income_pc",
+    "life_sat"
+   ],
+   "result": "correct",
+   "why": "региональный вывод, направление верное"
+  },
+  {
+   "text": "Семьи с высоким доходом менее довольны жизнью",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "income_pc",
+    "life_sat"
+   ],
+   "result": "correct",
+   "why": "вывод о семьях, уровень REGIONAL"
+  },
+  {
+   "text": "В регионах с большим числом лишений выше удовлетворённость финансами",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "dep_n",
+    "fin_sat"
+   ],
+   "result": "correct",
+   "why": "направление неверное: ρ = −0,91"
+  },
+  {
+   "text": "Высшее образование помогает реже голодать",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "any_higher_edu",
+    "fies_raw"
+   ],
+   "result": "correct",
+   "why": "уровень NONE"
+  },
+  {
+   "text": "Пенсионеры чаще живут без водопровода",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "n_elderly",
+    "amenities_missing"
+   ],
+   "result": "correct",
+   "why": "уровень NONE"
+  },
+  {
+   "text": "У сельских семей больше лишений",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "urban",
+    "dep_n"
+   ],
+   "result": "correct",
+   "why": "уровень NONE"
+  },
+  {
+   "text": "Доход на человека выше в семьях с меньшим числом детей: ρ = −0,69",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "income_pc",
+    "n_children"
+   ],
+   "result": "correct",
+   "why": "HOUSEHOLD, число верное"
+  },
+  {
+   "text": "В Мангистауской области лишь 5 % семей не могут провести обряды без долгов",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "dep_ritual"
+   ],
+   "result": "correct",
+   "why": "верная доля: 5,4 % в 2024"
+  },
+  {
+   "text": "В Туркестанской области 40 % семей берут в долг на обряды",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "dep_ritual"
+   ],
+   "result": "correct",
+   "why": "неверная доля: 10–21 %"
+  },
+  {
+   "text": "Около 24 % семей не могут позволить себе отпуск",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "dep_holiday"
+   ],
+   "result": "correct",
+   "why": "верная доля: 23,9 %"
+  },
+  {
+   "text": "Почти половина семей не может покрыть непредвиденный расход",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "dep_shock"
+   ],
+   "result": "correct",
+   "why": "неверная доля: 19,8 %"
+  },
+  {
+   "text": "Каждая третья семья не может провести обряды без долгов",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "dep_ritual"
+   ],
+   "result": "correct",
+   "why": "верная доля: 33 %"
+  },
+  {
+   "text": "Число детей никак не связано с доходом на человека",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "n_children",
+    "income_pc"
+   ],
+   "result": "correct",
+   "why": "связь есть: ρ = −0,69"
+  },
+  {
+   "text": "Внутри регионов лишения и удовлетворённость жизнью не связаны",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "dep_n",
+    "life_sat"
+   ],
+   "result": "correct",
+   "why": "верно: ρ = −0,001"
+  },
+  {
+   "text": "Связь между образованием и удовлетворённостью жизнью доказана",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "any_higher_edu",
+    "life_sat"
+   ],
+   "result": "correct",
+   "why": "уровень NONE"
+  },
+  {
+   "text": "Многодетные семьи чаще голодают",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "hh_size",
+    "fies_raw"
+   ],
+   "result": "correct",
+   "why": "уровень NONE"
+  },
+  {
+   "text": "Женщины — главы семей реже берут займы",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "head_female",
+    "borrowed"
+   ],
+   "result": "correct",
+   "why": "HOUSEHOLD, направление верное: ρ = −0,06"
+  },
+  {
+   "text": "Сельские семьи живут в домах большей площади",
+   "gold_ok": true,
+   "pred_ok": true,
+   "vars": [
+    "urban",
+    "total_area"
+   ],
+   "result": "correct",
+   "why": "HOUSEHOLD, направление верное"
+  }
+ ]
+}
