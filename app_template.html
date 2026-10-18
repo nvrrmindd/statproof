@@ -517,6 +517,8 @@ if (D.eval){
              ['Ложные утверждения не пропущены', s => pc(s.false_claims_caught, s.false_claims_total)],
              ['Ложное утверждение принято за верное', s => String(s.false_accepts)]];
   $('#qtable').innerHTML = `<tr><th>Контрольный набор</th><th>Версия 2</th><th>Версия 3</th></tr>` + R.map(([l,f]) => `<tr><td>${l}</td><td class="num">${f(e.v1)}</td><td class="num"><b>${f(e.v2)}</b></td></tr>`).join('');
+  if (D.planted){ const P = D.planted;
+    $('#qtable').insertAdjacentHTML('afterend', `<p class="note" style="margin-top:12px"><b>Проверка на внесённых связях.</b> Мы смоделировали ${P.pairs} пар показателей с заранее заложенным ответом: настоящая связь между семьями, связь только через регионы или никакой связи (${P.n_households.toLocaleString('ru-RU')} домохозяйств, 20 регионов, 2 года). Provable вынес верный вердикт в <b>${P.correct} из ${P.pairs}</b> случаев и <b>ни разу</b> не выдал ложную или региональную связь за связь между семьями. Единственный промах — самая слабая заложенная связь, которую метод осторожно не признал.</p>`); }
   $('#quality').hidden = false;
 }
 

@@ -1,0 +1,272 @@
+{
+ "summary": {
+  "pairs": 36,
+  "correct": 35,
+  "accuracy": 0.972,
+  "false_household": 0,
+  "by_scenario": {
+   "HOUSEHOLD 0.05": "5/6",
+   "HOUSEHOLD 0.1": "6/6",
+   "HOUSEHOLD 0.2": "6/6",
+   "NONE 0.0": "6/6",
+   "REGIONAL 0.5": "6/6",
+   "REGIONAL 1.0": "6/6"
+  },
+  "n_households": 12000,
+  "reps": 6
+ },
+ "rows": [
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.2,
+   "rep": 0,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.1608
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.2,
+   "rep": 1,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.1608
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.2,
+   "rep": 2,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.1559
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.2,
+   "rep": 3,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.1688
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.2,
+   "rep": 4,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.1548
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.2,
+   "rep": 5,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.1524
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.1,
+   "rep": 0,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.0855
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.1,
+   "rep": 1,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.0819
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.1,
+   "rep": 2,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.0762
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.1,
+   "rep": 3,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.091
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.1,
+   "rep": 4,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.0721
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.1,
+   "rep": 5,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.0961
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.05,
+   "rep": 0,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.0586
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.05,
+   "rep": 1,
+   "verdict": "NONE",
+   "partial": 0.0415
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.05,
+   "rep": 2,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.0531
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.05,
+   "rep": 3,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.037
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.05,
+   "rep": 4,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.0413
+  },
+  {
+   "truth": "HOUSEHOLD",
+   "strength": 0.05,
+   "rep": 5,
+   "verdict": "HOUSEHOLD",
+   "partial": 0.0404
+  },
+  {
+   "truth": "REGIONAL",
+   "strength": 1.0,
+   "rep": 0,
+   "verdict": "REGIONAL",
+   "partial": 0.0029
+  },
+  {
+   "truth": "REGIONAL",
+   "strength": 1.0,
+   "rep": 1,
+   "verdict": "REGIONAL",
+   "partial": -0.0074
+  },
+  {
+   "truth": "REGIONAL",
+   "strength": 1.0,
+   "rep": 2,
+   "verdict": "REGIONAL",
+   "partial": -0.0053
+  },
+  {
+   "truth": "REGIONAL",
+   "strength": 1.0,
+   "rep": 3,
+   "verdict": "REGIONAL",
+   "partial": 0.0061
+  },
+  {
+   "truth": "REGIONAL",
+   "strength": 1.0,
+   "rep": 4,
+   "verdict": "REGIONAL",
+   "partial": -0.0068
+  },
+  {
+   "truth": "REGIONAL",
+   "strength": 1.0,
+   "rep": 5,
+   "verdict": "REGIONAL",
+   "partial": -0.0018
+  },
+  {
+   "truth": "REGIONAL",
+   "strength": 0.5,
+   "rep": 0,
+   "verdict": "REGIONAL",
+   "partial": 0.0069
+  },
+  {
+   "truth": "REGIONAL",
+   "strength": 0.5,
+   "rep": 1,
+   "verdict": "REGIONAL",
+   "partial": 0.0052
+  },
+  {
+   "truth": "REGIONAL",
+   "strength": 0.5,
+   "rep": 2,
+   "verdict": "REGIONAL",
+   "partial": -0.0019
+  },
+  {
+   "truth": "REGIONAL",
+   "strength": 0.5,
+   "rep": 3,
+   "verdict": "REGIONAL",
+   "partial": -0.0002
+  },
+  {
+   "truth": "REGIONAL",
+   "strength": 0.5,
+   "rep": 4,
+   "verdict": "REGIONAL",
+   "partial": -0.0043
+  },
+  {
+   "truth": "REGIONAL",
+   "strength": 0.5,
+   "rep": 5,
+   "verdict": "REGIONAL",
+   "partial": 0.0038
+  },
+  {
+   "truth": "NONE",
+   "strength": 0.0,
+   "rep": 0,
+   "verdict": "NONE",
+   "partial": 0.0034
+  },
+  {
+   "truth": "NONE",
+   "strength": 0.0,
+   "rep": 1,
+   "verdict": "NONE",
+   "partial": -0.0101
+  },
+  {
+   "truth": "NONE",
+   "strength": 0.0,
+   "rep": 2,
+   "verdict": "NONE",
+   "partial": 0.0067
+  },
+  {
+   "truth": "NONE",
+   "strength": 0.0,
+   "rep": 3,
+   "verdict": "NONE",
+   "partial": 0.0023
+  },
+  {
+   "truth": "NONE",
+   "strength": 0.0,
+   "rep": 4,
+   "verdict": "NONE",
+   "partial": 0.0166
+  },
+  {
+   "truth": "NONE",
+   "strength": 0.0,
+   "rep": 5,
+   "verdict": "NONE",
+   "partial": -0.0175
+  }
+ ]
+}
