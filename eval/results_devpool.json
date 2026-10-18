@@ -1,16 +1,16 @@
 {
  "summary": {
   "questions_total": 80,
-  "questions_correct": 77,
+  "questions_correct": 79,
   "refusals_correct": 6,
   "refusals_total": 6,
   "claims_total": 40,
-  "claims_correct": 36,
+  "claims_correct": 37,
   "false_claims_total": 21,
   "false_claims_caught": 20,
   "false_accepts": 1,
   "false_rejects": 1,
-  "unverifiable": 2
+  "unverifiable": 1
  },
  "questions": [
   {
@@ -662,9 +662,10 @@
     "urban"
    ],
    "pred": [
-    "self_class"
+    "self_class",
+    "urban"
    ],
-   "correct": false
+   "correct": true
   },
   {
    "text": "Связь детей и продовольственной безопасности",
@@ -775,9 +776,10 @@
     "fies_raw"
    ],
    "pred": [
-    "urban"
+    "urban",
+    "fies_raw"
    ],
-   "correct": false
+   "correct": true
   },
   {
    "text": "Количество работающих и голод",
@@ -1256,11 +1258,12 @@
   {
    "text": "Горожане живут в квартирах меньшей площади (ρ = −0,27)",
    "gold_ok": true,
-   "pred_ok": null,
+   "pred_ok": true,
    "vars": [
+    "urban",
     "total_area"
    ],
-   "result": "unverifiable",
+   "result": "correct",
    "why": "HOUSEHOLD, число верное"
   },
   {
