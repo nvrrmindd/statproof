@@ -22,6 +22,9 @@ def main():
     if (ev / "results_test2.json").exists() and (ev / "results_test2_v2.json").exists():
         f["eval"] = {k: json.loads((ev / fn).read_text())["summary"]
                      for k, fn in [("v1", "results_test2_v2.json"), ("v2", "results_test2.json")]}
+    if (ev / "results_team_v3.json").exists():
+        f["team"] = {"independent": json.loads((ev / "results_team_v3.json").read_text())["summary"],
+                     "after": json.loads((ev / "results_team.json").read_text())["summary"]}
     if (ev / "planted_results.json").exists():
         f["planted"] = json.loads((ev / "planted_results.json").read_text())["summary"]
     import plotly  # plotly.js встраивается в файл: демо работает без интернета

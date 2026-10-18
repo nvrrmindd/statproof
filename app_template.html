@@ -343,6 +343,8 @@ function claimVerdict(t, u){
     return {ok: bad === 0, vars: v, single: true, region, rows, bad, u};
   }
   if (v.length < 2) return {ok: null, vars: v, u};
+  // «всегда», «обязательно», «не всегда»: данные показывают связь в среднем, такое утверждение ими не доказать
+  if (/(^|[^а-яa-z])(всегда|обязательно|автоматически|никогда|непременно)([^а-яa-z]|$)/.test(tl)) return {ok: null, vars: v, u, universal: true};
   const p = findPair(v[0], v[1]);
   const facts = [p.raw, p.partial, ...p.raw_ci, ...p.partial_ci, ...Object.values(p.reg), ...(p.reg_ci ? Object.values(p.reg_ci).flat() : [])];
   const shares = [];
@@ -377,6 +379,7 @@ function claimVerdict(t, u){
 }
 function checkClaim(t, u){
   const box = $('#verdict2'), r = claimVerdict(t, u);
+  if (r.ok === null && r.universal){ box.innerHTML = `<span class="badge b-NONE">✕ Не могу проверить</span><p class="note">Утверждение со словами «всегда», «обязательно» или «не всегда» данными не доказать: они показывают связь в среднем, а не для каждой семьи.</p>`; return; }
   if (r.ok === null){ box.innerHTML = `<span class="badge b-NONE">✕ Не могу проверить</span><p class="note">Provable не нашёл в утверждении двух показателей из каталога или доли, которую можно сверить. Непроверяемое утверждение нельзя считать выводом из данных.</p>`; return; }
   const head = r.bad ? `<span class="badge b-NONE">✕ Вывод не подтверждается: ${r.bad} ${r.bad===1?'проблема':'проблемы'}</span>` : `<span class="badge b-HOUSEHOLD">✓ Утверждение согласуется с данными</span>`;
   const numRows = r.rows.map(x=>`<tr><td class="num">${x[0]}</td><td style="color:var(--${x[2]==='muted'?'muted':x[2]})">${x[1]}</td></tr>`).join('');
@@ -517,6 +520,8 @@ if (D.eval){
              ['Ложные утверждения не пропущены', s => pc(s.false_claims_caught, s.false_claims_total)],
              ['Ложное утверждение принято за верное', s => String(s.false_accepts)]];
   $('#qtable').innerHTML = `<tr><th>Контрольный набор</th><th>Версия 2</th><th>Версия 3</th></tr>` + R.map(([l,f]) => `<tr><td>${l}</td><td class="num">${f(e.v1)}</td><td class="num"><b>${f(e.v2)}</b></td></tr>`).join('');
+  if (D.team){ const I = D.team.independent, A = D.team.after;
+    $('#qtable').insertAdjacentHTML('afterend', `<p class="note" style="margin-top:12px"><b>Независимая проверка командой.</b> Участники, не писавшие код, сформулировали ${I.claims_total} правдоподобных утверждений о доходах, детях, селе и питании — таких, какие написал бы любой аналитик. По нашим данным ни одно не подтверждается. Provable не принял <b>${I.false_claims_caught} из ${I.claims_total}</b> (${I.false_claims_total - I.false_accepts} отклонил или честно ответил «не могу проверить»). После правила для слов «всегда» и «не всегда» — ${A.false_claims_caught} из ${A.claims_total}; эта цифра уже не независимая.</p>`); }
   if (D.planted){ const P = D.planted;
     $('#qtable').insertAdjacentHTML('afterend', `<p class="note" style="margin-top:12px"><b>Проверка на внесённых связях.</b> Мы смоделировали ${P.pairs} пар показателей с заранее заложенным ответом: настоящая связь между семьями, связь только через регионы или никакой связи (${P.n_households.toLocaleString('ru-RU')} домохозяйств, 20 регионов, 2 года). Provable вынес верный вердикт в <b>${P.correct} из ${P.pairs}</b> случаев и <b>ни разу</b> не выдал ложную или региональную связь за связь между семьями. Единственный промах — самая слабая заложенная связь, которую метод осторожно не признал.</p>`); }
   $('#quality').hidden = false;
@@ -524,6 +529,7 @@ if (D.eval){
 
 /* ---------- проверка записки целиком ---------- */
 function verdictShort(r){
+  if (r.ok === null && r.universal) return ['NONE', '— Не проверить: «всегда» или «обязательно» данными не доказать'];
   if (r.ok === null) return ['NONE', '— Не утверждение о данных из каталога или нечего сверить'];
   if (r.ok) return ['HOUSEHOLD', '✓ Подтверждается'];
   const why = r.rows.filter(x => x[2] === 'bad').map(x => x[0] + ': ' + x[1]);

@@ -1,16 +1,16 @@
 {
  "summary": {
   "questions_total": 40,
-  "questions_correct": 27,
+  "questions_correct": 36,
   "refusals_correct": 4,
   "refusals_total": 4,
   "claims_total": 30,
-  "claims_correct": 29,
+  "claims_correct": 30,
   "false_claims_total": 15,
   "false_claims_caught": 15,
   "false_accepts": 0,
   "false_rejects": 0,
-  "unverifiable": 1
+  "unverifiable": 0
  },
  "questions": [
   {
@@ -20,9 +20,10 @@
     "total_area"
    ],
    "pred": [
+    "urban",
     "total_area"
    ],
-   "correct": false
+   "correct": true
   },
   {
    "text": "Недоедание чаще встречается в больших семьях?",
@@ -30,8 +31,11 @@
     "fies_raw",
     "hh_size"
    ],
-   "pred": [],
-   "correct": false
+   "pred": [
+    "fies_raw",
+    "hh_size"
+   ],
+   "correct": true
   },
   {
    "text": "Как зарплата соотносится с количеством детей на иждивении?",
@@ -40,9 +44,10 @@
     "n_children"
    ],
    "pred": [
+    "income_pc",
     "n_children"
    ],
-   "correct": false
+   "correct": true
   },
   {
    "text": "Влияет ли наличие диплома вуза на то, насколько человек доволен жизнью?",
@@ -51,9 +56,10 @@
     "life_sat"
    ],
    "pred": [
+    "any_higher_edu",
     "life_sat"
    ],
-   "correct": false
+   "correct": true
   },
   {
    "text": "Те, кто влез в кредиты, хуже оценивают своё материальное положение?",
@@ -86,9 +92,10 @@
     "amenities_missing"
    ],
    "pred": [
+    "urban",
     "amenities_missing"
    ],
-   "correct": false
+   "correct": true
   },
   {
    "text": "Связано ли число работающих в семье с её подушкой на чёрный день?",
@@ -131,7 +138,9 @@
     "hh_size",
     "borrowed"
    ],
-   "pred": [],
+   "pred": [
+    "hh_size"
+   ],
    "correct": false
   },
   {
@@ -153,9 +162,10 @@
     "dep_heat"
    ],
    "pred": [
+    "optimism",
     "dep_heat"
    ],
-   "correct": false
+   "correct": true
   },
   {
    "text": "Ощущают ли себя средним классом семьи с высшим образованием?",
@@ -250,9 +260,10 @@
     "life_sat"
    ],
    "pred": [
-    "life_sat"
+    "life_sat",
+    "urban"
    ],
-   "correct": false
+   "correct": true
   },
   {
    "text": "Влияет ли количество квадратных метров на удовлетворённость жизнью?",
@@ -261,9 +272,10 @@
     "life_sat"
    ],
    "pred": [
+    "total_area",
     "life_sat"
    ],
-   "correct": false
+   "correct": true
   },
   {
    "text": "Есть ли связь между долговой нагрузкой и пособиями?",
@@ -284,9 +296,10 @@
     "hh_size"
    ],
    "pred": [
+    "borrowed",
     "hh_size"
    ],
-   "correct": false
+   "correct": true
   },
   {
    "text": "Связано ли то, что глава семьи — женщина, с лишениями?",
@@ -485,8 +498,8 @@
    "gold_ok": true,
    "pred_ok": true,
    "vars": [
-    "total_area",
-    "urban"
+    "urban",
+    "total_area"
    ],
    "result": "correct",
    "why": "HOUSEHOLD, направление верное"
@@ -560,11 +573,12 @@
   {
    "text": "Большие семьи чаще берут кредиты (ρ = +0,19)",
    "gold_ok": true,
-   "pred_ok": null,
+   "pred_ok": true,
    "vars": [
+    "hh_size",
     "borrowed"
    ],
-   "result": "unverifiable",
+   "result": "correct",
    "why": "HOUSEHOLD, число верное"
   },
   {

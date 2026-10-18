@@ -1,0 +1,388 @@
+{
+ "summary": {
+  "questions_total": 0,
+  "questions_correct": 0,
+  "refusals_correct": 0,
+  "refusals_total": 0,
+  "claims_total": 36,
+  "claims_correct": 11,
+  "false_claims_total": 36,
+  "false_claims_caught": 35,
+  "false_accepts": 1,
+  "false_rejects": 0,
+  "unverifiable": 24
+ },
+ "questions": [],
+ "claims": [
+  {
+   "text": "Люди с низким доходом чаще сталкиваются с нехваткой еды.",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "income_pc",
+    "fies_raw"
+   ],
+   "result": "correct",
+   "why": "доход × голод: уровень NONE (ρ = −0,0003 внутри регионов)"
+  },
+  {
+   "text": "Наличие работы не всегда защищает человека от бедности.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "dep_n"
+   ],
+   "result": "unverifiable",
+   "why": "«не всегда»: данными не проверяется"
+  },
+  {
+   "text": "Семьи с одинаковым доходом могут иметь совершенно разный уровень продовольственной безопасности.",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "income_pc",
+    "fies_raw"
+   ],
+   "result": "correct",
+   "why": "о разбросе внутри группы, данными так не проверяется"
+  },
+  {
+   "text": "Чем ниже доход семьи, тем чаще ей приходится экономить на продуктах.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "income_pc"
+   ],
+   "result": "unverifiable",
+   "why": "доход × голод: уровень NONE"
+  },
+  {
+   "text": "Высокий доход всегда означает, что семья может позволить себе полноценное питание.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "income_pc",
+    "fies_raw"
+   ],
+   "result": "unverifiable",
+   "why": "«всегда»; доход × голод: NONE"
+  },
+  {
+   "text": "Люди, получающие нерегулярный доход, чаще сталкиваются с финансовыми трудностями.",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "income_pc",
+    "fin_sat"
+   ],
+   "result": "correct",
+   "why": "нерегулярного дохода нет в данных"
+  },
+  {
+   "text": "Рост доходов семьи всегда приводит к улучшению качества питания.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "income_pc",
+    "fies_raw"
+   ],
+   "result": "unverifiable",
+   "why": "«всегда», причинность; доход × голод: NONE"
+  },
+  {
+   "text": "Семьи, тратящие большую часть дохода на жильё, чаще испытывают трудности с покупкой продуктов.",
+   "gold_ok": false,
+   "pred_ok": true,
+   "vars": [
+    "spend_pc",
+    "income_pc"
+   ],
+   "result": "false_accept",
+   "why": "доли расходов на жильё нет в каталоге"
+  },
+  {
+   "text": "В многодетных семьях чаще возникает нехватка продовольствия.",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "hh_size",
+    "fies_raw"
+   ],
+   "result": "correct",
+   "why": "размер семьи × голод: NONE"
+  },
+  {
+   "text": "Семьи с маленькими детьми чаще сталкиваются с финансовыми трудностями.",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "n_children",
+    "fin_sat"
+   ],
+   "result": "correct",
+   "why": "дети × удовлетворённость финансами: только между регионами"
+  },
+  {
+   "text": "Одиноким родителям сложнее обеспечить семью достаточным количеством еды.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "fies_raw"
+   ],
+   "result": "unverifiable",
+   "why": "одиноких родителей нет в каталоге"
+  },
+  {
+   "text": "Чем больше людей в семье, тем выше риск продовольственной необеспеченности.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "fies_raw"
+   ],
+   "result": "unverifiable",
+   "why": "размер семьи × голод: NONE"
+  },
+  {
+   "text": "Семьи с двумя работающими родителями реже сталкиваются с нехваткой еды.",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "n_employed",
+    "fies_raw"
+   ],
+   "result": "correct",
+   "why": "работающие × голод: NONE"
+  },
+  {
+   "text": "Дети из малообеспеченных семей чаще имеют ограниченный выбор продуктов.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "n_children"
+   ],
+   "result": "unverifiable",
+   "why": "доход × голод: NONE"
+  },
+  {
+   "text": "Большая семья обязательно находится в худшем финансовом положении, чем маленькая.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "fin_sat"
+   ],
+   "result": "unverifiable",
+   "why": "«обязательно»; размер семьи × финансы: только между регионами"
+  },
+  {
+   "text": "Семьи, получающие социальную помощь, реже сталкиваются с нехваткой еды.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "fies_raw"
+   ],
+   "result": "unverifiable",
+   "why": "пособия × голод: NONE"
+  },
+  {
+   "text": "Жители сельской местности чаще сталкиваются с бедностью, чем жители городов.",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "dep_n",
+    "urban"
+   ],
+   "result": "correct",
+   "why": "город/село × лишения: NONE"
+  },
+  {
+   "text": "В сельской местности людям проще обеспечить себя продуктами благодаря собственному хозяйству.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "urban"
+   ],
+   "result": "unverifiable",
+   "why": "подсобного хозяйства нет в каталоге"
+  },
+  {
+   "text": "В городах стоимость жизни сильнее влияет на доступность полноценного питания.",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "urban",
+    "fies_raw"
+   ],
+   "result": "correct",
+   "why": "стоимости жизни нет в данных"
+  },
+  {
+   "text": "Жители сельской местности имеют меньше возможностей для трудоустройства.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "urban"
+   ],
+   "result": "unverifiable",
+   "why": "город/село × работающие: направление обратное (в городе меньше)"
+  },
+  {
+   "text": "Проживание в крупном городе автоматически означает более высокий уровень жизни.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "urban"
+   ],
+   "result": "unverifiable",
+   "why": "«автоматически»; город × доход: NONE"
+  },
+  {
+   "text": "В регионах с меньшими возможностями трудоустройства выше риск бедности.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "dep_n"
+   ],
+   "result": "unverifiable",
+   "why": "работающие × лишения: NONE (между регионами не устойчиво)"
+  },
+  {
+   "text": "Доступность продуктовых магазинов влияет на продовольственную безопасность семьи.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "fies_raw"
+   ],
+   "result": "unverifiable",
+   "why": "магазинов нет в данных"
+  },
+  {
+   "text": "Люди из отдалённых населённых пунктов чаще сталкиваются с ограниченным выбором продуктов.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [],
+   "result": "unverifiable",
+   "why": "удалённости нет в данных"
+  },
+  {
+   "text": "Люди с более высоким уровнем образования реже сталкиваются с бедностью.",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "any_higher_edu",
+    "dep_n"
+   ],
+   "result": "correct",
+   "why": "образование × лишения: NONE"
+  },
+  {
+   "text": "Безработные чаще испытывают нехватку денег на продукты.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "income_pc"
+   ],
+   "result": "unverifiable",
+   "why": "работающие × голод: NONE"
+  },
+  {
+   "text": "Работа с низкой заработной платой не всегда позволяет избежать бедности.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "n_employed",
+    "income_pc"
+   ],
+   "result": "unverifiable",
+   "why": "«не всегда»: данными не проверяется"
+  },
+  {
+   "text": "Люди с высшим образованием всегда имеют более стабильное финансовое положение.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "any_higher_edu",
+    "fin_sat"
+   ],
+   "result": "unverifiable",
+   "why": "«всегда»"
+  },
+  {
+   "text": "Профессиональная квалификация связана с уровнем дохода семьи.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "income_pc"
+   ],
+   "result": "unverifiable",
+   "why": "квалификации нет в каталоге"
+  },
+  {
+   "text": "Нестабильная занятость повышает риск продовольственной необеспеченности.",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "n_employed",
+    "fies_raw"
+   ],
+   "result": "correct",
+   "why": "нестабильной занятости нет в данных"
+  },
+  {
+   "text": "Люди с низкими доходами чаще выбирают дешёвые продукты вместо более полезных.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "income_pc"
+   ],
+   "result": "unverifiable",
+   "why": "выбора продуктов нет в данных; доход × голод: NONE"
+  },
+  {
+   "text": "Недостаток денег влияет не только на количество еды, но и на её качество.",
+   "gold_ok": false,
+   "pred_ok": false,
+   "vars": [
+    "income_pc",
+    "fies_raw"
+   ],
+   "result": "correct",
+   "why": "о понятиях, данными не проверяется"
+  },
+  {
+   "text": "Семьи с ограниченным бюджетом чаще отказываются от определённых продуктов ради экономии.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [],
+   "result": "unverifiable",
+   "why": "доход × голод: NONE"
+  },
+  {
+   "text": "Доступ к чистой питьевой воде связан с уровнем жизни населения.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [],
+   "result": "unverifiable",
+   "why": "качества воды нет в каталоге"
+  },
+  {
+   "text": "Нехватка еды и несбалансированное питание — это одна и та же проблема.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "fies_raw"
+   ],
+   "result": "unverifiable",
+   "why": "о понятиях, данными не проверяется"
+  },
+  {
+   "text": "Даже при достаточном количестве еды человек может испытывать продовольственную необеспеченность из-за низкого качества питания.",
+   "gold_ok": false,
+   "pred_ok": null,
+   "vars": [
+    "fies_raw"
+   ],
+   "result": "unverifiable",
+   "why": "о понятиях, данными не проверяется"
+  }
+ ]
+}
