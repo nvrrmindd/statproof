@@ -49,6 +49,18 @@ def test_parser():
     assert len(E.parse_question("Как погода влияет на урожай?")) < 2
 
 
+def test_generic_engine_any_table():
+    import generic as G
+    d = fake()
+    rep = G.audit_table(d, ["x_true", "y_true", "x_eco", "y_eco", "noise"], ["region", "urban", "year"], "region", "year")
+    L = {frozenset((p["a"], p["b"])): p["level"] for p in rep["pairs"]}
+    assert L[frozenset(("x_true", "y_true"))] == "UNIT", L
+    assert L[frozenset(("x_eco", "y_eco"))] == "GROUP", L
+    assert L[frozenset(("noise", "x_true"))] == "NONE", L
+    rep2 = G.audit_table(d, ["noise", "y_eco", "x_eco", "y_true", "x_true"], ["region", "urban", "year"], "region", "year")
+    assert {frozenset((p["a"], p["b"])): p["level"] for p in rep2["pairs"]} == L   # порядок столбцов не влияет
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

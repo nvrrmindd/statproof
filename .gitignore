@@ -5,3 +5,4 @@ out/households.csv
 eval/llm_cache.json
 .env
 eval/llm_cache*.json
+demo_data/

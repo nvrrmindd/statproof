@@ -6,6 +6,7 @@ python3 findings.py
 python3 eval/planted.py
 python3 build_app.py
 python3 export_bns.py
+python3 make_demo.py
 python3 test_engine.py
 python3 eval/logic_eval.py
 echo "Готово: $(pwd)/out/provable.html"
