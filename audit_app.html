@@ -97,7 +97,7 @@ svg text{font-family:-apple-system,"Segoe UI",Inter,sans-serif}
   <div class="top-inner">
     <div class="nav"><a class="logo" href="./"><i>✓</i> Provable</a><a class="link" href="report">Пример отчёта по домохозяйствам →</a></div>
     <h1>Загрузите таблицу — получите отчёт о том, какие выводы она позволяет сделать</h1>
-    <p class="lead">Provable проверит каждую пару показателей: связь видна у отдельных семей и людей, только между регионами или её нет. Данные остаются на этом компьютере.</p>
+    <p class="lead">Provable проверит каждую пару показателей: связь верна для каждой строки по отдельности (семьи, человека, предприятия), только в среднем по категории (региону, отрасли) или её нет. Данные остаются на этом компьютере.</p>
   </div>
 </header>
 
@@ -119,7 +119,7 @@ svg text{font-family:-apple-system,"Segoe UI",Inter,sans-serif}
 
   <div class="card hidden" id="step2">
     <h2>2. Проверьте, что Provable правильно понял столбцы</h2>
-    <p class="note"><b>Показатель</b> — число, связь которого с другими мы проверяем: доход, возраст, оценка жизни. <b>Категория</b> — столбец вроде региона, «город или село», года. Зачем она нужна: в Алматы доходы выше и жизнью довольны больше, чем в селе. Если сравнивать всех со всеми, разница между местами выдаёт себя за связь «доход → довольство». Поэтому Provable сравнивает семью только с похожими — из того же региона, того же типа поселения, того же года. Обычно всё уже выбрано верно — можно сразу нажать «Построить отчёт».</p>
+    <p class="note"><b>Показатель</b> — число, связь которого с другими мы проверяем: доход, возраст, оценка жизни. <b>Категория</b> — столбец вроде региона, «город или село», года, отрасли. Зачем она нужна: в Алматы доходы выше и жизнью довольны больше, чем в селе. Если сравнивать всех со всеми, разница между местами выдаёт себя за связь «доход → довольство». Поэтому Provable сравнивает каждую строку только с похожими — у которых совпадают все категории (например, тот же регион, тип поселения и год). Обычно всё уже выбрано верно — можно сразу нажать «Построить отчёт».</p>
     <div class="scroll" style="max-height:380px"><table id="roles"></table></div>
     <div class="row" style="margin-top:14px">
       <label class="note">Средние сравнивать по: <select id="cmp"></select></label>
@@ -146,7 +146,7 @@ const API = location.protocol === 'http:' ? '' : 'http://127.0.0.1:8799';
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const f2 = (x, n=2) => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(n).replace('.', ',');
 const fmt = n => n.toLocaleString('ru-RU');
-const LV = {UNIT: ['✓', 'верно для отдельных людей и семей'], GROUP: ['◐', 'верно только в среднем по регионам'], NONE: ['✕', 'не подтверждается']};
+const LV = {UNIT: ['✓', 'верно для каждого по отдельности'], GROUP: ['◐', 'верно только в среднем по регионам'], NONE: ['✕', 'не подтверждается']};
 const COLOR = {UNIT: '#00E676', GROUP: '#FFD600', NONE: '#FF80AB'};
 let TOKEN = null, COLS = [], REP = null, SEL = null, SELREP = null;
 
@@ -220,9 +220,9 @@ const isTrap = p => p.level !== 'UNIT' && Math.abs(p.raw) >= 0.05;
 function statement(p){
   const up = (p.level === 'GROUP' ? grpRho(p) : p.partial) > 0;
   const t = `чем больше «${esc(p.a)}», тем ${up ? 'больше' : 'меньше'} «${esc(p.b)}»`;
-  return p.level === 'GROUP' ? `В среднем по «${esc(REP.compare_group)}»: ${t}` : `У отдельных людей и семей: ${t}`;
+  return p.level === 'GROUP' ? `В среднем по «${esc(REP.compare_group)}»: ${t}` : `У каждого по отдельности: ${t}`;
 }
-const LIKE = () => 'тот же ' + REP.cell_groups.join(', ');
+const LIKE = () => 'совпадают ' + REP.cell_groups.map(g => '«' + g + '»').join(', ');
 const strength = r => { const a = Math.abs(r); return a >= .5 ? 'сильная' : a >= .3 ? 'заметная' : a >= .1 ? 'слабая' : 'очень слабая'; };
 
 /* ---------- виджеты ---------- */
@@ -355,10 +355,10 @@ function W(id, html){ const el = $('#w-' + id); if (el) el.innerHTML = html; }
 function renderPair(){
   const p = SEL; if (!p){ W('pair', '<p class="note">Выберите клетку на карте.</p>'); return; }
   const reps = Object.keys(p.group); if (!reps.includes(SELREP)) SELREP = reps[0];
-  const say = p.level === 'UNIT' ? `Связь есть у отдельных людей и семей: даже среди похожих (${LIKE()}) ρ = ${f2(p.partial,3)} (${strength(p.partial)}). Это можно утверждать.`
-    : p.level === 'GROUP' ? `Если смешать всех, ρ = ${f2(p.raw,3)}. Но среди похожих (${LIKE()}) — ${f2(p.partial,3)}, связи нет. Она есть только в среднем по «${esc(REP.compare_group)}»: писать можно «в регионах, где…», но не «семьи, у которых…».`
+  const say = p.level === 'UNIT' ? `Связь верна для каждого по отдельности: даже среди похожих (${LIKE()}) ρ = ${f2(p.partial,3)} (${strength(p.partial)}). Это можно утверждать.`
+    : p.level === 'GROUP' ? `Если смешать всех, ρ = ${f2(p.raw,3)}. Но среди похожих (${LIKE()}) — ${f2(p.partial,3)}, связи нет. Она есть только в среднем по «${esc(REP.compare_group)}»: писать можно только о средних по «${esc(REP.compare_group)}», но не о каждом по отдельности.`
     : isTrap(p) ? `Если смешать всех, ρ = ${f2(p.raw,3)}. Но среди похожих (${LIKE()}) — ${f2(p.partial,3)}, и в среднем по «${esc(REP.compare_group)}» связь не устойчива. Это ловушка: вывод делать нельзя.`
-    : `Связи не видно ни у отдельных людей и семей (ρ = ${f2(p.partial,3)}), ни в среднем по «${esc(REP.compare_group)}».`;
+    : `Связи не видно ни у каждого по отдельности (ρ = ${f2(p.partial,3)}), ни в среднем по «${esc(REP.compare_group)}».`;
   W('pair', `<div class="row" style="justify-content:space-between"><b style="font-size:15px">${esc(p.a)} × ${esc(p.b)}</b><span class="badge b-${p.level}">${LV[p.level][0]} ${LV[p.level][1]}</span></div>
     <p class="note" style="margin:6px 0 8px">${say}</p>
     <div class="two"><div><div class="note muted" style="font-size:12px">Серым — если смешать всех, синим — среди похожих</div>${curveChart(p)}</div>
@@ -368,10 +368,11 @@ function renderPair(){
 function select(p){ SEL = p; renderPair(); W('map', matrixBlock());
   document.querySelectorAll('.lst li[data-pair]').forEach(li => li.classList.toggle('sel', REP.pairs[+li.dataset.pair] === p)); }
 const matrixBlock = () => `<div style="flex:1;min-height:0;display:flex;align-items:center">${matrix()}</div>
-  <div class="legend"><span><i style="background:${COLOR.UNIT}"></i>верно для людей и семей</span><span><i style="background:${COLOR.GROUP}"></i>только в среднем по «${esc(REP.compare_group)}»</span><span><i style="background:${COLOR.NONE}"></i>не подтверждается (ярче — ловушка)</span></div>`;
+  <div class="legend"><span><i style="background:${COLOR.UNIT}"></i>верно для каждого</span><span><i style="background:${COLOR.GROUP}"></i>только в среднем по «${esc(REP.compare_group)}»</span><span><i style="background:${COLOR.NONE}"></i>не подтверждается (ярче — ловушка)</span></div>`;
 
 function render(){
   const R = REP, c = R.counts, pairs = R.pairs;
+  LV.GROUP[1] = `верно только в среднем по «${R.compare_group}»`;
   $('#rtitle').textContent = `Отчёт: ${R.variables.length} показателей, ${pairs.length} пар`;
   $('#rmeta').textContent = `${fmt(R.rows)} строк · похожими считаются строки с одинаковыми: ${R.cell_groups.join(', ')} · средние по: ${R.compare_group}${R.repeat_by ? ' · повтор по: ' + R.repeat_by : ''}`;
   $('#step3').classList.remove('hidden'); step(3);
@@ -381,11 +382,11 @@ function render(){
   const bestU = proven.find(p => p.level === 'UNIT'), worst = traps[0];
 
   W('summary', `<div class="plain"><p>Проверено <b>${pairs.length}</b> пар показателей на <b>${fmt(R.rows)}</b> строках.</p>
-    <p><b style="color:var(--good)">${c.UNIT}</b> связей верны для отдельных людей и семей — их можно публиковать как выводы о людях или семьях.${bestU ? ` Самая сильная: «${esc(bestU.a)}» и «${esc(bestU.b)}» (ρ ${f2(bestU.partial)}).` : ''}</p>
-    <p><b style="color:var(--warn)">${c.GROUP}</b> верны только в среднем по «${esc(R.compare_group)}» — писать можно «в регионах, где…», но не о конкретных семьях.</p>
+    <p><b style="color:var(--good)">${c.UNIT}</b> связей верны для каждого по отдельности — их можно публиковать как выводы о каждой строке таблицы (семье, человеке, предприятии).${bestU ? ` Самая сильная: «${esc(bestU.a)}» и «${esc(bestU.b)}» (ρ ${f2(bestU.partial)}).` : ''}</p>
+    <p><b style="color:var(--warn)">${c.GROUP}</b> верны только в среднем по «${esc(R.compare_group)}» — писать можно «в среднем по ${esc(R.compare_group)}» (например, «в регионах, где…»), но не о каждом по отдельности.</p>
     <p><b style="color:var(--bad)">${traps.length}</b> ловушек: если смешать всех, связь заметна, а среди похожих исчезает.${worst ? ` Главная: «${esc(worst.a)}» и «${esc(worst.b)}» (${f2(worst.raw)} → ${f2(worst.partial)}).` : ''}</p></div>`);
   W('counts', `<div class="row" style="flex-wrap:nowrap;gap:14px;flex:1">${donut(c)}<div style="font-size:13px;display:grid;gap:6px">
-    <span><b style="color:var(--good)">${c.UNIT}</b> для людей и семей</span><span><b style="color:var(--warn)">${c.GROUP}</b> только в среднем</span><span><b style="color:var(--bad)">${c.NONE}</b> нет вывода</span></div></div>`);
+    <span><b style="color:var(--good)">${c.UNIT}</b> для каждого</span><span><b style="color:var(--warn)">${c.GROUP}</b> только в среднем</span><span><b style="color:var(--bad)">${c.NONE}</b> нет вывода</span></div></div>`);
   W('data', `<div class="big">${fmt(R.rows)} <small>строк</small></div>
     <div class="kv"><span>Показателей</span><span>${R.variables.length}</span></div><div class="kv"><span>Наборов «похожих»</span><span>${fmt(R.cells)}</span></div>
     <div class="kv"><span>Сравнение</span><span>${esc(R.compare_group)}</span></div>${R.repeat_by ? `<div class="kv"><span>Повтор</span><span>${R.repeats.map(esc).join(', ')}</span></div>` : ''}`);
@@ -396,11 +397,11 @@ function render(){
     : '<p class="note">Ни одна связь не подтверждена.</p>');
   const opts = R.variables.map(v => `<option>${esc(v)}</option>`).join('');
   W('check', `<div class="ctl"><div class="row"><select id="ca" aria-label="Первый показатель">${opts}</select><span class="note">и</span><select id="cb" aria-label="Второй показатель">${opts}</select></div>
-    <div class="row"><select id="clevel" aria-label="Уровень"><option value="UNIT">у отдельных людей и семей</option><option value="GROUP">в среднем по регионам</option></select>
+    <div class="row"><select id="clevel" aria-label="Уровень"><option value="UNIT">у каждого по отдельности</option><option value="GROUP">в среднем по категории</option></select>
     <select id="cdir" aria-label="Утверждение"><option value="1">связаны прямо (больше → больше)</option><option value="-1">связаны обратно (больше → меньше)</option><option value="0">не связаны</option></select>
     <button type="button" id="ccheck">Проверить</button></div><div id="cout"></div></div>`);
   $('#cb').selectedIndex = 1; $('#ccheck').onclick = checkClaim;
-  W('method', `<p class="note" style="margin:0">Каждую строку сравниваем только с похожими — с теми же ${esc(R.cell_groups.join(', '))}, — чтобы разница между регионами не выдавала себя за связь между людьми. Случайность исключаем ${R.n_perm} перестановками среди похожих; интервалы — бутстрап (${R.n_boot}). Связь для людей и семей: p < 0,01 и поправка Бенджамини — Хохберга на ${pairs.length} пар. Связь в среднем: по средним «${esc(R.compare_group)}»${R.repeat_by ? `, повторяется в каждом значении «${esc(R.repeat_by)}»` : ''}. «Подтверждено» значит «проходит тесты на этих данных», а не причинность. Seed ${R.seed}.</p>`);
+  W('method', `<p class="note" style="margin:0">Каждую строку сравниваем только с похожими — с теми же ${esc(R.cell_groups.join(', '))}, — чтобы разница между регионами или отраслями не выдавала себя за связь между отдельными семьями, людьми, организациями. Случайность исключаем ${R.n_perm} перестановками среди похожих; интервалы — бутстрап (${R.n_boot}). Связь для каждого: p < 0,01 и поправка Бенджамини — Хохберга на ${pairs.length} пар. Связь в среднем: по средним «${esc(R.compare_group)}»${R.repeat_by ? `, повторяется в каждом значении «${esc(R.repeat_by)}»` : ''}. «Подтверждено» значит «проходит тесты на этих данных», а не причинность. Seed ${R.seed}.</p>`);
 
   $('#all').innerHTML = '<tr><th>Пара</th><th>n</th><th>ρ по всем</th><th>ρ среди похожих [95% ДИ]</th><th>p</th><th>ρ средних по «'+esc(R.compare_group)+'»</th><th>Вердикт</th></tr>' + pairs.map(p =>
     `<tr><td>${esc(p.a)} × ${esc(p.b)}${p.note ? `<div class="note">${p.note}</div>` : ''}</td><td class="num">${fmt(p.n)}</td><td class="num">${f2(p.raw,3)}</td><td class="num">${f2(p.partial,3)} [${f2(p.ci[0],3)}…${f2(p.ci[1],3)}]</td><td class="num">${p.p_perm.toFixed(3)}</td><td class="num">${grpTxt(p)}</td><td><span class="badge b-${p.level}">${LV[p.level][0]} ${LV[p.level][1]}</span></td></tr>`).join('');
@@ -425,7 +426,7 @@ function checkClaim(){
   const exists = lvl === 'UNIT' ? p.level === 'UNIT' : p.level !== 'NONE';
   const rho = lvl === 'UNIT' ? p.partial : grpRho(p);
   if (dir === 0){ ok = !exists; why = exists ? `связь на этом уровне есть: ρ = ${f2(rho,3)}` : 'связь на этом уровне не подтверждается'; }
-  else if (!exists){ ok = false; why = lvl === 'UNIT' ? `для отдельных людей и семей не подтверждается: среди похожих ρ = ${f2(p.partial,3)} (${LV[p.level][1]})` : 'в среднем по регионам связь не подтверждается'; }
+  else if (!exists){ ok = false; why = lvl === 'UNIT' ? `для каждого по отдельности не подтверждается: среди похожих ρ = ${f2(p.partial,3)} (${LV[p.level][1]})` : 'в среднем по категории связь не подтверждается'; }
   else { ok = Math.sign(rho) === dir; why = ok ? `подтверждается: ρ = ${f2(rho,3)}` : `направление обратное: ρ = ${f2(rho,3)}`; }
   $('#cout').innerHTML = `<div class="verdict-box"><span class="badge ${ok ? 'b-UNIT' : 'b-NONE'}">${ok ? '✓ Согласуется с данными' : '✕ Не подтверждается'}</span> <span class="note">${why}</span></div>`;
   select(p);
