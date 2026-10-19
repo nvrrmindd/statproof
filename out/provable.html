@@ -4088,7 +4088,7 @@ function checkClaim(t, u){
   box.innerHTML = `${head}<p class="note" style="margin:10px 0">Распознано: <b>${cat[p.a].label}</b> × <b>${cat[p.b].label}</b></p>
     <div class="scroll"><table><tr><th>Что проверено</th><th>Результат</th></tr>${lv}${numRows}</table></div>`;
 }
-const claims = ['ИИ-ассистент: «Семьи с большим числом лишений менее довольны жизнью (ρ = −0,11)»','Отчёт: «Чем выше доход семьи, тем чаще она берёт в долг на обряды; в СКО таких семей 85%»','Дашборд: «Голод снижает удовлетворённость жизнью, ρ = −0,10»'];
+const claims = ['Gemini, 19.10.2026: «С ростом числа материальных лишений уровень удовлетворённости жизнью у казахстанских семей снижается»','Пример отчёта: «Чем выше доход семьи, тем чаще она берёт в долг на обряды; в СКО таких семей 85%»','Пример дашборда: «Голод снижает удовлетворённость жизнью, ρ = −0,10»'];
 $('#claimchips').innerHTML = claims.map(c=>`<button class="chip" type="button">${c}</button>`).join('');
 $('#claimchips').onclick = e => { if (e.target.classList.contains('chip')){ const t = e.target.textContent.replace(/^[^:]+: /,''); $('#claim').value = t; checkClaim(t);} };
 $('#checkform').onsubmit = async e => { e.preventDefault(); const t = $('#claim').value; checkClaim(t, await getU(t)); };
