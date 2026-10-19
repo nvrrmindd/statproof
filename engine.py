@@ -243,6 +243,8 @@ NUM_RE = re.compile(r"[−-]?\d+(?:[.,]\d+)?")
 
 
 def numbers_in(text: str) -> set[str]:
+    # «23 884» (разряды через пробел) — одно число, а не 23 и 884
+    text = re.sub(r"(?<=\d)[ \u00a0\u202f](?=\d{3}(?!\d))", "", text)
     return {n.replace("−", "-").replace(",", ".").lstrip("+") for n in NUM_RE.findall(text)}
 
 

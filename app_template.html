@@ -315,9 +315,24 @@ function render(q, vars){
     <div class="scroll"><table><tr><th>Доказательство</th><th>Оценка</th><th>95% ДИ</th><th>Детали</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="note">${r[3]}</td></tr>`).join('')}</table></div>
     <p class="note" style="margin-top:8px"><b>Как читать:</b> ρ — сила связи от −1 до +1, около 0 — связи нет; 95% ДИ — диапазон, в котором с вероятностью 95% лежит настоящее значение; p — вероятность увидеть такую связь случайно, если её на самом деле нет (меньше 0,01 — связь не случайна); n — число домохозяйств, у которых есть оба показателя.</p>${caveat}
     ${/[әғқңөұүһі]/i.test(q) ? '<p class="note" style="margin-top:8px">Сұрақ қазақ тілінде түсінілді · вопрос понят на казахском</p>' : ''}
+    <div id="explain" style="margin-top:12px"></div>
     <div id="ansplot" style="height:300px;margin-top:12px"></div>
     <p class="note">Доказательство глазами: каждая точка — среднее по региону. Наклон облака — связь между регионами (ρ = ${f2(p.reg['2024'])} в 2024). Внутри регионов, между семьями, ρ = ${f2(p.partial, 3)}.</p>`;
   drawAnswerPlot(p);
+  if (AI){
+    const facts = {labels: [la, lb], level: p.level, verdict, claims: rows.map(r => ({what: r[0], value: r[1], ci: r[2]})), k_regions: 20, n: p.n};
+    $('#explain').innerHTML = `<div class="chips" style="margin:0"><button class="chip" type="button" data-l="ru">Объяснить простыми словами (ИИ)</button><button class="chip" type="button" data-l="kk">Қазақша түсіндіру (ИИ)</button></div><div id="explain-out" style="margin-top:10px"></div>`;
+    $('#explain').onclick = e => { const l = e.target.dataset && e.target.dataset.l; if (l) explainVerdict(facts, l); };
+  }
+}
+async function explainVerdict(facts, lang){
+  const out = $('#explain-out'); out.innerHTML = '<p class="note">Модель пишет объяснение, движок сверяет каждое число…</p>';
+  try {
+    const r = await (await fetch(AI_URL + '/api/explain', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({facts, lang})})).json();
+    if (!r.text){ out.innerHTML = '<p class="note">Модель недоступна — показан вердикт движка выше.</p>'; return; }
+    if (r.blocked){ out.innerHTML = `<div class="caveat"><b>Объяснение модели заблокировано:</b> в тексте есть числа, которых нет в расчётах (${r.bad.join(', ')}). Показан только вердикт движка.</div>`; return; }
+    out.innerHTML = `<div class="card" style="padding:14px 16px;background:var(--surface-2)"><p style="margin:0">${r.text.replace(/</g,'&lt;')}</p><p class="note" style="margin:8px 0 0">✓ Все числа в тексте сверены с расчётами · ${r.model}</p></div>`;
+  } catch (e) { out.innerHTML = '<p class="note">Модель недоступна — показан вердикт движка выше.</p>'; }
 }
 function drawAnswerPlot(p){
   if (!D.regmeans || typeof Plotly === 'undefined') return;
@@ -572,6 +587,8 @@ if (D.eval){
   $('#qtable').innerHTML = `<tr><th>Контрольный набор</th><th>Версия 2</th><th>Версия 3</th></tr>` + R.map(([l,f]) => `<tr><td>${l}</td><td class="num">${f(e.v1)}</td><td class="num"><b>${f(e.v2)}</b></td></tr>`).join('');
   if (D.llm_eval){ const R = D.llm_eval.rules, L = D.llm_eval.llm;
     $('#qtable').insertAdjacentHTML('afterend', `<p class="note" style="margin-top:12px"><b>ИИ-режим (языковая модель Gemini, бесплатный лимит).</b> На новом контрольном наборе разговорных вопросов, в том числе на казахском, модель распознала <b>${L.questions_correct} из ${L.questions_total}</b> вопросов против ${R.questions_correct} из ${R.questions_total} у словаря. В проверке утверждений модель пропустила ${L.false_accepts} ложное утверждение, а правила — ${R.false_accepts}, поэтому утверждения и записки Provable проверяет только детерминированной логикой. В модель уходит только текст вопроса; числа и вердикты считает движок.</p>`); }
+  if (D.explain_eval){ const X = D.explain_eval;
+    $('#qtable').insertAdjacentHTML('afterend', `<p class="note" style="margin-top:12px"><b>ИИ-объяснения на русском и казахском.</b> Модель пересказала ${X.explanations} вердиктов; движок сверил каждое число. Прошли проверку ${X.passed}, заблокировано ${X.blocked}: модель написала «23 280 домохозяйств» вместо 23 279 из расчётов — такой текст на экран не попадает.</p>`); }
   if (D.team){ const I = D.team.independent, A = D.team.after;
     $('#qtable').insertAdjacentHTML('afterend', `<p class="note" style="margin-top:12px"><b>Независимая проверка.</b> Отдельно от разработки системы было составлено ${I.claims_total} правдоподобных утверждений о доходах, детях, селе и питании — таких, какие написал бы любой аналитик. По нашим данным ни одно не подтверждается. Provable не принял <b>${I.false_claims_caught} из ${I.claims_total}</b> (${I.false_claims_total - I.false_accepts} отклонил или честно ответил «не могу проверить»). После правила для слов «всегда» и «не всегда» — ${A.false_claims_caught} из ${A.claims_total}; эта цифра уже не независимая.</p>`); }
   if (D.planted){ const P = D.planted;

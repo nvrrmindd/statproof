@@ -52,6 +52,11 @@ def chain() -> list[tuple[str, str, str]]:
     out = []
     for item in [x.strip() for x in spec.split(",") if ":" in x]:
         prov, model = item.split(":", 1)
+        if prov == "llama":   # собственный сервер llama.cpp (например, через Tailscale): LLAMA_BASE_URL=http://100.x.x.x:8080/v1
+            if env.get("LLAMA_BASE_URL"):
+                BASE["llama"] = env["LLAMA_BASE_URL"].rstrip("/")
+                out.append((prov, model, env.get("LLAMA_API_KEY", "none")))
+            continue
         key = env.get(KEYS.get(prov, ""), "")
         if prov in BASE and key:
             out.append((prov, model, key))
@@ -98,6 +103,38 @@ SYSTEM = (
     "Пример: «Сколько стоит проезд?» → {\"vars\":[],\"direction\":\"none\",\"regional\":false,\"negated\":false}\n\n"
     "Каталог (ключ: смысл):\n" + "\n".join(f"{k}: {E.CATALOG[k][0]} ({HINTS[k]})" for k in E.CATALOG)
 )
+
+
+EXPLAIN_SYSTEM = {
+    "ru": "Ты аналитик официальной статистики. Объясни вердикт простыми словами для руководителя в 2–3 предложениях на русском языке. "
+          "Используй ТОЛЬКО числа из переданного JSON, не добавляй новых чисел, процентов, причин и источников. "
+          "Сохрани смысл вердикта: о семьях, только о регионах или не подтверждается. Без вступлений и заголовков.",
+    "kk": "Сен ресми статистика талдаушысысың. Шешімді басшыға арнап қазақ тілінде 2–3 сөйлеммен қарапайым түсіндір. "
+          "Тек берілген JSON-дағы сандарды қолдан, жаңа сандар, пайыздар, себептер мен дереккөздер қоспа. "
+          "Шешімнің мағынасын сақта: отбасылар туралы, тек өңірлер туралы немесе расталмайды. Кіріспесіз.",
+}
+
+
+def explain(facts: dict, lang: str = "ru") -> dict:
+    """Пересказ вердикта моделью. Каждое число в тексте сверяется с фактами; при расхождении текст блокируется."""
+    sysmsg = EXPLAIN_SYSTEM.get(lang, EXPLAIN_SYSTEM["ru"])
+    user = json.dumps(facts, ensure_ascii=False)
+    for prov, model, key in chain():
+        body = {"model": model, "temperature": 0, "max_tokens": 400,
+                "messages": [{"role": "system", "content": sysmsg}, {"role": "user", "content": user}]}
+        if prov == "gemini":
+            body["reasoning_effort"] = "low"
+            body["max_tokens"] = 400 + 2048
+        try:
+            req = urllib.request.Request(BASE[prov] + "/chat/completions", data=json.dumps(body).encode(),
+                                         headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"})
+            with urllib.request.urlopen(req, timeout=30, context=SSL) as r:
+                text = json.load(r)["choices"][0]["message"]["content"].strip()
+        except Exception:
+            continue
+        bad = E.grounding_check(text, facts)
+        return {"text": text, "blocked": bool(bad), "bad": bad, "model": f"{prov}:{model}", "lang": lang}
+    return {"text": None, "blocked": True, "bad": [], "model": None, "lang": lang}
 
 
 def _call(prov: str, model: str, key: str, text: str) -> dict:

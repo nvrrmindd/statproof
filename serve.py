@@ -40,11 +40,14 @@ class Handler(BaseHTTPRequestHandler):
             self._send(404, {"error": "не найдено"})
 
     def do_POST(self):
-        if self.path != "/api/understand":
-            return self._send(404, {"error": "не найдено"})
         n = int(self.headers.get("Content-Length", 0))
-        text = json.loads(self.rfile.read(n) or b"{}").get("text", "")[:500]
-        self._send(200, llm_api.understand(text) or {})
+        body = json.loads(self.rfile.read(n) or b"{}")
+        if self.path == "/api/understand":
+            self._send(200, llm_api.understand(str(body.get("text", ""))[:500]) or {})
+        elif self.path == "/api/explain":   # пересказ вердикта; числа проверяются, при расхождении текст блокируется
+            self._send(200, llm_api.explain(body.get("facts", {}), body.get("lang", "ru")))
+        else:
+            self._send(404, {"error": "не найдено"})
 
     def log_message(self, *a):
         pass
