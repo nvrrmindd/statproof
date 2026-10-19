@@ -1,0 +1,47 @@
+{
+ "household_pairs": 79,
+ "survive_bh_q001": 79,
+ "max_p_analytic_household": 1.0963596600301088e-06,
+ "permutations_10000": [
+  {
+   "pair": [
+    "fies_raw",
+    "life_sat"
+   ],
+   "partial": -0.0955,
+   "p_200": 0.005,
+   "p_10000": 0.0001,
+   "level": "HOUSEHOLD"
+  },
+  {
+   "pair": [
+    "dep_n",
+    "life_sat"
+   ],
+   "partial": -0.001,
+   "p_200": 0.8955,
+   "p_10000": 0.87481,
+   "level": "REGIONAL"
+  },
+  {
+   "pair": [
+    "income_pc",
+    "dep_ritual"
+   ],
+   "partial": 0.0083,
+   "p_200": 0.194,
+   "p_10000": 0.20368,
+   "level": "REGIONAL"
+  },
+  {
+   "pair": [
+    "n_children",
+    "income_pc"
+   ],
+   "partial": -0.6913,
+   "p_200": 0.005,
+   "p_10000": 0.0001,
+   "level": "HOUSEHOLD"
+  }
+ ]
+}

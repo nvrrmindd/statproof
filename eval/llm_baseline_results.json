@@ -1,0 +1,632 @@
+{
+ "model": {
+  "gemini:gemini-3.5-flash-lite": 86
+ },
+ "summary": {
+  "test2": {
+   "claims": 30,
+   "correct": 19,
+   "false_accepts": 4,
+   "false_claims": 15,
+   "false_rejects": 7
+  },
+  "test3": {
+   "claims": 20,
+   "correct": 13,
+   "false_accepts": 2,
+   "false_claims": 8,
+   "false_rejects": 5
+  },
+  "team": {
+   "claims": 36,
+   "correct": 12,
+   "false_accepts": 24,
+   "false_claims": 36,
+   "false_rejects": 0
+  }
+ },
+ "rows": [
+  {
+   "set": "test2",
+   "text": "Чем больше детей, тем меньше доход на человека",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Чем больше детей, тем больше доход на человека",
+   "gold_ok": false,
+   "llm": "не подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Горожане живут в меньших квартирах, чем сельские жители",
+   "gold_ok": true,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "В городах квартиры больше, чем в сёлах",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Голод снижает удовлетворённость жизнью",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Голод повышает удовлетворённость жизнью",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Семьи, где глава — женщина, тратят на человека больше",
+   "gold_ok": true,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Семьи с большим числом работающих тратят на человека меньше",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Семьи с детьми реже берут кредиты",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Большие семьи чаще берут кредиты (ρ = +0,19)",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Пособия чаще получают семьи с большим числом детей",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "В регионах с более высоким доходом обряды в долг встречаются реже",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "В регионах с более высоким доходом ниже удовлетворённость жизнью",
+   "gold_ok": true,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Семьи с высоким доходом менее довольны жизнью",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "В регионах с большим числом лишений выше удовлетворённость финансами",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Высшее образование помогает реже голодать",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Пенсионеры чаще живут без водопровода",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "У сельских семей больше лишений",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Доход на человека выше в семьях с меньшим числом детей: ρ = −0,69",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "В Мангистауской области лишь 5 % семей не могут провести обряды без долгов",
+   "gold_ok": true,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "В Туркестанской области 40 % семей берут в долг на обряды",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Около 24 % семей не могут позволить себе отпуск",
+   "gold_ok": true,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Почти половина семей не может покрыть непредвиденный расход",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Каждая третья семья не может провести обряды без долгов",
+   "gold_ok": true,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Число детей никак не связано с доходом на человека",
+   "gold_ok": false,
+   "llm": "не подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Внутри регионов лишения и удовлетворённость жизнью не связаны",
+   "gold_ok": true,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Связь между образованием и удовлетворённостью жизнью доказана",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Многодетные семьи чаще голодают",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Женщины — главы семей реже берут займы",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test2",
+   "text": "Сельские семьи живут в домах большей площади",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Чем больше детей, тем меньше денег приходится на каждого члена семьи",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Горожане живут теснее, чем сельчане",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Многодетные чаще влезают в кредиты",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Многодетные реже берут кредиты",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Голодающие семьи реже довольны жизнью",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Сытые люди менее счастливы",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "В областях с высокими зарплатами больше семей влезают в долги на той",
+   "gold_ok": true,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Семьи с высокими зарплатами чаще влезают в долги на той",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Безработица усиливает голод",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Ипотека делает людей несчастнее",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Женщины — главы семей тратят больше на человека",
+   "gold_ok": true,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "В сёлах жильё просторнее",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Ауылда пәтерлер үлкенірек",
+   "gold_ok": true,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Қалада табыс жоғары",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Балалар көп болса, табыс аз",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Пособия получают семьи с детьми (ρ = +0,07)",
+   "gold_ok": true,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Пособия получают семьи с детьми (ρ = +0,5)",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "В Костанайской области 42 % семей не могут провести обряды без долгов",
+   "gold_ok": true,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "В Жамбылской области половина семей берёт в долг на обряды",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "test3",
+   "text": "Отсутствие удобств не связано с удовлетворённостью жизнью",
+   "gold_ok": true,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Люди с низким доходом чаще сталкиваются с нехваткой еды.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Наличие работы не всегда защищает человека от бедности.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Семьи с одинаковым доходом могут иметь совершенно разный уровень продовольственной безопасности.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Чем ниже доход семьи, тем чаще ей приходится экономить на продуктах.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Высокий доход всегда означает, что семья может позволить себе полноценное питание.",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Люди, получающие нерегулярный доход, чаще сталкиваются с финансовыми трудностями.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Рост доходов семьи всегда приводит к улучшению качества питания.",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Семьи, тратящие большую часть дохода на жильё, чаще испытывают трудности с покупкой продуктов.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "В многодетных семьях чаще возникает нехватка продовольствия.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Семьи с маленькими детьми чаще сталкиваются с финансовыми трудностями.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Одиноким родителям сложнее обеспечить семью достаточным количеством еды.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Чем больше людей в семье, тем выше риск продовольственной необеспеченности.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Семьи с двумя работающими родителями реже сталкиваются с нехваткой еды.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Дети из малообеспеченных семей чаще имеют ограниченный выбор продуктов.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Большая семья обязательно находится в худшем финансовом положении, чем маленькая.",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Семьи, получающие социальную помощь, реже сталкиваются с нехваткой еды.",
+   "gold_ok": false,
+   "llm": "не подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Жители сельской местности чаще сталкиваются с бедностью, чем жители городов.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "В сельской местности людям проще обеспечить себя продуктами благодаря собственному хозяйству.",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "В городах стоимость жизни сильнее влияет на доступность полноценного питания.",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Жители сельской местности имеют меньше возможностей для трудоустройства.",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Проживание в крупном городе автоматически означает более высокий уровень жизни.",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "В регионах с меньшими возможностями трудоустройства выше риск бедности.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Доступность продуктовых магазинов влияет на продовольственную безопасность семьи.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Люди из отдалённых населённых пунктов чаще сталкиваются с ограниченным выбором продуктов.",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Люди с более высоким уровнем образования реже сталкиваются с бедностью.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Безработные чаще испытывают нехватку денег на продукты.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Работа с низкой заработной платой не всегда позволяет избежать бедности.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Люди с высшим образованием всегда имеют более стабильное финансовое положение.",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Профессиональная квалификация связана с уровнем дохода семьи.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Нестабильная занятость повышает риск продовольственной необеспеченности.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Люди с низкими доходами чаще выбирают дешёвые продукты вместо более полезных.",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Недостаток денег влияет не только на количество еды, но и на её качество.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Семьи с ограниченным бюджетом чаще отказываются от определённых продуктов ради экономии.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Доступ к чистой питьевой воде связан с уровнем жизни населения.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Нехватка еды и несбалансированное питание — это одна и та же проблема.",
+   "gold_ok": false,
+   "llm": "нельзя проверить",
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "set": "team",
+   "text": "Даже при достаточном количестве еды человек может испытывать продовольственную необеспеченность из-за низкого качества питания.",
+   "gold_ok": false,
+   "llm": "подтверждается",
+   "model": "gemini:gemini-3.5-flash-lite"
+  }
+ ]
+}

@@ -32,6 +32,8 @@ def main():
         f["explain_eval"] = json.loads((ev / "explain_results.json").read_text())["summary"]
     if (ev / "logic_results.json").exists():
         f["logic_eval"] = json.loads((ev / "logic_results.json").read_text())
+    if (ev / "llm_baseline_results.json").exists():
+        f["baseline"] = json.loads((ev / "llm_baseline_results.json").read_text())["summary"]
     if (ev / "planted_results.json").exists():
         f["planted"] = json.loads((ev / "planted_results.json").read_text())["summary"]
     # средние по 20 регионам для каждого показателя — для графика-доказательства в ответе
