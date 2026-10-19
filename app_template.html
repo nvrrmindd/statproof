@@ -103,6 +103,7 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
   <div class="card">
     <form class="ask" id="askform"><input id="q" aria-label="Вопрос" placeholder="Вопрос на русском или казахском: связаны ли лишения с удовлетворённостью жизнью?"><button>Проверить</button></form>
     <div class="chips" id="chips"></div>
+    <p class="note" id="aistatus" style="margin-top:10px"></p>
     <div id="answer" style="margin-top:18px"></div>
   </div>
   <div class="card" style="margin-top:16px" id="checker">
@@ -329,13 +330,39 @@ function drawAnswerPlot(p){
 }
 // Чистая функция проверки утверждения: её же вызывает оценка качества (eval/run_eval.py)
 const REGION_STEMS = [['ско',59],['северо-казахстан',59],['вко',63],['восточно-казахстан',63],['зко',27],['западно-казахстан',27],['абай',10],['акмол',11],['актюб',15],['алматинск',19],['атырау',23],['жамбыл',31],['жетысу',33],['караганд',35],['костанай',39],['кызылорд',43],['мангист',47],['павлодар',55],['туркестан',61],['улытау',62],['астан',71],['алматы',75],['шымкент',79]];
-async function getU(t){ return understandRules(t); }
+// ИИ-режим: если запущен serve.py, вопросы понимает облачная модель (стратегия merge, выбрана на dev-наборе).
+// Утверждения и записки проверяет только детерминированная логика: на контрольном наборе модель пропустила
+// одно ложное утверждение, правила — ни одного.
+let AI = null;
+const AI_URL = location.protocol === 'http:' ? '' : 'http://127.0.0.1:8765';
+async function aiInit(){
+  try { const r = await fetch(AI_URL + '/api/health', {cache: 'no-store'}); if (r.ok){ const h = await r.json(); if (h.ok) AI = h; } } catch (e) {}
+  const el = document.getElementById('aistatus');
+  if (el) el.innerHTML = AI
+    ? `<b>ИИ-режим включён:</b> вопросы понимает языковая модель (${AI.model}), в неё уходит только текст вопроса. Числа и вердикты считает движок.`
+    : 'Режим словаря: вопросы на русском и казахском понимаются по каталогу показателей. ИИ-режим включается командой <code>python3 qol_ai/serve.py</code>.';
+}
+async function getQuestionU(q){
+  if (AI){ try { const r = await fetch(AI_URL + '/api/understand', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text: q})});
+    if (r.ok){ const l = await r.json(); if (l && Array.isArray(l.vars)) return understand(q, l, 'merge'); } } catch (e) {} }
+  return understandRules(q);
+}
+async function getU(t){ return understandRules(t); }   // утверждения и записки — только правила
 // Объединение: словарь главный, модель дополняет то, чего словарь не нашёл (стратегия выбрана на dev-наборе)
 function understand(t, llmU, strategy){
   const r = understandRules(t);
   if (!llmU) return r;
   strategy = strategy || 'fill';
   if (strategy === 'llm') return {...llmU, fracPct: r.fracPct, source: 'llm'};
+  if (strategy === 'merge'){
+    // модель главная по показателям (если нашла два), правила — по направлению, уровню и отрицанию
+    const isShare = r.vars.length === 1 && (/%/.test(t) || r.fracPct != null);
+    let vars = isShare ? r.vars : (llmU.vars.length >= 2 ? llmU.vars : [...new Set([...r.vars, ...llmU.vars])]);
+    if (vars.includes('dep_ritual')) vars = vars.filter(x => x !== 'borrowed');
+    vars = vars.slice(0, 2);
+    // направление считаем по правилам; модель — только если правила ничего не нашли
+    return {...r, vars, direction: r.direction || llmU.direction, negated: r.negated || llmU.negated, source: 'merge'};
+  }
   // утверждение о доле по одному показателю модель не дополняет; «долг на обряды» — про обряды
   const isShare = r.vars.length === 1 && (/%/.test(t) || r.fracPct != null);
   let vars = (r.vars.length >= 2 || isShare) ? r.vars : [...new Set([...r.vars, ...llmU.vars])];
@@ -425,8 +452,8 @@ $('#checkform').onsubmit = async e => { e.preventDefault(); const t = $('#claim'
 
 const examples = ['Связаны ли лишения с удовлетворённостью жизнью?','Табыс пен той арасында байланыс бар ма?','Влияет ли голод на удовлетворённость жизнью?','Доход и обряды','Доход и число детей','Город или село и площадь жилья','Высшее образование и удовлетворённость жизнью','Как погода влияет на урожай?'];
 $('#chips').innerHTML = examples.map(e=>`<button class="chip" type="button">${e}</button>`).join('');
-$('#chips').onclick = e => { if (e.target.classList.contains('chip')){ $('#q').value = e.target.textContent; render(e.target.textContent);} };
-$('#askform').onsubmit = async e => { e.preventDefault(); const q = $('#q').value; render(q, (await getU(q)).vars); };
+$('#chips').onclick = async e => { if (e.target.classList.contains('chip')){ const q = e.target.textContent; $('#q').value = q; render(q, (await getQuestionU(q)).vars);} };
+$('#askform').onsubmit = async e => { e.preventDefault(); const q = $('#q').value; if (AI) $('#answer').innerHTML = '<p class="note">ИИ разбирает вопрос…</p>'; render(q, (await getQuestionU(q)).vars); };
 
 /* ---------- графики */
 function layoutBase(extra){
@@ -543,6 +570,8 @@ if (D.eval){
              ['Ложные утверждения не пропущены', s => pc(s.false_claims_caught, s.false_claims_total)],
              ['Ложное утверждение принято за верное', s => String(s.false_accepts)]];
   $('#qtable').innerHTML = `<tr><th>Контрольный набор</th><th>Версия 2</th><th>Версия 3</th></tr>` + R.map(([l,f]) => `<tr><td>${l}</td><td class="num">${f(e.v1)}</td><td class="num"><b>${f(e.v2)}</b></td></tr>`).join('');
+  if (D.llm_eval){ const R = D.llm_eval.rules, L = D.llm_eval.llm;
+    $('#qtable').insertAdjacentHTML('afterend', `<p class="note" style="margin-top:12px"><b>ИИ-режим (языковая модель Gemini, бесплатный лимит).</b> На новом контрольном наборе разговорных вопросов, в том числе на казахском, модель распознала <b>${L.questions_correct} из ${L.questions_total}</b> вопросов против ${R.questions_correct} из ${R.questions_total} у словаря. В проверке утверждений модель пропустила ${L.false_accepts} ложное утверждение, а правила — ${R.false_accepts}, поэтому утверждения и записки Provable проверяет только детерминированной логикой. В модель уходит только текст вопроса; числа и вердикты считает движок.</p>`); }
   if (D.team){ const I = D.team.independent, A = D.team.after;
     $('#qtable').insertAdjacentHTML('afterend', `<p class="note" style="margin-top:12px"><b>Независимая проверка.</b> Отдельно от разработки системы было составлено ${I.claims_total} правдоподобных утверждений о доходах, детях, селе и питании — таких, какие написал бы любой аналитик. По нашим данным ни одно не подтверждается. Provable не принял <b>${I.false_claims_caught} из ${I.claims_total}</b> (${I.false_claims_total - I.false_accepts} отклонил или честно ответил «не могу проверить»). После правила для слов «всегда» и «не всегда» — ${A.false_claims_caught} из ${A.claims_total}; эта цифра уже не независимая.</p>`); }
   if (D.planted){ const P = D.planted;
@@ -622,6 +651,7 @@ $('#topics').onclick = e => { if (e.target.classList.contains('chip')) writeNote
 writeNote('Доходы и расходы');
 
 
+aiInit();
 function drawAll(){ drawScatter(); drawBump(); drawTrap(); drawFormMatrix(); drawHeat(); drawDep(); }
 document.querySelector('details').addEventListener('toggle', () => Plotly.Plots.resize('heat'));
 $('#theme').onclick = () => { const r = document.documentElement; const dark = r.dataset.theme ? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme = dark ? 'light' : 'dark'; drawAll(); render($('#q').value || examples[0]); };
