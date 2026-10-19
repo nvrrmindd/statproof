@@ -90,6 +90,8 @@ svg text{font-family:-apple-system,"Segoe UI",Inter,sans-serif}
 .ctl{display:grid;gap:8px}
 .verdict-box{margin-top:10px;padding:12px;border-radius:12px;background:var(--card-2);font-size:14px}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="audit_engine.js"></script>
 </head>
 <body>
 <header class="top">
@@ -115,7 +117,7 @@ svg text{font-family:-apple-system,"Segoe UI",Inter,sans-serif}
       <button class="ghost" type="button" data-demo="домохозяйства.csv">Пример: домохозяйства</button>
       <button class="ghost" type="button" data-demo="d004_доходы_людей.csv">Пример: доходы людей</button>
       <button class="ghost" type="button" data-demo="предприятия_синтетика.csv">Пример: предприятия (не семьи)</button></div>
-    <p class="note" id="loadmsg" style="text-align:center;margin:14px 0 0"></p>
+    <p class="note" id="loadmsg" style="text-align:center;margin:14px 0 0">🔒 Таблица обрабатывается на вашем компьютере и никуда не отправляется.</p>
   </div>
 
   <div class="card hidden" id="step2">
@@ -143,7 +145,31 @@ svg text{font-family:-apple-system,"Segoe UI",Inter,sans-serif}
 
 <script>
 const $ = s => document.querySelector(s);
-const API = location.protocol === 'http:' ? '' : 'http://127.0.0.1:8799';
+const API = location.protocol === 'http:' && /^(127\.0\.0\.1|localhost)$/.test(location.hostname) ? '' : 'http://127.0.0.1:8799';
+/* есть локальный сервер — считает он (Python); нет (публичный сайт) — считает браузер, данные никуда не уходят */
+let SERVER = false, ROWS = null;
+const serverReady = (location.protocol === 'https:' ? Promise.resolve(false)
+  : fetch(API + '/api/health', {signal: AbortSignal.timeout(1500)}).then(r => r.ok).catch(() => false)).then(ok => {
+    SERVER = ok;
+    if (!ok) document.querySelectorAll('[data-demo]').forEach(b => { if (b.dataset.demo !== 'предприятия_синтетика.csv') b.remove(); });
+    return ok; });
+function browserColumns(text){
+  const res = Papa.parse(text.replace(/^\ufeff/, ''), {header: true, skipEmptyLines: true});
+  if (!res.meta.fields || res.meta.fields.length < 2) throw new Error('не удалось прочитать таблицу: нужна строка заголовков и хотя бы два столбца');
+  const D = ProvableEngine.describe(res.data, res.meta.fields); ROWS = D.rows; return D.info;
+}
+function browserAudit(args){
+  const direct = (res, rej) => setTimeout(() => { try { res(ProvableEngine.auditTable(...args)); } catch (err) { rej(err); } }, 40);
+  return new Promise((res, rej) => {
+    try {
+      const src = new URL('audit_engine.js', location.href).href;
+      const w = new Worker(URL.createObjectURL(new Blob([`importScripts(${JSON.stringify(src)});onmessage=e=>{try{postMessage({ok:ProvableEngine.auditTable(...e.data)})}catch(err){postMessage({err:String(err)})}}`], {type: 'text/javascript'})));
+      w.onmessage = e => { w.terminate(); e.data.err ? rej(new Error(e.data.err)) : res(e.data.ok); };
+      w.onerror = ev => { ev.preventDefault(); w.terminate(); direct(res, rej); };
+      w.postMessage(args);
+    } catch (e) { direct(res, rej); }
+  });
+}
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const f2 = (x, n=2) => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(n).replace('.', ',');
 const fmt = n => n.toLocaleString('ru-RU');
@@ -172,7 +198,8 @@ async function post(path, body, raw){
 async function loadFile(file){
   if (!file) return;
   $('#loadmsg').innerHTML = `<span class="spinner"></span> Читаю «${esc(file.name)}»…`;
-  try { showColumns(await post('/api/upload', await file.text(), true)); } catch (err) { $('#loadmsg').innerHTML = `<span class="err">${esc(err.message)}</span>`; }
+  try { const text = await file.text(); showColumns(await serverReady ? await post('/api/upload', text, true) : browserColumns(text)); }
+  catch (err) { $('#loadmsg').innerHTML = `<span class="err">${esc(err.message)}</span>`; }
 }
 $('#file').onchange = e => loadFile(e.target.files[0]);
 const drop = $('#drop');
@@ -182,7 +209,8 @@ drop.addEventListener('drop', e => loadFile(e.dataTransfer.files[0]));
 drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); $('#file').click(); } });
 document.querySelectorAll('[data-demo]').forEach(b => b.onclick = async () => {
   $('#loadmsg').innerHTML = '<span class="spinner"></span> Загружаю пример…';
-  try { showColumns(await post('/api/demo', {name: b.dataset.demo})); } catch (err) { $('#loadmsg').innerHTML = `<span class="err">${esc(err.message)}</span>`; } });
+  try { showColumns(await serverReady ? await post('/api/demo', {name: b.dataset.demo})
+      : browserColumns(await (await fetch('demo/' + encodeURIComponent(b.dataset.demo))).text())); } catch (err) { $('#loadmsg').innerHTML = `<span class="err">${esc(err.message)}</span>`; } });
 
 /* шаг 2: роли столбцов */
 function showColumns(info){
@@ -208,7 +236,10 @@ $('#run').onclick = async () => {
   if (vars.length < 2){ $('#runmsg').textContent = 'Нужно хотя бы два показателя.'; return; }
   if (vars.length > 15){ $('#runmsg').textContent = 'Не больше 15 показателей за раз — отметьте лишние как «Не использовать».'; return; }
   $('#run').disabled = true; $('#runmsg').innerHTML = `<span class="spinner"></span> Проверяю ${vars.length*(vars.length-1)/2} пар показателей…`;
-  try { REP = await post('/api/audit', {token: TOKEN, variables: vars, cell_groups: groups, compare_group: $('#cmp').value || null, repeat_by: $('#rep').value || null}); render(); $('#runmsg').textContent = ''; }
+  try {
+    REP = SERVER ? await post('/api/audit', {token: TOKEN, variables: vars, cell_groups: groups, compare_group: $('#cmp').value || null, repeat_by: $('#rep').value || null})
+                 : await browserAudit([ROWS, vars, groups, $('#cmp').value || null, $('#rep').value || null]);
+    render(); $('#runmsg').textContent = ''; }
   catch (err) { $('#runmsg').innerHTML = `<span class="err">Ошибка расчёта: ${esc(err.message)}</span>`; }
   $('#run').disabled = false;
 };
