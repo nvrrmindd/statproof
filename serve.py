@@ -1,6 +1,6 @@
 """Provable с ИИ-режимом: облачная модель (Gemini/Groq, бесплатные лимиты) понимает вопросы.
 
-    python3 qol_ai/serve.py        # затем откройте out/provable.html (или http://127.0.0.1:8765/)
+    python3 qol_ai/serve.py        # затем откройте out/provable.html (или http://127.0.0.1:8799/)
 
 Ключи — в qol_ai/.env (см. llm_api.py). В модель уходит только текст вопроса, данные домохозяйств не отправляются.
 Утверждения и записки по-прежнему проверяет только детерминированная логика.
@@ -13,7 +13,7 @@ from pathlib import Path
 import llm_api
 
 APP = Path(__file__).resolve().parent / "out" / "provable.html"
-PORT = 8765
+PORT = 8799
 
 
 class Handler(BaseHTTPRequestHandler):

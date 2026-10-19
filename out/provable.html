@@ -3968,7 +3968,7 @@ const REGION_STEMS = [['ско',59],['северо-казахстан',59],['в�
 // Утверждения и записки проверяет только детерминированная логика: на контрольном наборе модель пропустила
 // одно ложное утверждение, правила — ни одного.
 let AI = null;
-const AI_URL = location.protocol === 'http:' ? '' : 'http://127.0.0.1:8765';
+const AI_URL = location.protocol === 'http:' ? '' : 'http://127.0.0.1:8799';
 async function aiInit(){
   try { const r = await fetch(AI_URL + '/api/health', {cache: 'no-store'}); if (r.ok){ const h = await r.json(); if (h.ok) AI = h; } } catch (e) {}
   const el = document.getElementById('aistatus');
