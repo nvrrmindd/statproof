@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Provable — проверка выводов</title>
+<title>Provable — анализ обследования</title>
 <script>/**
 * plotly.js v4.1.1
 * Copyright 2012-2026, Plotly, Inc.
@@ -3702,18 +3702,78 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
 </head>
 <body>
 <div class="wrap">
-<nav class="top"><a href="#ask">Спросить данные</a><a href="#doc">Проверка записки</a><a href="#writer">Записка</a><a href="#library">Доказанные выводы</a><a href="#quality">Качество ИИ</a><a href="#discovery">Открытие</a><a href="#trap">Ловушка</a><a href="#map">Карта доказательности</a><a href="#gap">Самооценка</a><a href="#method">Метод</a></nav>
+<nav class="top"><a href="./">Provable</a><a href="#discovery">Главная находка</a><a href="#library">Доказанные выводы</a><a href="#map">Карта связей</a><a href="#trap">Ловушка</a><a href="#gap">Самооценка</a><a href="#ask">Спросить данные</a><a href="#writer">Записка</a><a href="#method">Метод</a></nav>
 <header style="margin-top:24px">
   <div>
-    <p class="eyebrow">STAT.DATATHON-2026 · трек AI for Official Statistics</p>
-    <h1>Provable: ИИ-помощник аналитика, который проверяет, допустим ли вывод по данным</h1>
-    <p class="lede">Система отвечает на вопросы о качестве жизни домохозяйств Казахстана только тем, что может доказать. Каждый вывод получает уровень доказательности: подтверждён по домохозяйствам, допустим только между регионами или не подтверждается. Числа в ответе считает статистический движок, а не языковая модель.</p>
+    <p class="eyebrow">Пример отчёта · обследование качества жизни домохозяйств</p>
+    <h1>Что данные о качестве жизни казахстанских семей доказывают — и чего нет</h1>
+    <p class="lede">Provable проанализировал четыре формы обследования (Д-002, Д-004, Д-006, Д-008): собрал их в одну таблицу, нашёл все связи между 23 показателями и проверил каждую. Ниже — главная находка, доказанные выводы и карта всех связей. Можно задать свой вопрос, проверить гипотезу или получить готовую аналитическую записку.</p>
   </div>
   <button class="toggle" id="theme" type="button">Тема</button>
 </header>
 
 <section>
   <div class="grid g4" id="tiles"></div>
+</section>
+
+<section id="discovery">
+  <p class="eyebrow">Главная находка</p>
+  <h2>Парадокс достатка: где выше доходы, там чаще «обряды в долг»</h2>
+  <p class="sub" id="disc-sub"></p>
+  <div class="grid g2">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <h3 id="sc-title">Регионы: доход и доля семей с обрядами только в долг</h3>
+        <div class="seg" id="yearseg"></div>
+      </div>
+      <div id="scatter" class="plot"></div>
+      <p class="note">Каждая точка — регион. По горизонтали: средний денежный доход на человека в месяц (D004), по вертикали: доля домохозяйств, которые не могут провести обряды без обременительных долгов (D002). Наведите курсор на точку, чтобы увидеть значения.</p>
+    </div>
+    <div class="card">
+      <h3>Проверка устойчивости</h3>
+      <div class="scroll"><table id="robust"></table></div>
+      <p class="note" id="robust-note"></p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Ранги регионов не совпадают: богаче — не значит устойчивее</h3>
+    <div id="bump" class="plot" style="height:560px"></div>
+    <p class="note">Слева регионы упорядочены по доходу на человека, справа — по доле семей с «обрядами в долг» (1 — самая высокая). Выделены регионы с самым большим сдвигом рангов. Год переключается вместе с диаграммой выше.</p>
+  </div>
+</section>
+
+<section id="library">
+  <h2>Библиотека доказанных выводов</h2>
+  <p class="sub" id="lib-sub"></p>
+  <div class="card">
+    <input id="libq" aria-label="Поиск по выводам" placeholder="Поиск: доход, дети, регион…" style="width:100%;font:inherit;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text)">
+    <div class="scroll" style="margin-top:12px"><table id="libtable"></table></div>
+  </div>
+</section>
+
+<section id="map">
+  <h2>Карта связей</h2>
+  <p class="sub" id="map-sub"></p>
+  <div class="card"><h3>Сводка по формам: сколько пар подтверждено</h3><div class="scroll"><div class="fm" id="formmatrix" style="min-width:640px"></div></div>
+    <details><summary>Показать все 253 пары</summary><div class="scroll"><div id="heat" style="min-width:720px;height:640px"></div></div></details>
+    <div class="legend"><span><i class="sw" style="background:var(--good)"></i>✓ подтверждено по домохозяйствам</span><span><i class="sw" style="background:var(--warn)"></i>◐ только между регионами</span><span><i class="sw" style="background:var(--line)"></i>✕ не подтверждается</span></div>
+  </div>
+</section>
+
+<section id="trap">
+  <p class="eyebrow">Почему это важно</p>
+  <h2>Одна и та же связь: сильная между регионами, нулевая между семьями</h2>
+  <p class="sub">Обычный дашборд показал бы, что домохозяйства с большим числом лишений менее довольны жизнью. В этих данных такой вывод о семьях недоказуем: связь целиком объясняется различиями между регионами. Перенос региональной закономерности на семьи — классическая экологическая ошибка. Provable её блокирует.</p>
+  <div class="card">
+    <div id="trapchart" class="plot" style="height:420px"></div>
+    <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>Между регионами (ρ, 2024)</span><span><i class="sw" style="background:var(--muted)"></i>Наивная ρ по всем семьям</span><span><i class="sw" style="background:var(--s2)"></i>Между семьями после контроля региона</span></div>
+  </div>
+</section>
+
+<section id="gap">
+  <h2>Самооценка не видит лишений</h2>
+  <p class="sub" id="gap-sub"></p>
+  <div class="card"><div id="depbar" class="plot" style="height:400px"></div></div>
 </section>
 
 <section id="ask">
@@ -3750,71 +3810,11 @@ footer{margin-top:56px;color:var(--muted);font-size:13px}
   </div>
 </section>
 
-<section id="library">
-  <h2>Библиотека доказанных выводов</h2>
-  <p class="sub" id="lib-sub"></p>
-  <div class="card">
-    <input id="libq" aria-label="Поиск по выводам" placeholder="Поиск: доход, дети, регион…" style="width:100%;font:inherit;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text)">
-    <div class="scroll" style="margin-top:12px"><table id="libtable"></table></div>
-  </div>
-</section>
-
 <section id="quality" hidden>
   <h2>Качество ИИ измерено</h2>
   <p class="sub">Разбор вопросов и проверку утверждений мы оценили на контрольном наборе из 40 вопросов и 30 утверждений с заранее известными ответами: разговорные формулировки, направление связи, отрицания, доли словами. Набор зафиксирован в git до первого запуска и не использовался для настройки.</p>
   <div class="card scroll"><table id="qtable"></table>
   <p class="note" style="margin-top:12px">Главная слабость — разговорные слова вне словаря («горожане», «ипотека», «недоедание»): по ним вопрос не распознаётся, и система отказывается, а не угадывает. Локальную языковую модель мы проверили: 3B ошибалась чаще словаря, 7B понимала лучше, но отвечала 16 секунд на ноутбуке, поэтому в продукт не вошла. После замера в словарь добавлены разговорные слова («горожане», «ипотека», «недоедание», «диплом»); новых цифр по вопросам мы не заявляем, потому что эти слова взяты из ошибок контрольного набора. Наборы и скрипт: <code>eval/</code>.</p></div>
-</section>
-
-<section id="discovery">
-  <p class="eyebrow">Центральное открытие</p>
-  <h2>Парадокс достатка: где выше доходы, там чаще «обряды в долг»</h2>
-  <p class="sub" id="disc-sub"></p>
-  <div class="grid g2">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
-        <h3 id="sc-title">Регионы: доход и доля семей с обрядами только в долг</h3>
-        <div class="seg" id="yearseg"></div>
-      </div>
-      <div id="scatter" class="plot"></div>
-      <p class="note">Каждая точка — регион. По горизонтали: средний денежный доход на человека в месяц (D004), по вертикали: доля домохозяйств, которые не могут провести обряды без обременительных долгов (D002). Наведите курсор на точку, чтобы увидеть значения.</p>
-    </div>
-    <div class="card">
-      <h3>Проверка устойчивости</h3>
-      <div class="scroll"><table id="robust"></table></div>
-      <p class="note" id="robust-note"></p>
-    </div>
-  </div>
-  <div class="card" style="margin-top:16px">
-    <h3>Ранги регионов не совпадают: богаче — не значит устойчивее</h3>
-    <div id="bump" class="plot" style="height:560px"></div>
-    <p class="note">Слева регионы упорядочены по доходу на человека, справа — по доле семей с «обрядами в долг» (1 — самая высокая). Выделены регионы с самым большим сдвигом рангов. Год переключается вместе с диаграммой выше.</p>
-  </div>
-</section>
-
-<section id="trap">
-  <p class="eyebrow">Почему это важно</p>
-  <h2>Одна и та же связь: сильная между регионами, нулевая между семьями</h2>
-  <p class="sub">Обычный дашборд показал бы, что домохозяйства с большим числом лишений менее довольны жизнью. В этих данных такой вывод о семьях недоказуем: связь целиком объясняется различиями между регионами. Перенос региональной закономерности на семьи — классическая экологическая ошибка. Provable её блокирует.</p>
-  <div class="card">
-    <div id="trapchart" class="plot" style="height:420px"></div>
-    <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>Между регионами (ρ, 2024)</span><span><i class="sw" style="background:var(--muted)"></i>Наивная ρ по всем семьям</span><span><i class="sw" style="background:var(--s2)"></i>Между семьями после контроля региона</span></div>
-  </div>
-</section>
-
-<section id="map">
-  <h2>Карта доказательности</h2>
-  <p class="sub" id="map-sub"></p>
-  <div class="card"><h3>Сводка по формам: сколько пар подтверждено</h3><div class="scroll"><div class="fm" id="formmatrix" style="min-width:640px"></div></div>
-    <details><summary>Показать все 253 пары</summary><div class="scroll"><div id="heat" style="min-width:720px;height:640px"></div></div></details>
-    <div class="legend"><span><i class="sw" style="background:var(--good)"></i>✓ подтверждено по домохозяйствам</span><span><i class="sw" style="background:var(--warn)"></i>◐ только между регионами</span><span><i class="sw" style="background:var(--line)"></i>✕ не подтверждается</span></div>
-  </div>
-</section>
-
-<section id="gap">
-  <h2>Самооценка не видит лишений</h2>
-  <p class="sub" id="gap-sub"></p>
-  <div class="card"><div id="depbar" class="plot" style="height:400px"></div></div>
 </section>
 
 <section id="method">
@@ -3860,7 +3860,7 @@ const core = D.core.dep_ritual.by_year, rep = D.replication_2022;
 const lc = D.level_counts, total = D.pairs.length;
 $('#tiles').innerHTML = [
   [D.meta.n_households.toLocaleString('ru-RU'), `домохозяйств, ${D.meta.years.join('–')}, ${D.meta.k_regions} регионов`],
-  [total, 'пар показателей прошли аудит'],
+  [total, 'связей между 23 показателями проверено'],
   [`${lc.HOUSEHOLD||0} / ${lc.REGIONAL||0} / ${lc.NONE||0}`, 'подтверждено по семьям / только по регионам / отклонено'],
   [f2(core['2024'].rho), `ρ доход × «обряды в долг» между регионами в 2024 (в 2023: ${f2(core['2023'].rho)}, в 2022: ${f2(rep.ritual)})`],
 ].map(([v,l]) => `<div class="card tile"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
