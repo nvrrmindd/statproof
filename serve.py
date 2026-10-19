@@ -32,6 +32,7 @@ HOME = HERE / "home.html"
 DEMOS = HERE / "demo_data"
 TABLES: dict[str, pd.DataFrame] = {}      # загруженные таблицы, только в памяти этого компьютера
 MAX_ROWS = 200_000
+ID_NAME = re.compile(r"(^id$|^id_|_id$|идентификатор|^код_?|номер|^n$|^№)", re.I)
 GROUP_NAME = re.compile(r"(регион|region|^te$|город|urban|^k$|год|year|^god|квартал|quarter|^kv|отрасл|oked|kato|район|district|область|пол$|^pol$)", re.I)
 
 
@@ -58,8 +59,9 @@ def describe(df: pd.DataFrame, preset: dict | None = None) -> dict:
         u = int(s.nunique())
         if preset is not None:
             role = preset.get(c, "skip")
-        elif u >= 0.9 * len(df) and u > 50:
-            role = "skip"                                   # идентификатор
+        elif ID_NAME.search(str(c)) or (not is_num and u >= 0.9 * len(df) and u > 50) or (
+                is_num and u == len(df) and u > 50 and (num % 1 == 0).all() and num.max() - num.min() + 1 == u):
+            role = "skip"                                   # идентификатор: по названию, уникальный текст или нумерация 1…N
         elif GROUP_NAME.search(str(c)) and u <= 100:
             role = "group"
         elif not is_num:
@@ -134,7 +136,12 @@ class Handler(BaseHTTPRequestHandler):
                 df = TABLES.get(q.get("token"))
                 if df is None:
                     return self._send(400, {"error": "таблица не найдена, загрузите её снова"})
-                rep = generic.audit_table(df, q["variables"][:15], q["cell_groups"], q["compare_group"], q.get("repeat_by"))
+                groups = q.get("cell_groups") or []
+                if not groups:                              # категорий нет — проверка по всей таблице, без сравнения средних
+                    df = df.assign(**{"вся таблица": "все"})
+                    groups, q["compare_group"] = ["вся таблица"], "вся таблица"
+                rep = generic.audit_table(df, q["variables"][:15], groups, q["compare_group"], q.get("repeat_by"))
+                rep["no_groups"] = groups == ["вся таблица"]
                 return self._send(200, json.loads(json.dumps(rep, default=float)))
         except Exception as e:
             return self._send(400, {"error": str(e)[:300]})

@@ -97,7 +97,7 @@ svg text{font-family:-apple-system,"Segoe UI",Inter,sans-serif}
   <div class="top-inner">
     <div class="nav"><a class="logo" href="./"><i>✓</i> Provable</a><a class="link" href="report">Пример отчёта по домохозяйствам →</a></div>
     <h1>Загрузите таблицу — получите отчёт о том, какие выводы она позволяет сделать</h1>
-    <p class="lead">Provable проверит каждую пару показателей: связь верна для каждой строки по отдельности (семьи, человека, предприятия), только в среднем по категории (региону, отрасли) или её нет. Данные остаются на этом компьютере.</p>
+    <p class="lead">Provable возьмёт каждые два числовых столбца (например, «доход» и «возраст») и проверит, связаны ли они: связь верна для каждой строки по отдельности (семьи, человека, предприятия), только в среднем по категории (региону, отрасли) или её нет. Данные остаются на этом компьютере.</p>
   </div>
 </header>
 
@@ -136,7 +136,7 @@ svg text{font-family:-apple-system,"Segoe UI",Inter,sans-serif}
     </div>
     <p class="note muted" style="margin:8px 0 0" id="hint">Виджеты можно перетаскивать за заголовок. С клавиатуры: выделите виджет и нажмите Alt + стрелку.</p>
     <div class="grid" id="grid" role="list"></div>
-    <div class="card"><h2>Все пары</h2><p class="note">Полная таблица расчётов: ρ — ранговая корреляция (−1…+1), ДИ — 95 % доверительный интервал, p — вероятность увидеть такую связь случайно.</p><div class="scroll" style="max-height:520px"><table id="all"></table></div></div>
+    <div class="card"><h2>Все проверенные связи</h2><p class="note">Полная таблица расчётов: ρ — ранговая корреляция (−1…+1), ДИ — 95 % доверительный интервал, p — вероятность увидеть такую связь случайно.</p><div class="scroll" style="max-height:520px"><table id="all"></table></div></div>
   </div>
 </div>
 
@@ -206,9 +206,8 @@ $('#run').onclick = async () => {
   const vars = COLS.filter(c => c.role === 'var').map(c => c.name), groups = COLS.filter(c => c.role === 'group').map(c => c.name);
   if (vars.length < 2){ $('#runmsg').textContent = 'Нужно хотя бы два показателя.'; return; }
   if (vars.length > 15){ $('#runmsg').textContent = 'Не больше 15 показателей за раз — отметьте лишние как «Не использовать».'; return; }
-  if (!groups.length){ $('#runmsg').textContent = 'Нужна хотя бы одна категория (например, регион).'; return; }
   $('#run').disabled = true; $('#runmsg').innerHTML = `<span class="spinner"></span> Проверяю ${vars.length*(vars.length-1)/2} пар показателей…`;
-  try { REP = await post('/api/audit', {token: TOKEN, variables: vars, cell_groups: groups, compare_group: $('#cmp').value, repeat_by: $('#rep').value || null}); render(); $('#runmsg').textContent = ''; }
+  try { REP = await post('/api/audit', {token: TOKEN, variables: vars, cell_groups: groups, compare_group: $('#cmp').value || null, repeat_by: $('#rep').value || null}); render(); $('#runmsg').textContent = ''; }
   catch (err) { $('#runmsg').innerHTML = `<span class="err">Ошибка расчёта: ${esc(err.message)}</span>`; }
   $('#run').disabled = false;
 };
@@ -231,7 +230,7 @@ const WIDGETS = [
   {id:'counts', size:'sm', title:'Итог проверки'},
   {id:'data', size:'sm', title:'Данные'},
   {id:'map', size:'lg', title:'Карта доказательности'},
-  {id:'pair', size:'lg', title:'Выбранная пара'},
+  {id:'pair', size:'lg', title:'Выбранная связь'},
   {id:'traps', size:'wide', title:'Ловушки'},
   {id:'proven', size:'wide', title:'Что можно утверждать'},
   {id:'check', size:'wide', title:'Проверить утверждение'},
@@ -373,7 +372,7 @@ const matrixBlock = () => `<div style="flex:1;min-height:0;display:flex;align-it
 function render(){
   const R = REP, c = R.counts, pairs = R.pairs;
   LV.GROUP[1] = `верно только в среднем по «${R.compare_group}»`;
-  $('#rtitle').textContent = `Отчёт: ${R.variables.length} показателей, ${pairs.length} пар`;
+  $('#rtitle').textContent = `Отчёт: ${R.variables.length} числовых столбцов → ${pairs.length} возможных связей`;
   $('#rmeta').textContent = `${fmt(R.rows)} строк · похожими считаются строки с одинаковыми: ${R.cell_groups.join(', ')} · средние по: ${R.compare_group}${R.repeat_by ? ' · повтор по: ' + R.repeat_by : ''}`;
   $('#step3').classList.remove('hidden'); step(3);
   buildGrid();
@@ -381,9 +380,9 @@ function render(){
   const traps = pairs.filter(isTrap).sort((x,y) => (Math.abs(y.raw) - Math.abs(y.partial)) - (Math.abs(x.raw) - Math.abs(x.partial)));
   const bestU = proven.find(p => p.level === 'UNIT'), worst = traps[0];
 
-  W('summary', `<div class="plain"><p>Проверено <b>${pairs.length}</b> пар показателей на <b>${fmt(R.rows)}</b> строках.</p>
+  W('summary', `<div class="plain"><p>Взято <b>${R.variables.length}</b> числовых столбцов. Каждый сравнили с каждым — это <b>${pairs.length}</b> возможных связей вида «чем больше A, тем больше (или меньше) B». Проверено на <b>${fmt(R.rows)}</b> строках.</p>${c.UNIT + c.GROUP === 0 ? `<p><b>Ни одну связь утверждать нельзя.</b> Если столбцы в таблице не связаны между собой (например, случайные числа), это правильный ответ: Provable не придумывает выводы, которых нет в данных.</p>` : ''}
     <p><b style="color:var(--good)">${c.UNIT}</b> связей верны для каждого по отдельности — их можно публиковать как выводы о каждой строке таблицы (семье, человеке, предприятии).${bestU ? ` Самая сильная: «${esc(bestU.a)}» и «${esc(bestU.b)}» (ρ ${f2(bestU.partial)}).` : ''}</p>
-    <p><b style="color:var(--warn)">${c.GROUP}</b> верны только в среднем по «${esc(R.compare_group)}» — писать можно «в среднем по ${esc(R.compare_group)}» (например, «в регионах, где…»), но не о каждом по отдельности.</p>
+    ${R.no_groups ? '<p>В таблице нет категорий (регион, отрасль, год), поэтому ловушку «разница между категориями» проверить нельзя — проверено только, есть ли связь вообще.</p>' : ''}<p${R.no_groups ? ' class="hidden"' : ''}><b style="color:var(--warn)">${c.GROUP}</b> верны только в среднем по «${esc(R.compare_group)}» — писать можно «в среднем по ${esc(R.compare_group)}» (например, «в регионах, где…»), но не о каждом по отдельности.</p>
     <p><b style="color:var(--bad)">${traps.length}</b> ловушек: если смешать всех, связь заметна, а среди похожих исчезает.${worst ? ` Главная: «${esc(worst.a)}» и «${esc(worst.b)}» (${f2(worst.raw)} → ${f2(worst.partial)}).` : ''}</p></div>`);
   W('counts', `<div class="row" style="flex-wrap:nowrap;gap:14px;flex:1">${donut(c)}<div style="font-size:13px;display:grid;gap:6px">
     <span><b style="color:var(--good)">${c.UNIT}</b> для каждого</span><span><b style="color:var(--warn)">${c.GROUP}</b> только в среднем</span><span><b style="color:var(--bad)">${c.NONE}</b> нет вывода</span></div></div>`);
@@ -401,9 +400,9 @@ function render(){
     <select id="cdir" aria-label="Утверждение"><option value="1">связаны прямо (больше → больше)</option><option value="-1">связаны обратно (больше → меньше)</option><option value="0">не связаны</option></select>
     <button type="button" id="ccheck">Проверить</button></div><div id="cout"></div></div>`);
   $('#cb').selectedIndex = 1; $('#ccheck').onclick = checkClaim;
-  W('method', `<p class="note" style="margin:0">Каждую строку сравниваем только с похожими — с теми же ${esc(R.cell_groups.join(', '))}, — чтобы разница между регионами или отраслями не выдавала себя за связь между отдельными семьями, людьми, организациями. Случайность исключаем ${R.n_perm} перестановками среди похожих; интервалы — бутстрап (${R.n_boot}). Связь для каждого: p < 0,01 и поправка Бенджамини — Хохберга на ${pairs.length} пар. Связь в среднем: по средним «${esc(R.compare_group)}»${R.repeat_by ? `, повторяется в каждом значении «${esc(R.repeat_by)}»` : ''}. «Подтверждено» значит «проходит тесты на этих данных», а не причинность. Seed ${R.seed}.</p>`);
+  W('method', `<p class="note" style="margin:0">Каждую строку сравниваем только с похожими — с теми же ${esc(R.cell_groups.join(', '))}, — чтобы разница между регионами или отраслями не выдавала себя за связь между отдельными семьями, людьми, организациями. Случайность исключаем ${R.n_perm} перестановками среди похожих; интервалы — бутстрап (${R.n_boot}). Связь для каждого: p < 0,01 и поправка Бенджамини — Хохберга на ${pairs.length} связей. Связь в среднем: по средним «${esc(R.compare_group)}»${R.repeat_by ? `, повторяется в каждом значении «${esc(R.repeat_by)}»` : ''}. «Подтверждено» значит «проходит тесты на этих данных», а не причинность. Seed ${R.seed}.</p>`);
 
-  $('#all').innerHTML = '<tr><th>Пара</th><th>n</th><th>ρ по всем</th><th>ρ среди похожих [95% ДИ]</th><th>p</th><th>ρ средних по «'+esc(R.compare_group)+'»</th><th>Вердикт</th></tr>' + pairs.map(p =>
+  $('#all').innerHTML = '<tr><th>Связь между</th><th>n</th><th>ρ по всем</th><th>ρ среди похожих [95% ДИ]</th><th>p</th><th>ρ средних по «'+esc(R.compare_group)+'»</th><th>Вердикт</th></tr>' + pairs.map(p =>
     `<tr><td>${esc(p.a)} × ${esc(p.b)}${p.note ? `<div class="note">${p.note}</div>` : ''}</td><td class="num">${fmt(p.n)}</td><td class="num">${f2(p.raw,3)}</td><td class="num">${f2(p.partial,3)} [${f2(p.ci[0],3)}…${f2(p.ci[1],3)}]</td><td class="num">${p.p_perm.toFixed(3)}</td><td class="num">${grpTxt(p)}</td><td><span class="badge b-${p.level}">${LV[p.level][0]} ${LV[p.level][1]}</span></td></tr>`).join('');
   select(worst || bestU || proven[0] || pairs[0]);
   $('#step3').scrollIntoView({behavior:'smooth'});
@@ -421,7 +420,7 @@ function checkClaim(){
   const a = $('#ca').value, b = $('#cb').value, lvl = $('#clevel').value, dir = +$('#cdir').value;
   if (a === b){ $('#cout').innerHTML = '<div class="verdict-box">Выберите два разных показателя.</div>'; return; }
   const p = REP.pairs.find(x => (x.a === a && x.b === b) || (x.a === b && x.b === a));
-  if (!p){ $('#cout').innerHTML = '<div class="verdict-box">Для этой пары мало данных — вывод не делается.</div>'; return; }
+  if (!p){ $('#cout').innerHTML = '<div class="verdict-box">Для этих столбцов мало данных — вывод не делается.</div>'; return; }
   let ok, why;
   const exists = lvl === 'UNIT' ? p.level === 'UNIT' : p.level !== 'NONE';
   const rho = lvl === 'UNIT' ? p.partial : grpRho(p);
@@ -443,7 +442,7 @@ $('#dlcsv').onclick = () => { const head = 'показатель_1,показа�
   download('provable_пары.csv', '﻿' + head + '\n' + REP.pairs.map(p => [q(p.a),q(p.b),p.n,p.raw.toFixed(4),p.partial.toFixed(4),p.ci[0].toFixed(4),p.ci[1].toFixed(4),p.p_perm.toFixed(4),p.level].join(',')).join('\n'), 'text/csv'); };
 $('#dlhtml').onclick = () => { const css = document.querySelector('style').outerHTML, g = $('#grid').cloneNode(true);
   g.querySelector('[data-id="check"]')?.remove(); g.querySelectorAll('.w').forEach(w => w.style.animation = 'none');
-  download('provable_отчёт.html', `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Provable — отчёт</title>${css}</head><body><div class="wrap"><h1>Provable — отчёт</h1><p class="note">${esc($('#rmeta').textContent)}</p><div class="grid" data-cols="${$('#grid').dataset.cols}" style="--cols:${$('#grid').style.getPropertyValue('--cols')}">${g.innerHTML}</div><div class="card"><h2>Все пары</h2><div class="scroll"><table>${$('#all').innerHTML}</table></div></div></div></body></html>`, 'text/html'); };
+  download('provable_отчёт.html', `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Provable — отчёт</title>${css}</head><body><div class="wrap"><h1>Provable — отчёт</h1><p class="note">${esc($('#rmeta').textContent)}</p><div class="grid" data-cols="${$('#grid').dataset.cols}" style="--cols:${$('#grid').style.getPropertyValue('--cols')}">${g.innerHTML}</div><div class="card"><h2>Все проверенные связи</h2><div class="scroll"><table>${$('#all').innerHTML}</table></div></div></div></body></html>`, 'text/html'); };
 </script>
 </body>
 </html>
