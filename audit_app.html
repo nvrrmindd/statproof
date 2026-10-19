@@ -3,182 +3,445 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Provable — аудит любых данных</title>
+<title>Provable — аудит данных</title>
 <style>
-:root{--bg:#f7f7f5;--surface:#fff;--surface-2:#f0efec;--line:#e2e1dc;--text:#121212;--text-2:#52514e;--muted:#7a7972;--accent:#1c5cab;
-  --good:#0f7a3d;--good-bg:#e5f4ea;--warn:#9a5b00;--warn-bg:#fdf1dc;--bad:#b4232a;--bad-bg:#fbe7e6;--mono:ui-monospace,Menlo,Consolas,monospace;color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#121211;--surface:#1a1a19;--surface-2:#242422;--line:#33332f;--text:#f0efec;--text-2:#c3c2b7;--muted:#8f8e86;--accent:#86b6ef;
-  --good:#5fd08a;--good-bg:#16301f;--warn:#f0b75a;--warn-bg:#33270f;--bad:#ff8a84;--bad-bg:#3a1a19;color-scheme:dark}}
+:root{--bg:#0A0A0A;--card:#141417;--card-2:#1c1c20;--line:#27272a;--ink:#fafafa;--ink-2:#c4c4cc;--muted:#a1a1aa;--accent:#2979FF;--accent-2:#3D5AFE;
+  --good:#00E676;--good-bg:rgba(0,230,118,.13);--warn:#FFD600;--warn-bg:rgba(255,214,0,.13);--bad:#FF80AB;--bad-bg:rgba(255,128,171,.14);
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 -apple-system,"Segoe UI",Inter,Roboto,sans-serif}
-.wrap{max-width:1120px;margin:0 auto;padding:28px 16px 80px}
-h1{font-size:30px;margin:0 0 6px}h2{font-size:21px;margin:0 0 8px}h3{font-size:16px;margin:0 0 6px}
-.sub{color:var(--text-2);margin:0 0 16px;max-width:820px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:16px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,"Segoe UI",Inter,Roboto,sans-serif}
+a{color:inherit}
+.top{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.grad{position:absolute;inset:0;opacity:.85}
+.top-inner{position:relative;max-width:1180px;margin:0 auto;padding:22px 16px 34px}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:34px}
+.logo{display:inline-flex;align-items:center;gap:10px;font-weight:700;text-decoration:none}
+.logo i{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#2979FF,#00E676);display:inline-grid;place-items:center;font-style:normal;color:#0A0A0A;font-weight:900}
+.nav a.link{font-size:14px;color:var(--ink-2);text-decoration:none;background:rgba(10,10,10,.5);border:1px solid rgba(255,255,255,.18);padding:7px 14px;border-radius:999px}
+h1{font-size:clamp(28px,4.4vw,44px);line-height:1.08;margin:0 0 10px;letter-spacing:-.02em;max-width:820px}
+.lead{color:var(--ink-2);max-width:720px;margin:0;font-size:17px}
+.wrap{max-width:1180px;margin:0 auto;padding:26px 16px 80px}
+h2{font-size:21px;margin:0 0 8px}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.steps span{font-size:14px;font-weight:650;padding:6px 13px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--muted)}
+.steps span.on{color:#0A0A0A;background:#fff;border-color:#fff}
+.steps span.done{color:var(--good)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;margin-top:16px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-button,.btn{font:inherit;padding:9px 16px;border-radius:9px;border:0;background:var(--accent);color:var(--surface);cursor:pointer;font-weight:600}
-button.ghost{background:var(--surface-2);color:var(--text)}
+button{font:inherit;padding:10px 18px;border-radius:12px;border:0;background:#fff;color:#0A0A0A;cursor:pointer;font-weight:700}
+button.ghost{background:var(--card-2);color:var(--ink);border:1px solid var(--line)}
 button:disabled{opacity:.5;cursor:wait}
-select,input[type=text]{font:inherit;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text)}
+button:focus-visible,select:focus-visible,.drop:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+select{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card-2);color:var(--ink);max-width:100%}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;border:2px dashed #3f3f46;border-radius:18px;padding:40px 16px;cursor:pointer;transition:border-color .2s,background .2s}
+.drop:hover,.drop.over{border-color:var(--accent);background:rgba(41,121,255,.08)}
+.drop .ic{width:54px;height:54px;border-radius:16px;background:rgba(41,121,255,.15);display:grid;place-items:center;font-size:26px}
+.drop b{font-size:20px}
+.drop input{display:none}
+.demos{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.note{color:var(--ink-2);font-size:14px}
+.muted{color:var(--muted)}
 table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
-th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
 th{color:var(--muted);font-weight:600;font-size:13px}
-td.num{font-family:var(--mono);white-space:nowrap}
-.scroll{overflow-x:auto}
-.badge{display:inline-flex;gap:6px;align-items:center;font-weight:650;font-size:13px;padding:3px 9px;border-radius:999px;white-space:nowrap}
+td.num{font-family:var(--mono);white-space:nowrap;font-size:13px}
+.scroll{overflow:auto}
+.badge{display:inline-flex;gap:6px;align-items:center;font-weight:700;font-size:13px;padding:3px 10px;border-radius:999px;white-space:nowrap}
 .b-UNIT{color:var(--good);background:var(--good-bg)}.b-GROUP{color:var(--warn);background:var(--warn-bg)}.b-NONE{color:var(--bad);background:var(--bad-bg)}
-.note{color:var(--text-2);font-size:14px}
-.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-@media (max-width:760px){.tiles{grid-template-columns:repeat(2,1fr)}}
-.tile{background:var(--surface-2);border-radius:10px;padding:12px 14px}.tile b{font-size:26px;display:block}
-.roles td select{min-width:150px}
-.steps{display:flex;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--muted)}.steps span.on{color:var(--text);font-weight:650}
-.hidden{display:none}
+.hidden{display:none!important}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:s 1s linear infinite;vertical-align:-2px}
 @keyframes s{to{transform:rotate(360deg)}}
+.err{color:var(--bad)}
+
+/* сетка виджетов: перетаскивание за заголовок, Alt + стрелки с клавиатуры */
+.grid{display:grid;grid-template-columns:repeat(var(--cols,4),minmax(0,1fr));grid-auto-rows:258px;grid-auto-flow:row dense;gap:12px;margin-top:16px}
+.w{position:relative;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:22px;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.12);transition:box-shadow .25s,border-color .25s;animation:wIn .6s cubic-bezier(.2,.8,.3,1.1) both}
+@keyframes wIn{from{opacity:0;transform:translateY(18px) scale(.97)}}
+.w.sm{grid-column:span 1;grid-row:span 1}.w.wide{grid-column:span 2;grid-row:span 1}
+.w.tall{grid-column:span 1;grid-row:span 2}.w.lg{grid-column:span 2;grid-row:span 2}
+.grid[data-cols="1"] .w{grid-column:span 1}
+.w.lifted{z-index:20;box-shadow:0 28px 60px -16px rgba(0,0,0,.6),0 10px 24px -8px rgba(0,0,0,.4);border-color:#52525b;transition:box-shadow .25s}
+.w.landed{border-color:rgba(250,250,250,.45)}
+.w:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wh{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:16px 18px 0;cursor:grab;user-select:none;touch-action:none}
+.w.lifted .wh{cursor:grabbing}
+.wh h3{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grip{color:#52525b;font-size:14px;letter-spacing:-2px}
+.wb{flex:1;min-height:0;padding:12px 18px 16px;overflow:auto;display:flex;flex-direction:column}
+.wb svg{flex:none}
+.big{font-size:32px;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin:2px 0 8px}
+.big small{font-size:14px;color:var(--muted);letter-spacing:0}
+.plain p{margin:0 0 7px;color:var(--ink-2);font-size:14.5px;line-height:1.45}.plain b{color:var(--ink)}
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:4px 0;border-bottom:1px solid var(--line)}.kv span:last-child{color:var(--muted);text-align:right}
+.lst{list-style:none;margin:0;padding:0}
+.lst li{display:flex;gap:10px;align-items:flex-start;padding:8px 6px;border-bottom:1px solid var(--line);font-size:14px;cursor:pointer;border-radius:8px}
+.lst li:hover,.lst li.sel{background:var(--card-2)}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;margin-top:7px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+svg text{font-family:-apple-system,"Segoe UI",Inter,sans-serif}
+.matrix rect{cursor:pointer}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{padding:3px 10px;font-size:12px;border-radius:999px;background:var(--card-2);color:var(--ink-2);border:1px solid var(--line);font-weight:600}
+.chips button.on{background:#fff;color:#0A0A0A}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1;min-height:0}
+@media (max-width:640px){.two{grid-template-columns:1fr}.grid{grid-auto-rows:auto}.w.lg,.w.tall{grid-row:span 1}.w{min-height:258px}}
+.ctl{display:grid;gap:8px}
+.verdict-box{margin-top:10px;padding:12px;border-radius:12px;background:var(--card-2);font-size:14px}
 </style>
 </head>
 <body>
+<header class="top">
+  <div class="grad" id="grad"></div>
+  <div class="top-inner">
+    <div class="nav"><a class="logo" href="./"><i>✓</i> Provable</a><a class="link" href="report">Пример отчёта по домохозяйствам →</a></div>
+    <h1>Загрузите таблицу — получите отчёт о том, какие выводы она позволяет сделать</h1>
+    <p class="lead">Provable проверит каждую пару показателей: связь видна у отдельных семей и людей, только между регионами или её нет. Данные остаются на этом компьютере.</p>
+  </div>
+</header>
+
 <div class="wrap">
-  <p class="note" style="margin:0 0 6px">Provable · аудит доказательности для любых микроданных</p>
-  <h1>Загрузите таблицу — получите отчёт о том, какие выводы она позволяет сделать</h1>
-  <p class="sub">Строка таблицы — единица наблюдения: семья, человек, предприятие, школа. Группы — любые категории: регион, тип поселения, отрасль, год. Для каждой пары показателей Provable проверяет, есть ли связь между единицами внутри групп, только между группами или нет вовсе. Данные обрабатываются на этом компьютере.</p>
-  <div class="steps"><span id="s1" class="on">1. Данные</span>→<span id="s2">2. Роли столбцов</span>→<span id="s3">3. Отчёт</span></div>
+  <div class="steps"><span id="s1" class="on">1. Данные</span><span id="s2">2. Проверка столбцов</span><span id="s3">3. Отчёт</span></div>
 
   <div class="card" id="step1">
-    <h2>1. Данные</h2>
-    <div class="row">
+    <label class="drop" id="drop" tabindex="0">
+      <span class="ic">⬆</span>
+      <b>Перетащите файл CSV сюда или нажмите, чтобы выбрать</b>
+      <span class="note">Каждая строка — семья, человек, предприятие или школа. Первая строка — названия столбцов.</span>
       <input type="file" id="file" accept=".csv,text/csv">
-      <button class="ghost" type="button" data-demo="домохозяйства.csv">Демо: домохозяйства (Д-002…Д-008)</button>
-      <button class="ghost" type="button" data-demo="d004_доходы_людей.csv">Демо: доходы людей (Д-004)</button>
-    </div>
-    <p class="note" id="loadmsg" style="margin-bottom:0">CSV с заголовком; разделитель — запятая или точка с запятой. Большие таблицы сокращаются до 200 000 случайных строк.</p>
+    </label>
+    <div class="demos"><span class="note" style="align-self:center">Нет файла под рукой?</span>
+      <button class="ghost" type="button" data-demo="домохозяйства.csv">Пример: домохозяйства</button>
+      <button class="ghost" type="button" data-demo="d004_доходы_людей.csv">Пример: доходы людей</button></div>
+    <p class="note" id="loadmsg" style="text-align:center;margin:14px 0 0"></p>
   </div>
 
   <div class="card hidden" id="step2">
-    <h2>2. Роли столбцов</h2>
-    <p class="note">Provable предложил роли автоматически — проверьте. <b>Показатель</b> — числовой столбец для проверки связей (до 15). <b>Группа</b> — категория, внутри которой сравниваются единицы. Одна из групп — <b>группа сравнения</b>: между её значениями проверяется агрегированная связь. <b>Повторение</b> — столбец (например, год), в каждом значении которого связь между группами должна повториться.</p>
-    <div class="scroll"><table class="roles" id="roles"></table></div>
-    <div class="row" style="margin-top:12px">
-      <label>Группа сравнения: <select id="cmp"></select></label>
-      <label>Повторение: <select id="rep"></select></label>
-      <button id="run" type="button">Построить отчёт</button>
+    <h2>2. Проверьте, что Provable правильно понял столбцы</h2>
+    <p class="note"><b>Показатель</b> — число, между которыми ищем связь (доход, возраст, оценка). <b>Группа</b> — категория (регион, город или село, год): семьи сравниваются только с семьями из той же группы. Обычно всё уже выбрано верно — можно сразу нажать «Построить отчёт».</p>
+    <div class="scroll" style="max-height:380px"><table id="roles"></table></div>
+    <div class="row" style="margin-top:14px">
+      <label class="note">Сравнивать между: <select id="cmp"></select></label>
+      <label class="note">Проверять повтор по: <select id="rep"></select></label>
+      <button id="run" type="button">Построить отчёт →</button>
       <span id="runmsg" class="note"></span>
     </div>
   </div>
 
   <div class="hidden" id="step3">
-    <div class="card">
-      <div class="row" style="justify-content:space-between"><h2 style="margin:0" id="rtitle">Отчёт</h2>
-        <div class="row"><button class="ghost" type="button" id="dlhtml">Скачать отчёт (HTML)</button><button class="ghost" type="button" id="dlcsv">Скачать таблицу (CSV)</button></div></div>
-      <p class="note" id="rmeta"></p>
-      <div class="tiles" id="tiles"></div>
+    <div class="row" style="justify-content:space-between;margin-top:22px">
+      <div><h2 style="margin:0" id="rtitle">Отчёт</h2><p class="note" style="margin:2px 0 0" id="rmeta"></p></div>
+      <div class="row"><button class="ghost" type="button" id="reset" title="Вернуть исходное расположение виджетов">Сбросить раскладку</button><button class="ghost" type="button" id="dlhtml">Скачать отчёт</button><button class="ghost" type="button" id="dlcsv">Скачать таблицу CSV</button></div>
     </div>
-    <div class="card"><h2>Что данные позволяют утверждать</h2><p class="note">Связи, подтверждённые тестами, — с формулировкой и доказательством.</p><div class="scroll"><table id="proven"></table></div></div>
-    <div class="card"><h2>Ловушки: выглядит как связь, но для единиц не подтверждается</h2><p class="note">Пары, где корреляция по всем единицам заметна, но внутри групп связи нет. Такие выводы об отдельных единицах публиковать нельзя.</p><div class="scroll"><table id="traps"></table></div></div>
-    <div class="card"><h2>Проверить утверждение</h2>
-      <div class="row">
-        <select id="ca"></select><span>и</span><select id="cb"></select>
-        <select id="clevel"><option value="UNIT">у отдельных единиц</option><option value="GROUP">между группами</option></select>
-        <select id="cdir"><option value="1">связаны прямо (больше → больше)</option><option value="-1">связаны обратно (больше → меньше)</option><option value="0">не связаны</option></select>
-        <button type="button" id="ccheck">Проверить</button>
-      </div>
-      <div id="cout" style="margin-top:12px"></div>
-    </div>
-    <div class="card"><h2>Все пары</h2><div class="scroll"><table id="all"></table></div></div>
-    <div class="card"><h2>Метод</h2><p class="note" id="method"></p></div>
+    <p class="note muted" style="margin:8px 0 0" id="hint">Виджеты можно перетаскивать за заголовок. С клавиатуры: выделите виджет и нажмите Alt + стрелку.</p>
+    <div class="grid" id="grid" role="list"></div>
+    <div class="card"><h2>Все пары</h2><p class="note">Полная таблица расчётов: ρ — ранговая корреляция (−1…+1), ДИ — 95 % доверительный интервал, p — вероятность увидеть такую связь случайно.</p><div class="scroll" style="max-height:520px"><table id="all"></table></div></div>
   </div>
 </div>
+
 <script>
 const $ = s => document.querySelector(s);
 const API = location.protocol === 'http:' ? '' : 'http://127.0.0.1:8799';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const f2 = (x, n=2) => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(n).replace('.', ',');
-const LV = {UNIT: ['✓', 'для единиц'], GROUP: ['◐', 'только между группами'], NONE: ['✕', 'не подтверждается']};
-let TOKEN = null, COLS = [], REP = null;
+const fmt = n => n.toLocaleString('ru-RU');
+const LV = {UNIT: ['✓', 'подтверждено для единиц'], GROUP: ['◐', 'только между группами'], NONE: ['✕', 'не подтверждается']};
+const COLOR = {UNIT: '#00E676', GROUP: '#FFD600', NONE: '#FF80AB'};
+let TOKEN = null, COLS = [], REP = null, SEL = null, SELREP = null;
 
-function step(n){ ['s1','s2','s3'].forEach((id,i) => $('#'+id).classList.toggle('on', i === n-1)); }
+/* фон шапки: тот же «дышащий» градиент, что на главной */
+(() => {
+  const el = $('#grad'), list = ["#0A0A0A 35%", "#2979FF 50%", "#FF80AB 60%", "#FF6D00 70%", "#FFD600 80%", "#00E676 90%", "#3D5AFE 100%"].join(', ');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let w = 125, dir = 1;
+  (function frame(){ if (w >= 130) dir = -1; if (w <= 120) dir = 1; w += dir * 0.12;
+    el.style.background = `radial-gradient(${w}% ${w}% at 50% 0%, ${list})`; if (!reduce) requestAnimationFrame(frame); })();
+})();
+
+function step(n){ ['s1','s2','s3'].forEach((id,i) => { $('#'+id).classList.toggle('on', i === n-1); $('#'+id).classList.toggle('done', i < n-1); }); }
 async function post(path, body, raw){
-  const r = await fetch(API + path, {method:'POST', headers: raw ? {'Content-Type':'text/csv'} : {'Content-Type':'application/json'}, body: raw ? body : JSON.stringify(body)});
+  let r;
+  try { r = await fetch(API + path, {method:'POST', headers: {'Content-Type': raw ? 'text/csv' : 'application/json'}, body: raw ? body : JSON.stringify(body)}); }
+  catch (e) { throw new Error('Provable не запущен. Откройте файл «Запустить Provable» в папке проекта — страница откроется сама.'); }
   const j = await r.json(); if (!r.ok || j.error) throw new Error(j.error || r.statusText); return j;
 }
+
+/* шаг 1: загрузка */
+async function loadFile(file){
+  if (!file) return;
+  $('#loadmsg').innerHTML = `<span class="spinner"></span> Читаю «${esc(file.name)}»…`;
+  try { showColumns(await post('/api/upload', await file.text(), true)); } catch (err) { $('#loadmsg').innerHTML = `<span class="err">${esc(err.message)}</span>`; }
+}
+$('#file').onchange = e => loadFile(e.target.files[0]);
+const drop = $('#drop');
+['dragenter','dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => loadFile(e.dataTransfer.files[0]));
+drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); $('#file').click(); } });
+document.querySelectorAll('[data-demo]').forEach(b => b.onclick = async () => {
+  $('#loadmsg').innerHTML = '<span class="spinner"></span> Загружаю пример…';
+  try { showColumns(await post('/api/demo', {name: b.dataset.demo})); } catch (err) { $('#loadmsg').innerHTML = `<span class="err">${esc(err.message)}</span>`; } });
+
+/* шаг 2: роли столбцов */
 function showColumns(info){
   TOKEN = info.token; COLS = info.columns;
-  $('#loadmsg').innerHTML = `Загружено: <b>${info.rows.toLocaleString('ru-RU')}</b> строк, ${info.columns.length} столбцов${info.sampled ? ' (случайная выборка)' : ''}.`;
-  $('#roles').innerHTML = '<tr><th>Столбец</th><th>Роль</th><th>Уникальных значений</th><th>Пример</th></tr>' + COLS.map((c,i) =>
-    `<tr><td><b>${c.name}</b></td><td><select data-i="${i}"><option value="var"${c.role==='var'?' selected':''}>Показатель</option><option value="group"${c.role==='group'?' selected':''}>Группа</option><option value="skip"${c.role==='skip'?' selected':''}>Не использовать</option></select></td><td class="num">${c.unique}</td><td class="note">${c.example}</td></tr>`).join('');
+  $('#loadmsg').innerHTML = `✓ Загружено <b>${fmt(info.rows)}</b> строк и ${info.columns.length} столбцов${info.sampled ? ' (взята случайная выборка)' : ''}.`;
+  $('#roles').innerHTML = '<tr><th>Столбец</th><th>Что это</th><th>Разных значений</th><th>Пример</th></tr>' + COLS.map((c,i) =>
+    `<tr><td><b>${esc(c.name)}</b></td><td><select data-i="${i}" aria-label="Роль столбца ${esc(c.name)}"><option value="var"${c.role==='var'?' selected':''}>Показатель</option><option value="group"${c.role==='group'?' selected':''}>Группа</option><option value="skip"${c.role==='skip'?' selected':''}>Не использовать</option></select></td><td class="num">${c.unique}</td><td class="note">${esc(c.example)}</td></tr>`).join('');
   refreshGroupSelects();
   $('#roles').onchange = e => { const s = e.target; if (s.dataset.i != null){ COLS[+s.dataset.i].role = s.value; refreshGroupSelects(); } };
-  $('#step2').classList.remove('hidden'); step(2);
+  $('#step2').classList.remove('hidden'); step(2); $('#step2').scrollIntoView({behavior:'smooth', block:'start'});
 }
 function refreshGroupSelects(){
   const groups = COLS.filter(c => c.role === 'group').map(c => c.name);
   const cmpPrev = $('#cmp').value, repPrev = $('#rep').value;
-  $('#cmp').innerHTML = groups.map(g => `<option>${g}</option>`).join('');
-  $('#rep').innerHTML = '<option value="">— нет —</option>' + groups.map(g => `<option>${g}</option>`).join('');
+  $('#cmp').innerHTML = groups.map(g => `<option>${esc(g)}</option>`).join('');
+  $('#rep').innerHTML = '<option value="">— не проверять —</option>' + groups.map(g => `<option>${esc(g)}</option>`).join('');
   const sug = COLS.find(c => c.suggest_compare), sugr = COLS.find(c => c.suggest_repeat);
   $('#cmp').value = groups.includes(cmpPrev) ? cmpPrev : (sug && groups.includes(sug.name) ? sug.name : groups[0] || '');
   $('#rep').value = groups.includes(repPrev) ? repPrev : (sugr && groups.includes(sugr.name) ? sugr.name : '');
 }
-$('#file').onchange = async e => { const file = e.target.files[0]; if (!file) return;
-  $('#loadmsg').innerHTML = '<span class="spinner"></span> Загружаю…';
-  try { showColumns(await post('/api/upload', await file.text(), true)); } catch (err) { $('#loadmsg').textContent = 'Не удалось прочитать файл: ' + err.message; } };
-document.querySelectorAll('[data-demo]').forEach(b => b.onclick = async () => {
-  $('#loadmsg').innerHTML = '<span class="spinner"></span> Загружаю демо…';
-  try { showColumns(await post('/api/demo', {name: b.dataset.demo})); } catch (err) { $('#loadmsg').textContent = 'Демо недоступно: ' + err.message; } });
-
 $('#run').onclick = async () => {
   const vars = COLS.filter(c => c.role === 'var').map(c => c.name), groups = COLS.filter(c => c.role === 'group').map(c => c.name);
   if (vars.length < 2){ $('#runmsg').textContent = 'Нужно хотя бы два показателя.'; return; }
-  if (vars.length > 15){ $('#runmsg').textContent = 'Не больше 15 показателей за раз.'; return; }
-  if (!groups.length){ $('#runmsg').textContent = 'Нужна хотя бы одна группа: без групп экологическую ошибку проверить не на чем.'; return; }
-  $('#run').disabled = true; $('#runmsg').innerHTML = `<span class="spinner"></span> Считаю ${vars.length*(vars.length-1)/2} пар: перестановки, бутстрап, поправка на множественные сравнения…`;
+  if (vars.length > 15){ $('#runmsg').textContent = 'Не больше 15 показателей за раз — отметьте лишние как «Не использовать».'; return; }
+  if (!groups.length){ $('#runmsg').textContent = 'Нужна хотя бы одна группа (например, регион).'; return; }
+  $('#run').disabled = true; $('#runmsg').innerHTML = `<span class="spinner"></span> Проверяю ${vars.length*(vars.length-1)/2} пар показателей…`;
   try { REP = await post('/api/audit', {token: TOKEN, variables: vars, cell_groups: groups, compare_group: $('#cmp').value, repeat_by: $('#rep').value || null}); render(); $('#runmsg').textContent = ''; }
-  catch (err) { $('#runmsg').textContent = 'Ошибка расчёта: ' + err.message; }
+  catch (err) { $('#runmsg').innerHTML = `<span class="err">Ошибка расчёта: ${esc(err.message)}</span>`; }
   $('#run').disabled = false;
 };
 
+/* общие функции отчёта */
+const grpRho = p => { const v = Object.values(p.group); return v.length ? v[0].rho : 0; };
+const grpTxt = p => Object.entries(p.group).map(([k,v]) => `${esc(k)}: ${f2(v.rho)}`).join(', ') || '—';
+const isTrap = p => p.level !== 'UNIT' && Math.abs(p.raw) >= 0.05;
 function statement(p){
-  const up = (p.level === 'GROUP' ? Object.values(p.group)[0].rho : p.partial) > 0;
-  const t = `Чем больше «${p.a}», тем ${up ? 'больше' : 'меньше'} «${p.b}»`;
-  return p.level === 'GROUP' ? `Между группами «${REP.compare_group}»: ${t[0].toLowerCase() + t.slice(1)}` : `У отдельных единиц: ${t[0].toLowerCase() + t.slice(1)}`;
+  const up = (p.level === 'GROUP' ? grpRho(p) : p.partial) > 0;
+  const t = `чем больше «${esc(p.a)}», тем ${up ? 'больше' : 'меньше'} «${esc(p.b)}»`;
+  return p.level === 'GROUP' ? `Между группами «${esc(REP.compare_group)}»: ${t}` : `У отдельных единиц: ${t}`;
 }
-const grpTxt = p => Object.entries(p.group).map(([k,v]) => `${k}: ${f2(v.rho)}`).join(', ') || '—';
+const strength = r => { const a = Math.abs(r); return a >= .5 ? 'сильная' : a >= .3 ? 'заметная' : a >= .1 ? 'слабая' : 'очень слабая'; };
+
+/* ---------- виджеты ---------- */
+const WIDGETS = [
+  {id:'summary', size:'wide', title:'Главное простыми словами'},
+  {id:'counts', size:'sm', title:'Итог проверки'},
+  {id:'data', size:'sm', title:'Данные'},
+  {id:'map', size:'lg', title:'Карта доказательности'},
+  {id:'pair', size:'lg', title:'Выбранная пара'},
+  {id:'traps', size:'wide', title:'Ловушки'},
+  {id:'proven', size:'wide', title:'Что можно утверждать'},
+  {id:'check', size:'wide', title:'Проверить утверждение'},
+  {id:'method', size:'wide', title:'Как проверяли'},
+];
+const ORDER_KEY = 'provable.widgets.v1';
+function savedOrder(){ try { const o = JSON.parse(localStorage.getItem(ORDER_KEY)); if (Array.isArray(o) && o.length === WIDGETS.length && WIDGETS.every(w => o.includes(w.id))) return o; } catch (e) {} return WIDGETS.map(w => w.id); }
+function saveOrder(){ try { localStorage.setItem(ORDER_KEY, JSON.stringify([...$('#grid').children].map(el => el.dataset.id))); } catch (e) {} }
+
+function buildGrid(){
+  const g = $('#grid'); g.innerHTML = '';
+  savedOrder().forEach((id, i) => {
+    const w = WIDGETS.find(x => x.id === id);
+    const el = document.createElement('section');
+    el.className = 'w ' + w.size; el.dataset.id = id; el.tabIndex = 0; el.setAttribute('role','listitem'); el.setAttribute('aria-label', w.title);
+    el.style.animationDelay = (i * 0.05) + 's';
+    el.innerHTML = `<div class="wh"><h3>${w.title}</h3><span class="grip" aria-hidden="true">⋮⋮</span></div><div class="wb" id="w-${id}"></div>`;
+    g.appendChild(el);
+  });
+  fitColumns();
+}
+function fitColumns(){ const g = $('#grid'); const cols = Math.max(1, Math.min(4, Math.round(g.getBoundingClientRect().width / 270))); g.style.setProperty('--cols', cols); g.dataset.cols = cols; }
+new ResizeObserver(fitColumns).observe($('#grid'));
+
+/* перетаскивание: виджет следует за указателем, остальные плавно освобождают место (FLIP) */
+function flip(mutate, except){
+  const els = [...$('#grid').children], before = new Map(els.map(e => [e, e.getBoundingClientRect()]));
+  mutate();
+  els.forEach(e => { if (e === except) return; const a = before.get(e), b = e.getBoundingClientRect(); const dx = a.left - b.left, dy = a.top - b.top;
+    if (!dx && !dy) return; e.animate([{transform:`translate(${dx}px,${dy}px)`}, {transform:'none'}], {duration: 380, easing: 'cubic-bezier(.2,.9,.3,1.15)'}); });
+}
+(() => {
+  const g = $('#grid'); let drag = null;
+  g.addEventListener('pointerdown', e => {
+    const h = e.target.closest('.wh'); if (!h || e.button !== 0) return;
+    const el = h.parentElement, r = el.getBoundingClientRect();
+    drag = {el, offX: e.clientX - r.left, offY: e.clientY - r.top, id: e.pointerId, last: 0, moved: false};
+    h.setPointerCapture(e.pointerId); el.classList.add('lifted'); el.style.transition = 'box-shadow .25s';
+  });
+  g.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const {el} = drag; drag.moved = true;
+    const gr = g.getBoundingClientRect();
+    const place = () => { el.style.transform = `translate(${e.clientX - gr.left - drag.offX - el.offsetLeft}px,${e.clientY - gr.top - drag.offY - el.offsetTop}px) scale(1.03)`; };
+    place();
+    const now = performance.now(); if (now - drag.last < 120) return;
+    const target = [...g.children].find(o => { if (o === el) return false; const r = o.getBoundingClientRect(); return e.clientX > r.left && e.clientX < r.right && e.clientY > r.top && e.clientY < r.bottom; });
+    if (!target) return;
+    drag.last = now;
+    const kids = [...g.children], from = kids.indexOf(el), to = kids.indexOf(target);
+    flip(() => g.insertBefore(el, from < to ? target.nextSibling : target), el);
+    place();
+  });
+  const end = e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const {el} = drag; drag = null;
+    el.style.transition = 'transform .38s cubic-bezier(.2,.9,.3,1.15), box-shadow .25s'; el.style.transform = '';
+    el.classList.remove('lifted'); el.classList.add('landed');
+    setTimeout(() => { el.classList.remove('landed'); el.style.transition = ''; }, 620);
+    saveOrder();
+  };
+  g.addEventListener('pointerup', end); g.addEventListener('pointercancel', end);
+  g.addEventListener('keydown', e => {
+    const el = e.target.closest('.w'); if (!el || e.target !== el || !e.altKey) return;
+    const d = ['ArrowRight','ArrowDown'].includes(e.key) ? 1 : ['ArrowLeft','ArrowUp'].includes(e.key) ? -1 : 0; if (!d) return;
+    e.preventDefault(); const kids = [...g.children], i = kids.indexOf(el), j = i + d; if (j < 0 || j >= kids.length) return;
+    flip(() => g.insertBefore(el, d > 0 ? kids[j].nextSibling : kids[j])); el.focus(); saveOrder();
+  });
+})();
+$('#reset').onclick = () => { try { localStorage.removeItem(ORDER_KEY); } catch (e) {} const g = $('#grid');
+  flip(() => WIDGETS.forEach(w => g.appendChild(g.querySelector(`[data-id="${w.id}"]`)))); };
+
+/* ---------- графики (SVG) ---------- */
+function donut(c){
+  const tot = c.UNIT + c.GROUP + c.NONE || 1, R = 46, L = 2 * Math.PI * R; let off = 0;
+  const arcs = ['UNIT','GROUP','NONE'].map(k => { const len = c[k] / tot * L; const s = `<circle r="${R}" cx="60" cy="60" fill="none" stroke="${COLOR[k]}" stroke-width="16" stroke-dasharray="${len} ${L-len}" stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"/>`; off += len; return s; }).join('');
+  return `<svg viewBox="0 0 120 120" width="104" height="104" role="img" aria-label="Подтверждено для единиц ${c.UNIT}, только между группами ${c.GROUP}, не подтверждается ${c.NONE}"><circle r="${R}" cx="60" cy="60" fill="none" stroke="#27272a" stroke-width="16"/>${arcs}<text x="60" y="66" text-anchor="middle" fill="#fafafa" font-size="20" font-weight="700">${tot}</text></svg>`;
+}
+function curveChart(p){
+  const W = 300, H = 200, P = 26, sx = x => P + x * (W - 2*P), sy = y => H - P - y * (H - 2*P);
+  const line = (pts, shift, col, dash) => `<polyline fill="none" stroke="${col}" stroke-width="2.5" ${dash ? 'stroke-dasharray="5 4"' : ''} points="${pts.map(([x,y]) => sx(x + shift) + ',' + sy(y + shift)).join(' ')}"/>` +
+    pts.map(([x,y]) => `<circle cx="${sx(x+shift)}" cy="${sy(y+shift)}" r="3" fill="${col}"/>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Средний ранг «${esc(p.b)}» в зависимости от ранга «${esc(p.a)}»: по всем единицам ρ ${f2(p.raw)}, внутри групп ρ ${f2(p.partial)}">
+    <rect x="${P}" y="${P}" width="${W-2*P}" height="${H-2*P}" fill="none" stroke="#27272a"/>
+    <line x1="${P}" y1="${sy(.5)}" x2="${W-P}" y2="${sy(.5)}" stroke="#27272a" stroke-dasharray="2 3"/>
+    ${line(p.curve.all, 0, '#71717a', true)}${line(p.curve.within, .5, '#2979FF', false)}
+    <text x="${W/2}" y="${H-6}" text-anchor="middle" fill="#a1a1aa" font-size="10">«${esc(p.a)}»: от меньших к большим →</text>
+    <text x="10" y="${H/2}" fill="#a1a1aa" font-size="10" transform="rotate(-90 10 ${H/2})" text-anchor="middle">«${esc(p.b)}» →</text></svg>`;
+}
+function scatter(p, rep){
+  const g = p.group[rep]; if (!g || !g.means) return '<p class="note">Между группами не сравнивали: мало групп.</p>';
+  const W = 300, H = 200, P = 26, xs = g.means.map(m => m[1]), ys = g.means.map(m => m[2]);
+  const nx = (v, a) => { const lo = Math.min(...a), hi = Math.max(...a); return hi > lo ? (v - lo) / (hi - lo) : .5; };
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Средние по группам «${esc(REP.compare_group)}», ${esc(rep)}: ρ ${f2(g.rho)}">
+    <rect x="${P}" y="${P}" width="${W-2*P}" height="${H-2*P}" fill="none" stroke="#27272a"/>
+    ${g.means.map(([n,x,y]) => `<circle cx="${P + nx(x,xs)*(W-2*P)}" cy="${H - P - nx(y,ys)*(H-2*P)}" r="5" fill="#FFD600" fill-opacity=".85"><title>${esc(n)}: ${x} / ${y}</title></circle>`).join('')}
+    <text x="${W/2}" y="${H-6}" text-anchor="middle" fill="#a1a1aa" font-size="10">среднее «${esc(p.a)}» по группе →</text>
+    <text x="10" y="${H/2}" fill="#a1a1aa" font-size="10" transform="rotate(-90 10 ${H/2})" text-anchor="middle">среднее «${esc(p.b)}» →</text></svg>`;
+}
+function matrix(){
+  const V = REP.variables, k = V.length, lab = 158, cell = Math.max(14, Math.min(34, Math.floor(300 / k))), W = lab + k * cell + 4, H = 18 + k * cell + 4;
+  const find = (a, b) => REP.pairs.find(p => (p.a === a && p.b === b) || (p.a === b && p.b === a));
+  let s = `<svg class="matrix" viewBox="0 0 ${W} ${H}" width="100%" style="max-height:100%" role="img" aria-label="Карта: цвет клетки — вердикт по паре показателей">`;
+  V.forEach((v, j) => { s += `<text x="${lab + j*cell + cell/2}" y="12" text-anchor="middle" fill="#a1a1aa" font-size="10">${j+1}</text>`; });
+  V.forEach((a, i) => {
+    s += `<text x="${lab - 6}" y="${18 + i*cell + cell/2 + 4}" text-anchor="end" fill="#c4c4cc" font-size="11">${esc((i+1) + '. ' + (a.length > 19 ? a.slice(0,18) + '…' : a))}<title>${esc(a)}</title></text>`;
+    V.forEach((b, j) => {
+      const x = lab + j*cell, y = 18 + i*cell;
+      if (i === j){ s += `<rect x="${x+1}" y="${y+1}" width="${cell-2}" height="${cell-2}" rx="4" fill="#1c1c20"/>`; return; }
+      const p = find(a, b); if (!p){ s += `<rect x="${x+1}" y="${y+1}" width="${cell-2}" height="${cell-2}" rx="4" fill="#141417" stroke="#27272a"/>`; return; }
+      const op = p.level === 'NONE' ? (isTrap(p) ? .55 : .14) : .35 + .65 * Math.min(1, Math.abs(p.level === 'UNIT' ? p.partial : grpRho(p)) / .5);
+      const sel = SEL === p;
+      s += `<rect data-pair="${REP.pairs.indexOf(p)}" x="${x+1}" y="${y+1}" width="${cell-2}" height="${cell-2}" rx="4" fill="${COLOR[p.level]}" fill-opacity="${op.toFixed(2)}" ${sel ? 'stroke="#fff" stroke-width="2"' : ''}><title>${esc(a)} × ${esc(b)}: ${LV[p.level][1]}${isTrap(p) ? ' (ловушка)' : ''}</title></rect>`;
+    });
+  });
+  return s + '</svg>';
+}
+
+/* ---------- содержимое виджетов ---------- */
+function W(id, html){ const el = $('#w-' + id); if (el) el.innerHTML = html; }
+function renderPair(){
+  const p = SEL; if (!p){ W('pair', '<p class="note">Выберите клетку на карте.</p>'); return; }
+  const reps = Object.keys(p.group); if (!reps.includes(SELREP)) SELREP = reps[0];
+  const say = p.level === 'UNIT' ? `Связь есть у отдельных единиц: внутри групп ρ = ${f2(p.partial,3)} (${strength(p.partial)}). Это можно утверждать.`
+    : p.level === 'GROUP' ? `По всем единицам ρ = ${f2(p.raw,3)}, но внутри групп ${f2(p.partial,3)}. Связь есть только между группами «${esc(REP.compare_group)}». Писать можно о группах, не об отдельных единицах.`
+    : isTrap(p) ? `По всем единицам ρ = ${f2(p.raw,3)}, но внутри групп ${f2(p.partial,3)}, и между группами связь не устойчива. Это ловушка: вывод делать нельзя.`
+    : `Связи не видно ни у единиц (ρ = ${f2(p.partial,3)}), ни между группами.`;
+  W('pair', `<div class="row" style="justify-content:space-between"><b style="font-size:15px">${esc(p.a)} × ${esc(p.b)}</b><span class="badge b-${p.level}">${LV[p.level][0]} ${LV[p.level][1]}</span></div>
+    <p class="note" style="margin:6px 0 8px">${say}</p>
+    <div class="two"><div><div class="note muted" style="font-size:12px">Единицы: серым — по всем, синим — внутри групп</div>${curveChart(p)}</div>
+    <div><div class="row" style="justify-content:space-between"><span class="note muted" style="font-size:12px">Группы «${esc(REP.compare_group)}»${p.group[SELREP] ? ': ρ ' + f2(p.group[SELREP].rho) : ''}</span>
+      <span class="chips">${reps.length > 1 ? reps.map(r => `<button type="button" data-rep="${esc(r)}" class="${r === SELREP ? 'on' : ''}">${esc(r)}</button>`).join('') : ''}</span></div>${scatter(p, SELREP)}</div></div>`);
+}
+function select(p){ SEL = p; renderPair(); W('map', matrixBlock());
+  document.querySelectorAll('.lst li[data-pair]').forEach(li => li.classList.toggle('sel', REP.pairs[+li.dataset.pair] === p)); }
+const matrixBlock = () => `<div style="flex:1;min-height:0;display:flex;align-items:center">${matrix()}</div>
+  <div class="legend"><span><i style="background:${COLOR.UNIT}"></i>для единиц</span><span><i style="background:${COLOR.GROUP}"></i>между группами</span><span><i style="background:${COLOR.NONE}"></i>не подтверждается (ярче — ловушка)</span></div>`;
+
 function render(){
-  const R = REP, c = R.counts;
-  $('#rtitle').textContent = `Отчёт: ${R.variables.length} показателей, ${R.pairs.length} пар`;
-  $('#rmeta').textContent = `${R.rows.toLocaleString('ru-RU')} единиц · группы внутри: ${R.cell_groups.join(' × ')} (${R.cells} ячеек) · сравнение между: ${R.compare_group}${R.repeat_by ? ' · повторение по: ' + R.repeat_by + ' (' + R.repeats.join(', ') + ')' : ''}`;
-  $('#tiles').innerHTML = [[R.pairs.length,'пар проверено'],[c.UNIT,'✓ подтверждено для единиц'],[c.GROUP,'◐ только между группами'],[c.NONE,'✕ не подтверждается']].map(([v,l]) => `<div class="tile"><b>${v}</b>${l}</div>`).join('');
-  const proven = R.pairs.filter(p => p.level !== 'NONE').sort((x,y) => Math.abs(y.partial) - Math.abs(x.partial));
-  $('#proven').innerHTML = '<tr><th>Утверждение</th><th>Доказательство</th><th>Уровень</th></tr>' + (proven.map(p =>
-    `<tr><td>${statement(p)}</td><td class="num">${p.level === 'UNIT' ? `ρ внутри групп ${f2(p.partial,3)}, p ${p.p_perm < 0.006 ? '< 0,01' : '= ' + p.p_perm.toFixed(3)}` : `ρ между группами ${grpTxt(p)}`}</td><td><span class="badge b-${p.level}">${LV[p.level][0]} ${LV[p.level][1]}</span></td></tr>`).join('') || '<tr><td colspan="3" class="note">Ни одна связь не подтверждена.</td></tr>');
-  const traps = R.pairs.filter(p => p.level !== 'UNIT' && Math.abs(p.raw) >= 0.05).sort((x,y) => Math.abs(y.raw) - Math.abs(x.raw));
-  $('#traps').innerHTML = '<tr><th>Пара</th><th>По всем единицам</th><th>Внутри групп</th><th>Вердикт</th></tr>' + (traps.map(p =>
-    `<tr><td>${p.a} × ${p.b}</td><td class="num">${f2(p.raw,3)}</td><td class="num">${f2(p.partial,3)}</td><td><span class="badge b-${p.level}">${LV[p.level][0]} ${LV[p.level][1]}</span></td></tr>`).join('') || '<tr><td colspan="4" class="note">Ловушек не найдено: везде, где есть связь по всем единицам, она есть и внутри групп.</td></tr>');
-  $('#all').innerHTML = '<tr><th>Пара</th><th>n</th><th>ρ по всем</th><th>ρ внутри групп [95% ДИ]</th><th>p (перест.)</th><th>ρ между группами</th><th>Вердикт</th></tr>' + R.pairs.map(p =>
-    `<tr><td>${p.a} × ${p.b}${p.note ? `<div class="note">${p.note}</div>` : ''}</td><td class="num">${p.n.toLocaleString('ru-RU')}</td><td class="num">${f2(p.raw,3)}</td><td class="num">${f2(p.partial,3)} [${f2(p.ci[0],3)}…${f2(p.ci[1],3)}]</td><td class="num">${p.p_perm.toFixed(3)}</td><td class="num">${grpTxt(p)}</td><td><span class="badge b-${p.level}">${LV[p.level][0]} ${LV[p.level][1]}</span></td></tr>`).join('');
-  const opts = R.variables.map(v => `<option>${v}</option>`).join(''); $('#ca').innerHTML = opts; $('#cb').innerHTML = opts; $('#cb').selectedIndex = 1;
-  $('#method').innerHTML = `Ранговая корреляция Спирмена по всем единицам и внутри ячеек «${R.cell_groups.join(' × ')}» (из рангов вычитаются средние по ячейкам). Перестановочный тест внутри ячеек — ${R.n_perm} перестановок, 95% ДИ — бутстрап (${R.n_boot}). Уровень единиц: p < 0,01, |ρ| ≥ 0,03 и связь сохраняется внутри групп; поправка Бенджамини — Хохберга (q = 0,01) на ${R.pairs.length} пар. Уровень групп: ρ между средними по «${R.compare_group}»${R.repeat_by ? `, должна повториться в каждом значении «${R.repeat_by}»` : ''}, бутстрап-интервал не включает ноль. Seed ${R.seed}. «Подтверждено» означает «проходит эти тесты на этих данных», а не причинность.`;
-  $('#step3').classList.remove('hidden'); step(3); $('#step3').scrollIntoView({behavior:'smooth'});
+  const R = REP, c = R.counts, pairs = R.pairs;
+  $('#rtitle').textContent = `Отчёт: ${R.variables.length} показателей, ${pairs.length} пар`;
+  $('#rmeta').textContent = `${fmt(R.rows)} строк · внутри групп: ${R.cell_groups.join(' × ')} · сравнение между: ${R.compare_group}${R.repeat_by ? ' · повтор по: ' + R.repeat_by : ''}`;
+  $('#step3').classList.remove('hidden'); step(3);
+  buildGrid();
+  const proven = pairs.filter(p => p.level !== 'NONE').sort((x,y) => Math.abs(y.level === 'UNIT' ? y.partial : grpRho(y)) - Math.abs(x.level === 'UNIT' ? x.partial : grpRho(x)));
+  const traps = pairs.filter(isTrap).sort((x,y) => (Math.abs(y.raw) - Math.abs(y.partial)) - (Math.abs(x.raw) - Math.abs(x.partial)));
+  const bestU = proven.find(p => p.level === 'UNIT'), worst = traps[0];
+
+  W('summary', `<div class="plain"><p>Проверено <b>${pairs.length}</b> пар показателей на <b>${fmt(R.rows)}</b> строках.</p>
+    <p><b style="color:var(--good)">${c.UNIT}</b> связей подтверждены для отдельных единиц — их можно публиковать как выводы о людях или семьях.${bestU ? ` Самая сильная: «${esc(bestU.a)}» и «${esc(bestU.b)}» (ρ ${f2(bestU.partial)}).` : ''}</p>
+    <p><b style="color:var(--warn)">${c.GROUP}</b> видны только между группами «${esc(R.compare_group)}» — о них можно писать только на уровне групп.</p>
+    <p><b style="color:var(--bad)">${traps.length}</b> ловушек: по всем строкам связь заметна, а у отдельных единиц не подтверждается.${worst ? ` Главная: «${esc(worst.a)}» и «${esc(worst.b)}» (${f2(worst.raw)} → ${f2(worst.partial)}).` : ''}</p></div>`);
+  W('counts', `<div class="row" style="flex-wrap:nowrap;gap:14px;flex:1">${donut(c)}<div style="font-size:13px;display:grid;gap:6px">
+    <span><b style="color:var(--good)">${c.UNIT}</b> для единиц</span><span><b style="color:var(--warn)">${c.GROUP}</b> между группами</span><span><b style="color:var(--bad)">${c.NONE}</b> нет вывода</span></div></div>`);
+  W('data', `<div class="big">${fmt(R.rows)} <small>строк</small></div>
+    <div class="kv"><span>Показателей</span><span>${R.variables.length}</span></div><div class="kv"><span>Ячеек групп</span><span>${fmt(R.cells)}</span></div>
+    <div class="kv"><span>Сравнение</span><span>${esc(R.compare_group)}</span></div>${R.repeat_by ? `<div class="kv"><span>Повтор</span><span>${R.repeats.map(esc).join(', ')}</span></div>` : ''}`);
+  W('map', matrixBlock());
+  W('traps', traps.length ? `<p class="note" style="margin:0 0 6px">Серая точка — связь по всем единицам, синяя — внутри групп. Чем длиннее линия, тем сильнее обманывает общая цифра.</p>${dumbbell(traps.slice(0, 8))}`
+    : '<p class="note">Ловушек не найдено: где есть связь по всем единицам, она сохраняется и внутри групп.</p>');
+  W('proven', proven.length ? `<ul class="lst">${proven.map(p => `<li data-pair="${pairs.indexOf(p)}"><span class="dot" style="background:${COLOR[p.level]}"></span><span>${statement(p)}<br><span class="note muted" style="font-size:12px">${p.level === 'UNIT' ? `ρ внутри групп ${f2(p.partial,3)}, p ${p.p_perm < 0.006 ? '< 0,01' : '= ' + p.p_perm.toFixed(3)}` : `ρ между группами ${grpTxt(p)}`}</span></span></li>`).join('')}</ul>`
+    : '<p class="note">Ни одна связь не подтверждена.</p>');
+  const opts = R.variables.map(v => `<option>${esc(v)}</option>`).join('');
+  W('check', `<div class="ctl"><div class="row"><select id="ca" aria-label="Первый показатель">${opts}</select><span class="note">и</span><select id="cb" aria-label="Второй показатель">${opts}</select></div>
+    <div class="row"><select id="clevel" aria-label="Уровень"><option value="UNIT">у отдельных единиц</option><option value="GROUP">между группами</option></select>
+    <select id="cdir" aria-label="Утверждение"><option value="1">связаны прямо (больше → больше)</option><option value="-1">связаны обратно (больше → меньше)</option><option value="0">не связаны</option></select>
+    <button type="button" id="ccheck">Проверить</button></div><div id="cout"></div></div>`);
+  $('#cb').selectedIndex = 1; $('#ccheck').onclick = checkClaim;
+  W('method', `<p class="note" style="margin:0">Сравниваем единицы только внутри одинаковых групп (${esc(R.cell_groups.join(' × '))}), чтобы разница между регионами не выдавала себя за связь между людьми. Случайность исключаем ${R.n_perm} перестановками внутри групп; интервалы — бутстрап (${R.n_boot}). Связь для единиц: p < 0,01 и поправка Бенджамини — Хохберга на ${pairs.length} пар. Связь между группами: по средним «${esc(R.compare_group)}»${R.repeat_by ? `, повторяется в каждом значении «${esc(R.repeat_by)}»` : ''}. «Подтверждено» значит «проходит тесты на этих данных», а не причинность. Seed ${R.seed}.</p>`);
+
+  $('#all').innerHTML = '<tr><th>Пара</th><th>n</th><th>ρ по всем</th><th>ρ внутри групп [95% ДИ]</th><th>p</th><th>ρ между группами</th><th>Вердикт</th></tr>' + pairs.map(p =>
+    `<tr><td>${esc(p.a)} × ${esc(p.b)}${p.note ? `<div class="note">${p.note}</div>` : ''}</td><td class="num">${fmt(p.n)}</td><td class="num">${f2(p.raw,3)}</td><td class="num">${f2(p.partial,3)} [${f2(p.ci[0],3)}…${f2(p.ci[1],3)}]</td><td class="num">${p.p_perm.toFixed(3)}</td><td class="num">${grpTxt(p)}</td><td><span class="badge b-${p.level}">${LV[p.level][0]} ${LV[p.level][1]}</span></td></tr>`).join('');
+  select(worst || bestU || proven[0] || pairs[0]);
+  $('#step3').scrollIntoView({behavior:'smooth'});
 }
-$('#ccheck').onclick = () => {
+function dumbbell(list){
+  const W = 560, rowH = 24, lab = 220, H = list.length * rowH + 20, m = Math.max(.05, ...list.map(p => Math.abs(p.raw))), sx = v => lab + 10 + (v + m) / (2*m) * (W - lab - 24);
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Ловушки: корреляция по всем единицам и внутри групп">
+    <line x1="${sx(0)}" y1="0" x2="${sx(0)}" y2="${H-14}" stroke="#3f3f46" stroke-dasharray="2 3"/><text x="${sx(0)}" y="${H-2}" fill="#a1a1aa" font-size="10" text-anchor="middle">0</text>
+    ${list.map((p, i) => { const y = 10 + i * rowH; const nm = `${p.a} × ${p.b}`; return `<g data-pair="${REP.pairs.indexOf(p)}" style="cursor:pointer">
+      <text x="${lab}" y="${y+4}" text-anchor="end" fill="#c4c4cc" font-size="11">${esc(nm.length > 34 ? nm.slice(0,33) + '…' : nm)}<title>${esc(nm)}</title></text>
+      <line x1="${sx(p.raw)}" y1="${y}" x2="${sx(p.partial)}" y2="${y}" stroke="#52525b" stroke-width="3"/>
+      <circle cx="${sx(p.raw)}" cy="${y}" r="5" fill="#a1a1aa"><title>по всем ${f2(p.raw,3)}</title></circle><circle cx="${sx(p.partial)}" cy="${y}" r="5" fill="#2979FF"><title>внутри групп ${f2(p.partial,3)}</title></circle></g>`; }).join('')}</svg>`;
+}
+function checkClaim(){
   const a = $('#ca').value, b = $('#cb').value, lvl = $('#clevel').value, dir = +$('#cdir').value;
-  if (a === b){ $('#cout').innerHTML = '<p class="note">Выберите два разных показателя.</p>'; return; }
+  if (a === b){ $('#cout').innerHTML = '<div class="verdict-box">Выберите два разных показателя.</div>'; return; }
   const p = REP.pairs.find(x => (x.a === a && x.b === b) || (x.a === b && x.b === a));
-  if (!p){ $('#cout').innerHTML = '<p class="note">Для этой пары мало данных — вывод не делается.</p>'; return; }
+  if (!p){ $('#cout').innerHTML = '<div class="verdict-box">Для этой пары мало данных — вывод не делается.</div>'; return; }
   let ok, why;
   const exists = lvl === 'UNIT' ? p.level === 'UNIT' : p.level !== 'NONE';
-  const rho = lvl === 'UNIT' ? p.partial : (Object.values(p.group)[0] || {}).rho || 0;
+  const rho = lvl === 'UNIT' ? p.partial : grpRho(p);
   if (dir === 0){ ok = !exists; why = exists ? `связь на этом уровне есть: ρ = ${f2(rho,3)}` : 'связь на этом уровне не подтверждается'; }
-  else if (!exists){ ok = false; why = lvl === 'UNIT' ? `для единиц связь не подтверждается: внутри групп ρ = ${f2(p.partial,3)} (уровень: ${LV[p.level][1]})` : 'между группами связь не подтверждается'; }
+  else if (!exists){ ok = false; why = lvl === 'UNIT' ? `для единиц связь не подтверждается: внутри групп ρ = ${f2(p.partial,3)} (${LV[p.level][1]})` : 'между группами связь не подтверждается'; }
   else { ok = Math.sign(rho) === dir; why = ok ? `подтверждается: ρ = ${f2(rho,3)}` : `направление обратное: ρ = ${f2(rho,3)}`; }
-  $('#cout').innerHTML = `<span class="badge ${ok ? 'b-UNIT' : 'b-NONE'}">${ok ? '✓ Утверждение согласуется с данными' : '✕ Утверждение не подтверждается'}</span> <span class="note">${why}</span>`;
-};
+  $('#cout').innerHTML = `<div class="verdict-box"><span class="badge ${ok ? 'b-UNIT' : 'b-NONE'}">${ok ? '✓ Согласуется с данными' : '✕ Не подтверждается'}</span> <span class="note">${why}</span></div>`;
+  select(p);
+}
+/* клики по карте, ловушкам, списку и годам */
+$('#grid').addEventListener('click', e => {
+  const r = e.target.closest('[data-pair]'); if (r){ select(REP.pairs[+r.dataset.pair]); return; }
+  const y = e.target.closest('[data-rep]'); if (y){ SELREP = y.dataset.rep; renderPair(); }
+});
+
 function download(name, text, type){ const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], {type})); a.download = name; a.click(); }
 $('#dlcsv').onclick = () => { const head = 'показатель_1,показатель_2,n,rho_все,rho_внутри,ci_низ,ci_верх,p_перестановки,вердикт';
-  download('provable_пары.csv', '﻿' + head + '\n' + REP.pairs.map(p => [p.a,p.b,p.n,p.raw.toFixed(4),p.partial.toFixed(4),p.ci[0].toFixed(4),p.ci[1].toFixed(4),p.p_perm.toFixed(4),p.level].join(',')).join('\n'), 'text/csv'); };
-$('#dlhtml').onclick = () => { const css = document.querySelector('style').outerHTML;
-  const body = ['#step3'].map(s => $(s).outerHTML).join('').replace(/<div class="card"><h2>Проверить утверждение[\s\S]*?<\/div>\s*<\/div>/, '');
-  download('provable_отчёт.html', `<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Provable — отчёт</title>${css}</head><body><div class="wrap"><h1>Provable — отчёт</h1>${body}</div></body></html>`, 'text/html'); };
+  const q = v => /[",\n]/.test(v) ? '"' + String(v).replace(/"/g, '""') + '"' : v;
+  download('provable_пары.csv', '﻿' + head + '\n' + REP.pairs.map(p => [q(p.a),q(p.b),p.n,p.raw.toFixed(4),p.partial.toFixed(4),p.ci[0].toFixed(4),p.ci[1].toFixed(4),p.p_perm.toFixed(4),p.level].join(',')).join('\n'), 'text/csv'); };
+$('#dlhtml').onclick = () => { const css = document.querySelector('style').outerHTML, g = $('#grid').cloneNode(true);
+  g.querySelector('[data-id="check"]')?.remove(); g.querySelectorAll('.w').forEach(w => w.style.animation = 'none');
+  download('provable_отчёт.html', `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Provable — отчёт</title>${css}</head><body><div class="wrap"><h1>Provable — отчёт</h1><p class="note">${esc($('#rmeta').textContent)}</p><div class="grid" data-cols="${$('#grid').dataset.cols}" style="--cols:${$('#grid').style.getPropertyValue('--cols')}">${g.innerHTML}</div><div class="card"><h2>Все пары</h2><div class="scroll"><table>${$('#all').innerHTML}</table></div></div></div></body></html>`, 'text/html'); };
 </script>
 </body>
 </html>

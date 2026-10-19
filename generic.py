@@ -45,6 +45,17 @@ def _corr(a: np.ndarray, b: np.ndarray) -> float:
     return float((a * b).sum() / den) if den > 0 else 0.0
 
 
+def _bins(x: np.ndarray, y: np.ndarray, k: int = 10) -> list[list[float]]:
+    edges = np.quantile(x, np.linspace(0, 1, k + 1))
+    idx = np.clip(np.searchsorted(edges, x, side="right") - 1, 0, k - 1)
+    out = []
+    for i in range(k):
+        sel = idx == i
+        if sel.any():
+            out.append([round(float(x[sel].mean()), 4), round(float(y[sel].mean()), 4)])
+    return out
+
+
 def numeric_columns(df: pd.DataFrame, min_unique: int = 3) -> list[str]:
     out = []
     for c in df.columns:
@@ -137,12 +148,15 @@ def audit_table(df: pd.DataFrame, variables: list[str], cell_groups: list[str], 
                 x = means["a"].to_numpy()[row] + prng.normal(0, 1e-9, G)
                 y = means["b"].to_numpy()[row] + prng.normal(0, 1e-9, G)
                 boots.append(_corr(_rank(x), _rank(y)))
-            grp[str(r)] = {"rho": rho_g, "ci": [float(np.percentile(boots, 2.5)), float(np.percentile(boots, 97.5))], "groups": G}
+            grp[str(r)] = {"rho": rho_g, "ci": [float(np.percentile(boots, 2.5)), float(np.percentile(boots, 97.5))], "groups": G,
+                           "means": [[str(g), round(float(x), 4), round(float(y), 4)] for g, (x, y) in means.iterrows()]}
         signs = {np.sign(v["rho"]) for v in grp.values()}
         group_ok = bool(grp) and len(signs) == 1 and all(v["ci"][0] > 0 or v["ci"][1] < 0 for v in grp.values())
+        # для графика: 10 групп по рангу первого показателя → средний ранг второго (0…1), по всем и внутри ячеек
+        curve = {"all": _bins(ra / n, rb / n), "within": _bins(pa / n, pb / n)}
         level = "UNIT" if unit_ok else ("GROUP" if group_ok else "NONE")
         pairs.append({"a": a, "b": b, "n": n, "raw": raw, "partial": part, "ci": ci, "p_perm": p_perm, "p_analytic": p_an,
-                      "group": grp, "level": level})
+                      "group": grp, "curve": curve, "level": level})
 
     # поправка Бенджамини — Хохберга по аналитическому p
     if pairs:

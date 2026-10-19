@@ -1,8 +1,10 @@
 """Сервер Provable.
 
-    python3 qol_ai/serve.py
+    Двойной щелчок по «Запустить Provable.command» (macOS) или «Запустить Provable.bat» (Windows),
+    либо python3 qol_ai/serve.py --open
+    http://127.0.0.1:8799/        — главная страница
     http://127.0.0.1:8799/audit   — аудит любой таблицы: загрузите CSV, получите отчёт
-    http://127.0.0.1:8799/        — готовый отчёт по обследованию домохозяйств (ИИ-режим включится сам)
+    http://127.0.0.1:8799/report  — готовый отчёт по обследованию домохозяйств (ИИ-режим включится сам)
 
 Ключи — в qol_ai/.env (см. llm_api.py). В модель уходит только текст вопроса, данные домохозяйств не отправляются.
 Утверждения и записки по-прежнему проверяет только детерминированная логика.
@@ -11,7 +13,10 @@
 import io
 import json
 import re
+import sys
+import threading
 import uuid
+import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -23,6 +28,7 @@ import llm_api
 HERE = Path(__file__).resolve().parent
 APP = HERE / "out" / "provable.html"
 AUDIT_PAGE = HERE / "audit_app.html"
+HOME = HERE / "home.html"
 DEMOS = HERE / "demo_data"
 TABLES: dict[str, pd.DataFrame] = {}      # загруженные таблицы, только в памяти этого компьютера
 MAX_ROWS = 200_000
@@ -104,6 +110,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path in ("/", "/index.html"):
+            self._send(200, HOME.read_bytes(), "text/html; charset=utf-8")
+        elif self.path in ("/report", "/report/"):
             self._send(200, APP.read_bytes(), "text/html; charset=utf-8")
         elif self.path in ("/audit", "/audit/"):
             self._send(200, AUDIT_PAGE.read_bytes(), "text/html; charset=utf-8")
@@ -143,7 +151,18 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    url = f"http://127.0.0.1:{PORT}/"
+    try:
+        server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
+    except OSError:                                   # уже запущен — просто открыть страницу
+        print(f"Provable уже работает: {url}")
+        webbrowser.open(url)
+        sys.exit(0)
     ch = llm_api.chain()
-    print(f"Provable: аудит любой таблицы — http://127.0.0.1:{PORT}/audit")
-    print(f"          отчёт по домохозяйствам — http://127.0.0.1:{PORT}/  (модели: {', '.join(p + ':' + m for p, m, _ in ch) or 'нет ключей, работает словарь'})")
-    ThreadingHTTPServer(("127.0.0.1", PORT), Handler).serve_forever()
+    print(f"Provable работает: {url}")
+    print(f"  аудит любой таблицы — {url}audit")
+    print(f"  отчёт по домохозяйствам — {url}report  (модели: {', '.join(p + ':' + m for p, m, _ in ch) or 'нет ключей, работает словарь'})")
+    print("Чтобы остановить, закройте это окно.")
+    if "--open" in sys.argv:
+        threading.Timer(0.8, webbrowser.open, [url]).start()
+    server.serve_forever()
