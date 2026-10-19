@@ -57,76 +57,82 @@ h2{font-size:clamp(26px,3.4vw,38px);margin:0 0 12px;letter-spacing:-.01em;line-h
 footer{color:var(--muted);font-size:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;max-width:1080px;margin:0 auto;padding:26px 16px 44px;border-top:1px solid var(--line)}
 footer a{text-decoration:none}footer a:hover{color:#fff}
 .offline{display:none;margin:22px auto 0;max-width:640px;font-size:15px;background:rgba(10,10,10,.6);border:1px solid var(--line);border-radius:12px;padding:12px 16px;color:var(--ink-2)}
+.langs{display:inline-flex;gap:2px;background:rgba(10,10,10,.5);border:1px solid var(--line);border-radius:999px;padding:3px;margin-left:6px}
+.langs button{font:inherit;font-size:13px;font-weight:700;border:0;background:none;color:var(--ink-2);padding:4px 10px;border-radius:999px;cursor:pointer}
+.langs button.on{background:#fff;color:#0A0A0A}
+.links{align-items:center}
 </style>
+<script src="i18n.js"></script>
 </head>
 <body>
 <section class="hero">
   <div class="grad-wrap"><div class="grad" id="grad"></div></div>
   <nav class="nav"><a class="logo" href="./"><i>✓</i> Provable</a>
-    <div class="links"><a href="#how">Как работает</a><a href="report.html">Пример отчёта</a><a href="https://github.com/nvrrmindd/statproof">GitHub</a></div></nav>
+    <div class="links"><a href="#how" data-i18n="nav.how">Как работает</a><a href="report.html" data-i18n="nav.report">Пример отчёта</a><a href="https://github.com/nvrrmindd/statproof">GitHub</a><span id="langs"></span></div></nav>
   <div class="hero-inner">
-    <span class="tag">ИИ-аналитик статистических данных</span>
-    <h1>Загрузите данные — получите доказанные выводы</h1>
-    <p class="lead">Provable сам находит закономерности в вашей таблице, проверяет каждую статистическими тестами и показывает, что верно для отдельных людей и семей, что — только в среднем по регионам, а что — случайность.</p>
+    <span class="tag" data-i18n="home.tag">ИИ-аналитик статистических данных</span>
+    <h1 data-i18n="home.h1">Загрузите данные — получите доказанные выводы</h1>
+    <p class="lead" data-i18n="home.lead">Provable сам находит закономерности в вашей таблице, проверяет каждую статистическими тестами и показывает, что верно для отдельных людей и семей, что — только в среднем по регионам, а что — случайность.</p>
     <div class="cta">
-      <a class="btn primary" href="audit.html">⬆ Проанализировать данные</a>
-      <a class="btn ghost" href="report.html">Пример отчёта</a>
+      <a class="btn primary" href="audit.html" data-i18n="cta.analyze">⬆ Проанализировать данные</a>
+      <a class="btn ghost" href="report.html" data-i18n="nav.report">Пример отчёта</a>
     </div>
-    <div class="pills"><span class="pill" style="color:var(--good)">✓ Верно для каждого</span><span class="pill" style="color:var(--warn)">◐ Только в среднем</span><span class="pill" style="color:var(--bad)">✕ Не доказано</span></div>
+    <div class="pills"><span class="pill" style="color:var(--good)" data-i18n="pill.unit">✓ Верно для каждого</span><span class="pill" style="color:var(--warn)" data-i18n="pill.group">◐ Только в среднем</span><span class="pill" style="color:var(--bad)" data-i18n="pill.none">✕ Не доказано</span></div>
     <p class="offline" id="offline">Чтобы загрузить свои данные, запустите Provable двойным щелчком по файлу «Запустить Provable.command» в папке проекта.</p>
   </div>
 </section>
 
 <section class="wrap" id="what">
-  <p class="kicker">Что делает Provable</p>
-  <h2>Полный анализ таблицы за секунды</h2>
-  <p class="sub">Микроданные обследований, отчётность предприятий, результаты школ — любая таблица, где строка — это объект, а столбцы — его показатели.</p>
+  <p class="kicker" data-i18n="what.k">Что делает Provable</p>
+  <h2 data-i18n="what.h">Полный анализ таблицы за секунды</h2>
+  <p class="sub" data-i18n="what.sub">Микроданные обследований, отчётность предприятий, результаты школ — любая таблица, где строка — это объект, а столбцы — его показатели.</p>
   <div class="grid3">
-    <div class="card"><div class="ic" style="background:rgba(41,121,255,.15)">🔎</div><h3>Находит закономерности</h3><p>Сравнивает каждый показатель с каждым и находит все связи вида «чем больше одного, тем больше или меньше другого».</p></div>
-    <div class="card"><div class="ic" style="background:rgba(0,230,118,.13)">🧪</div><h3>Проверяет каждую</h3><p>Отличает настоящую связь от случайности и от разницы между регионами или отраслями, которая только выглядит как связь.</p></div>
-    <div class="card"><div class="ic" style="background:rgba(255,214,0,.13)">📊</div><h3>Объясняет результат</h3><p>Отчёт с графиками и выводами простыми словами: что можно публиковать, о ком и насколько это надёжно.</p></div>
+    <div class="card"><div class="ic" style="background:rgba(41,121,255,.15)">🔎</div><h3 data-i18n="f1.h">Находит закономерности</h3><p data-i18n="f1.p">Сравнивает каждый показатель с каждым и находит все связи вида «чем больше одного, тем больше или меньше другого».</p></div>
+    <div class="card"><div class="ic" style="background:rgba(0,230,118,.13)">🧪</div><h3 data-i18n="f2.h">Проверяет каждую</h3><p data-i18n="f2.p">Отличает настоящую связь от случайности и от разницы между регионами или отраслями, которая только выглядит как связь.</p></div>
+    <div class="card"><div class="ic" style="background:rgba(255,214,0,.13)">📊</div><h3 data-i18n="f3.h">Объясняет результат</h3><p data-i18n="f3.p">Отчёт с графиками и выводами простыми словами: что можно публиковать, о ком и насколько это надёжно.</p></div>
   </div>
 </section>
 
 <section class="wrap" style="padding-top:0">
-  <p class="kicker">Зачем это нужно</p>
-  <h2>Верная цифра — ещё не верный вывод</h2>
-  <p class="sub">Пример из обследования качества жизни домохозяйств: лишения и удовлетворённость жизнью.</p>
+  <p class="kicker" data-i18n="why.k">Зачем это нужно</p>
+  <h2 data-i18n="why.h">Верная цифра — ещё не верный вывод</h2>
+  <p class="sub" data-i18n="why.sub">Пример из обследования качества жизни домохозяйств: лишения и удовлетворённость жизнью.</p>
   <div class="compare">
-    <div class="card"><span class="verdict v-gray">Обычная аналитика</span><div class="big">−0,11</div><p>Корреляция по всем семьям. Вывод напрашивается: «семьи с лишениями менее довольны жизнью».</p></div>
-    <div class="card"><span class="verdict v-mid">◐ Provable</span><div class="big">−0,001</div><p>Среди семей одного региона связи нет. Разница есть между регионами, а не между семьями. Вывод о семьях делать нельзя.</p></div>
+    <div class="card"><span class="verdict v-gray" data-i18n="why.a.tag">Обычная аналитика</span><div class="big">−0,11</div><p data-i18n="why.a.p">Корреляция по всем семьям. Вывод напрашивается: «семьи с лишениями менее довольны жизнью».</p></div>
+    <div class="card"><span class="verdict v-mid">◐ Provable</span><div class="big">−0,001</div><p data-i18n="why.b.p">Среди семей одного региона связи нет. Разница есть между регионами, а не между семьями. Вывод о семьях делать нельзя.</p></div>
   </div>
 </section>
 
 <section class="wrap" id="how" style="padding-top:0">
-  <p class="kicker">Как это работает</p>
-  <h2>Три шага</h2>
+  <p class="kicker" data-i18n="how.k">Как это работает</p>
+  <h2 data-i18n="how.h">Три шага</h2>
   <div class="grid3">
-    <div class="card"><div class="num">ШАГ 1</div><h3>Загрузите CSV</h3><p>Перетащите файл в окно. Каждая строка — семья, человек, предприятие или школа.</p></div>
-    <div class="card"><div class="num">ШАГ 2</div><h3>Проверьте столбцы</h3><p>Provable сам определит показатели (доход, возраст, оценки) и категории (регион, отрасль, год).</p></div>
-    <div class="card"><div class="num">ШАГ 3</div><h3>Получите отчёт</h3><p>Доказанные закономерности, обманчивые связи, графики и выводы — с возможностью скачать.</p></div>
+    <div class="card"><div class="num"><span data-i18n="step">ШАГ</span> 1</div><h3 data-i18n="s1.h">Загрузите CSV</h3><p data-i18n="s1.p">Перетащите файл в окно. Каждая строка — семья, человек, предприятие или школа.</p></div>
+    <div class="card"><div class="num"><span data-i18n="step">ШАГ</span> 2</div><h3 data-i18n="s2.h">Проверьте столбцы</h3><p data-i18n="s2.p">Provable сам определит показатели (доход, возраст, оценки) и категории (регион, отрасль, год).</p></div>
+    <div class="card"><div class="num"><span data-i18n="step">ШАГ</span> 3</div><h3 data-i18n="s3.h">Получите отчёт</h3><p data-i18n="s3.p">Доказанные закономерности, обманчивые связи, графики и выводы — с возможностью скачать.</p></div>
   </div>
 </section>
 
 <section class="wrap" style="padding-top:0">
-  <p class="kicker">Надёжность</p>
-  <h2>Каждый вывод проходит проверку</h2>
+  <p class="kicker" data-i18n="rel.k">Надёжность</p>
+  <h2 data-i18n="rel.h">Каждый вывод проходит проверку</h2>
   <div class="stats">
-    <div class="card stat"><b>97 %</b><span>верных вердиктов на данных с заранее известным ответом</span></div>
-    <div class="card stat"><b>15 из 15</b><span>ложных утверждений поймано на контрольном наборе</span></div>
-    <div class="card stat"><b>RU · KZ</b><span>вопросы и объяснения на русском и казахском</span></div>
+    <div class="card stat"><b>98,8 %</b><span data-i18n="rel.1">точность вердикта «верно для каждого» на 300 таблицах с заранее известным ответом</span></div>
+    <div class="card stat"><b>15 / 15</b><span data-i18n="rel.2">ложных утверждений поймано на контрольном наборе</span></div>
+    <div class="card stat"><b>RU · KZ · EN</b><span data-i18n="rel.3">интерфейс на трёх языках; вопросы и объяснения — на русском и казахском</span></div>
   </div>
 </section>
 
 <section class="final">
-  <h2>Попробуйте на своих данных</h2>
-  <p class="sub" style="margin:0 auto 26px">Или откройте готовый пример: какие выводы о качестве жизни казахстанских семей доказывают данные обследования.</p>
-  <div class="cta"><a class="btn primary" href="audit.html">⬆ Проанализировать данные</a><a class="btn ghost" href="report.html">Пример отчёта</a></div>
+  <h2 data-i18n="final.h">Попробуйте на своих данных</h2>
+  <p class="sub" style="margin:0 auto 26px" data-i18n="final.sub">Или откройте готовый пример: какие выводы о качестве жизни казахстанских семей доказывают данные обследования.</p>
+  <div class="cta"><a class="btn primary" href="audit.html" data-i18n="cta.analyze">⬆ Проанализировать данные</a><a class="btn ghost" href="report.html" data-i18n="nav.report">Пример отчёта</a></div>
 </section>
 
-<footer><span>© 2026 Provable · ByteForce</span><span><a href="report.html">Пример отчёта</a> · <a href="https://github.com/nvrrmindd/statproof">Открытый код</a></span></footer>
+<footer><span>© 2026 Provable · ByteForce</span><span><a href="report.html" data-i18n="nav.report">Пример отчёта</a> · <a href="https://github.com/nvrrmindd/statproof" data-i18n="foot.code">Открытый код</a></span></footer>
 
 <script>
+document.getElementById('langs').innerHTML = langSwitcher(); applyI18n();
 /* дышащий радиальный градиент */
 (() => {
   const el = document.getElementById('grad');

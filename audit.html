@@ -89,45 +89,49 @@ svg text{font-family:-apple-system,"Segoe UI",Inter,sans-serif}
 @media (max-width:640px){.two{grid-template-columns:1fr}.grid{grid-auto-rows:auto}.w.lg,.w.tall{grid-row:span 1}.w{min-height:258px}}
 .ctl{display:grid;gap:8px}
 .verdict-box{margin-top:10px;padding:12px;border-radius:12px;background:var(--card-2);font-size:14px}
+.langs{display:inline-flex;gap:2px;background:rgba(10,10,10,.5);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:3px}
+.langs button{font:inherit;font-size:13px;font-weight:700;border:0;background:none;color:var(--ink-2);padding:4px 10px;border-radius:999px;cursor:pointer}
+.langs button.on{background:#fff;color:#0A0A0A}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="audit_engine.js"></script>
+<script src="i18n.js"></script>
 </head>
 <body>
 <header class="top">
   <div class="grad" id="grad"></div>
   <div class="top-inner">
-    <div class="nav"><a class="logo" href="./"><i>✓</i> Provable</a><a class="link" href="report.html">Пример отчёта →</a></div>
-    <h1>Анализ данных</h1>
-    <p class="lead">Загрузите таблицу — Provable найдёт в ней все закономерности между показателями, проверит каждую и покажет, какие выводы доказаны.</p>
+    <div class="nav"><a class="logo" href="./"><i>✓</i> Provable</a><span class="row" style="gap:8px"><a class="link" href="report.html" data-i18n="nav.report.arrow">Пример отчёта →</a><span id="langs"></span></span></div>
+    <h1 data-i18n="a.title">Анализ данных</h1>
+    <p class="lead" data-i18n="a.lead">Загрузите таблицу — Provable найдёт в ней все закономерности между показателями, проверит каждую и покажет, какие выводы доказаны.</p>
   </div>
 </header>
 
 <div class="wrap">
-  <div class="steps"><span id="s1" class="on">1. Данные</span><span id="s2">2. Показатели</span><span id="s3">3. Результаты</span></div>
+  <div class="steps"><span id="s1" class="on" data-i18n="a.s1">1. Данные</span><span id="s2" data-i18n="a.s2">2. Показатели</span><span id="s3" data-i18n="a.s3">3. Результаты</span></div>
 
   <div class="card" id="step1">
     <label class="drop" id="drop" tabindex="0">
       <span class="ic">⬆</span>
-      <b>Перетащите файл CSV сюда или нажмите, чтобы выбрать</b>
-      <span class="note">Каждая строка — семья, человек, предприятие или школа. Первая строка — названия столбцов.</span>
+      <b data-i18n="a.drop">Перетащите файл CSV сюда или нажмите, чтобы выбрать</b>
+      <span class="note" data-i18n="a.drop.note">Каждая строка — семья, человек, предприятие или школа. Первая строка — названия столбцов.</span>
       <input type="file" id="file" accept=".csv,text/csv">
     </label>
-    <div class="demos"><span class="note" style="align-self:center">Нет файла под рукой?</span>
-      <button class="ghost" type="button" data-demo="домохозяйства.csv">Пример: домохозяйства</button>
-      <button class="ghost" type="button" data-demo="d004_доходы_людей.csv">Пример: доходы людей</button>
-      <button class="ghost" type="button" data-demo="предприятия_синтетика.csv">Пример: предприятия (не семьи)</button></div>
+    <div class="demos"><span class="note" style="align-self:center" data-i18n="a.nofile">Нет файла под рукой?</span>
+      <button class="ghost" type="button" data-demo="домохозяйства.csv" data-i18n="a.demo.hh">Пример: домохозяйства</button>
+      <button class="ghost" type="button" data-demo="d004_доходы_людей.csv" data-i18n="a.demo.inc">Пример: доходы людей</button>
+      <button class="ghost" type="button" data-demo="предприятия_синтетика.csv" data-i18n="a.demo.firms">Пример: предприятия</button></div>
     <p class="note" id="loadmsg" style="text-align:center;margin:14px 0 0"></p>
   </div>
 
   <div class="card hidden" id="step2">
-    <h2>Проверьте показатели и категории</h2>
-    <p class="note"><b>Показатель</b> — число, связь которого с другими мы проверяем: доход, возраст, оценка жизни. <b>Категория</b> — столбец вроде региона, «город или село», года, отрасли. Зачем она нужна: в Алматы доходы выше и жизнью довольны больше, чем в селе. Если сравнивать всех со всеми, разница между местами выдаёт себя за связь «доход → довольство». Поэтому Provable сравнивает каждую строку только с похожими — у которых совпадают все категории (например, тот же регион, тип поселения и год). Обычно всё уже выбрано верно — можно сразу нажать «Построить отчёт».</p>
+    <h2 data-i18n="a.roles.h">Проверьте показатели и категории</h2>
+    <p class="note" data-i18n="a.roles.note"><b>Показатель</b> — число, связь которого с другими мы проверяем: доход, возраст, оценка жизни. <b>Категория</b> — столбец вроде региона, «город или село», года, отрасли. Зачем она нужна: в Алматы доходы выше и жизнью довольны больше, чем в селе. Если сравнивать всех со всеми, разница между местами выдаёт себя за связь «доход → довольство». Поэтому Provable сравнивает каждую строку только с похожими — у которых совпадают все категории (например, тот же регион, тип поселения и год). Обычно всё уже выбрано верно — можно сразу нажать «Построить отчёт».</p>
     <div class="scroll" style="max-height:380px"><table id="roles"></table></div>
     <div class="row" style="margin-top:14px">
-      <label class="note">Средние сравнивать по: <select id="cmp"></select></label>
-      <label class="note">Связь должна повториться в каждом: <select id="rep"></select></label>
-      <button id="run" type="button">Анализировать →</button>
+      <label class="note"><span data-i18n="a.cmp">Средние сравнивать по:</span> <select id="cmp"></select></label>
+      <label class="note"><span data-i18n="a.rep">Связь должна повториться в каждом:</span> <select id="rep"></select></label>
+      <button id="run" type="button" data-i18n="a.run">Анализировать →</button>
       <span id="runmsg" class="note"></span>
     </div>
   </div>
@@ -135,11 +139,11 @@ svg text{font-family:-apple-system,"Segoe UI",Inter,sans-serif}
   <div class="hidden" id="step3">
     <div class="row" style="justify-content:space-between;margin-top:22px">
       <div><h2 style="margin:0" id="rtitle">Отчёт</h2><p class="note" style="margin:2px 0 0" id="rmeta"></p></div>
-      <div class="row"><button class="ghost" type="button" id="reset" title="Вернуть исходное расположение виджетов">Сбросить раскладку</button><button class="ghost" type="button" id="dlhtml">Скачать отчёт</button><button class="ghost" type="button" id="dlcsv">Скачать таблицу CSV</button></div>
+      <div class="row"><button class="ghost" type="button" id="reset" data-i18n="a.reset">Сбросить раскладку</button><button class="ghost" type="button" id="dlhtml" data-i18n="a.dlhtml">Скачать отчёт</button><button class="ghost" type="button" id="dlcsv" data-i18n="a.dlcsv">Скачать таблицу CSV</button></div>
     </div>
-    <p class="note muted" style="margin:8px 0 0" id="hint">Виджеты можно перетаскивать за заголовок. С клавиатуры: выделите виджет и нажмите Alt + стрелку.</p>
+    <p class="note muted" style="margin:8px 0 0" id="hint" data-i18n="a.hint">Виджеты можно перетаскивать за заголовок. С клавиатуры: выделите виджет и нажмите Alt + стрелку.</p>
     <div class="grid" id="grid" role="list"></div>
-    <div class="card"><h2>Все закономерности</h2><p class="note">Полная таблица расчётов: ρ — ранговая корреляция (−1…+1), ДИ — 95 % доверительный интервал, p — вероятность увидеть такую связь случайно.</p><div class="scroll" style="max-height:520px"><table id="all"></table></div></div>
+    <div class="card"><h2 data-i18n="a.all.h">Все закономерности</h2><p class="note" data-i18n="a.all.note">Полная таблица расчётов: ρ — ранговая корреляция (−1…+1), ДИ — 95 % доверительный интервал, p — вероятность увидеть такую связь случайно.</p><div class="scroll" style="max-height:520px"><table id="all"></table></div></div>
   </div>
 </div>
 
@@ -155,7 +159,7 @@ const serverReady = (location.protocol === 'https:' ? Promise.resolve(false)
     return ok; });
 function browserColumns(text){
   const res = Papa.parse(text.replace(/^\ufeff/, ''), {header: true, skipEmptyLines: true});
-  if (!res.meta.fields || res.meta.fields.length < 2) throw new Error('не удалось прочитать таблицу: нужна строка заголовков и хотя бы два столбца');
+  if (!res.meta.fields || res.meta.fields.length < 2) throw new Error(t('a.badTable'));
   const D = ProvableEngine.describe(res.data, res.meta.fields); ROWS = D.rows; return D.info;
 }
 function browserAudit(args){
@@ -173,9 +177,13 @@ function browserAudit(args){
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const f2 = (x, n=2) => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(n).replace('.', ',');
 const fmt = n => n.toLocaleString('ru-RU');
-const LV = {UNIT: ['✓', 'верно для каждого по отдельности'], GROUP: ['◐', 'верно только в среднем по регионам'], NONE: ['✕', 'не подтверждается']};
+const LV = {UNIT: ['✓', ''], GROUP: ['◐', ''], NONE: ['✕', '']};
+function setLV(){ LV.UNIT[1] = t('lv.UNIT'); LV.GROUP[1] = t('lv.GROUP', {g: REP ? REP.compare_group : '…'}); LV.NONE[1] = t('lv.NONE'); }
 const COLOR = {UNIT: '#00E676', GROUP: '#FFD600', NONE: '#FF80AB'};
 let TOKEN = null, COLS = [], REP = null, SEL = null, SELREP = null;
+$('#langs').innerHTML = langSwitcher(); applyI18n(); setLV();
+document.addEventListener('langchange', () => { setLV(); if (INFO){ rolesTable(); const c = $('#cmp').value, r = $('#rep').value; refreshGroupSelects(); $('#cmp').value = c; $('#rep').value = r; }
+  if (REP){ const keep = SEL; render(); if (keep) select(keep); } });
 
 /* фон шапки: тот же «дышащий» градиент, что на главной */
 (() => {
@@ -190,14 +198,14 @@ function step(n){ ['s1','s2','s3'].forEach((id,i) => { $('#'+id).classList.toggl
 async function post(path, body, raw){
   let r;
   try { r = await fetch(API + path, {method:'POST', headers: {'Content-Type': raw ? 'text/csv' : 'application/json'}, body: raw ? body : JSON.stringify(body)}); }
-  catch (e) { throw new Error('Provable не запущен. Откройте файл «Запустить Provable» в папке проекта — страница откроется сама.'); }
+  catch (e) { throw new Error(t('a.noServer')); }
   const j = await r.json(); if (!r.ok || j.error) throw new Error(j.error || r.statusText); return j;
 }
 
 /* шаг 1: загрузка */
 async function loadFile(file){
   if (!file) return;
-  $('#loadmsg').innerHTML = `<span class="spinner"></span> Читаю «${esc(file.name)}»…`;
+  $('#loadmsg').innerHTML = `<span class="spinner"></span> ${t('a.reading', {name: esc(file.name)})}`;
   try { const text = await file.text(); showColumns(await serverReady ? await post('/api/upload', text, true) : browserColumns(text)); }
   catch (err) { $('#loadmsg').innerHTML = `<span class="err">${esc(err.message)}</span>`; }
 }
@@ -208,16 +216,20 @@ const drop = $('#drop');
 drop.addEventListener('drop', e => loadFile(e.dataTransfer.files[0]));
 drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); $('#file').click(); } });
 document.querySelectorAll('[data-demo]').forEach(b => b.onclick = async () => {
-  $('#loadmsg').innerHTML = '<span class="spinner"></span> Загружаю пример…';
+  $('#loadmsg').innerHTML = '<span class="spinner"></span> ' + t('a.loadingDemo');
   try { showColumns(await serverReady ? await post('/api/demo', {name: b.dataset.demo})
       : browserColumns(await (await fetch('demo/' + encodeURIComponent(b.dataset.demo))).text())); } catch (err) { $('#loadmsg').innerHTML = `<span class="err">${esc(err.message)}</span>`; } });
 
 /* шаг 2: роли столбцов */
+let INFO = null;
+function rolesTable(){
+  $('#loadmsg').innerHTML = t('a.loaded', {rows: fmt(INFO.rows), cols: INFO.columns.length, sampled: INFO.sampled ? t('a.sampled') : ''});
+  $('#roles').innerHTML = `<tr><th>${t('a.col')}</th><th>${t('a.what')}</th><th>${t('a.uniq')}</th><th>${t('a.example')}</th></tr>` + COLS.map((c,i) =>
+    `<tr><td><b>${esc(c.name)}</b></td><td><select data-i="${i}" aria-label="${esc(c.name)}"><option value="var"${c.role==='var'?' selected':''}>${t('role.var')}</option><option value="group"${c.role==='group'?' selected':''}>${t('role.group')}</option><option value="skip"${c.role==='skip'?' selected':''}>${t('role.skip')}</option></select></td><td class="num">${c.unique}</td><td class="note">${esc(c.example)}</td></tr>`).join('');
+}
 function showColumns(info){
-  TOKEN = info.token; COLS = info.columns;
-  $('#loadmsg').innerHTML = `✓ Загружено <b>${fmt(info.rows)}</b> строк и ${info.columns.length} столбцов${info.sampled ? ' (взята случайная выборка)' : ''}.`;
-  $('#roles').innerHTML = '<tr><th>Столбец</th><th>Что это</th><th>Разных значений</th><th>Пример</th></tr>' + COLS.map((c,i) =>
-    `<tr><td><b>${esc(c.name)}</b></td><td><select data-i="${i}" aria-label="Роль столбца ${esc(c.name)}"><option value="var"${c.role==='var'?' selected':''}>Показатель</option><option value="group"${c.role==='group'?' selected':''}>Категория</option><option value="skip"${c.role==='skip'?' selected':''}>Не использовать</option></select></td><td class="num">${c.unique}</td><td class="note">${esc(c.example)}</td></tr>`).join('');
+  TOKEN = info.token; COLS = info.columns; INFO = info;
+  rolesTable();
   refreshGroupSelects();
   $('#roles').onchange = e => { const s = e.target; if (s.dataset.i != null){ COLS[+s.dataset.i].role = s.value; refreshGroupSelects(); } };
   $('#step2').classList.remove('hidden'); step(2); $('#step2').scrollIntoView({behavior:'smooth', block:'start'});
@@ -226,21 +238,21 @@ function refreshGroupSelects(){
   const groups = COLS.filter(c => c.role === 'group').map(c => c.name);
   const cmpPrev = $('#cmp').value, repPrev = $('#rep').value;
   $('#cmp').innerHTML = groups.map(g => `<option>${esc(g)}</option>`).join('');
-  $('#rep').innerHTML = '<option value="">— не проверять —</option>' + groups.map(g => `<option>${esc(g)}</option>`).join('');
+  $('#rep').innerHTML = `<option value="">${t('a.rep.none')}</option>` + groups.map(g => `<option>${esc(g)}</option>`).join('');
   const sug = COLS.find(c => c.suggest_compare), sugr = COLS.find(c => c.suggest_repeat);
   $('#cmp').value = groups.includes(cmpPrev) ? cmpPrev : (sug && groups.includes(sug.name) ? sug.name : groups[0] || '');
   $('#rep').value = groups.includes(repPrev) ? repPrev : (sugr && groups.includes(sugr.name) ? sugr.name : '');
 }
 $('#run').onclick = async () => {
   const vars = COLS.filter(c => c.role === 'var').map(c => c.name), groups = COLS.filter(c => c.role === 'group').map(c => c.name);
-  if (vars.length < 2){ $('#runmsg').textContent = 'Нужно хотя бы два показателя.'; return; }
-  if (vars.length > 15){ $('#runmsg').textContent = 'Не больше 15 показателей за раз — отметьте лишние как «Не использовать».'; return; }
-  $('#run').disabled = true; $('#runmsg').innerHTML = `<span class="spinner"></span> Анализирую ${vars.length*(vars.length-1)/2} возможных закономерностей…`;
+  if (vars.length < 2){ $('#runmsg').textContent = t('a.need2'); return; }
+  if (vars.length > 15){ $('#runmsg').textContent = t('a.max15'); return; }
+  $('#run').disabled = true; $('#runmsg').innerHTML = `<span class="spinner"></span> ${t('a.running', {n: vars.length*(vars.length-1)/2})}`;
   try {
     REP = SERVER ? await post('/api/audit', {token: TOKEN, variables: vars, cell_groups: groups, compare_group: $('#cmp').value || null, repeat_by: $('#rep').value || null})
                  : await browserAudit([ROWS, vars, groups, $('#cmp').value || null, $('#rep').value || null]);
     render(); $('#runmsg').textContent = ''; }
-  catch (err) { $('#runmsg').innerHTML = `<span class="err">Ошибка расчёта: ${esc(err.message)}</span>`; }
+  catch (err) { $('#runmsg').innerHTML = `<span class="err">${t('a.calcErr', {msg: esc(err.message)})}</span>`; }
   $('#run').disabled = false;
 };
 
@@ -250,23 +262,16 @@ const grpTxt = p => Object.entries(p.group).map(([k,v]) => `${esc(k)}: ${f2(v.rh
 const isTrap = p => p.level !== 'UNIT' && Math.abs(p.raw) >= 0.05;
 function statement(p){
   const up = (p.level === 'GROUP' ? grpRho(p) : p.partial) > 0;
-  const t = `чем больше «${esc(p.a)}», тем ${up ? 'больше' : 'меньше'} «${esc(p.b)}»`;
-  return p.level === 'GROUP' ? `В среднем по «${esc(REP.compare_group)}»: ${t}` : `У каждого по отдельности: ${t}`;
+  const tx = t('st.statement', {a: esc(p.a), b: esc(p.b), dir: t(up ? 'st.more' : 'st.less')});
+  return p.level === 'GROUP' ? t('st.group', {g: esc(REP.compare_group), t: tx}) : t('st.unit', {t: tx});
 }
-const LIKE = () => 'совпадают ' + REP.cell_groups.map(g => '«' + g + '»').join(', ');
-const strength = r => { const a = Math.abs(r); return a >= .5 ? 'сильная' : a >= .3 ? 'заметная' : a >= .1 ? 'слабая' : 'очень слабая'; };
+const LIKE = () => t('like', {cols: REP.cell_groups.map(g => '«' + esc(g) + '»').join(', ')});
+const strength = r => { const a = Math.abs(r); return t(a >= .5 ? 'str.strong' : a >= .3 ? 'str.notable' : a >= .1 ? 'str.weak' : 'str.vweak'); };
 
 /* ---------- виджеты ---------- */
 const WIDGETS = [
-  {id:'summary', size:'wide', title:'Главные выводы'},
-  {id:'counts', size:'sm', title:'Итог анализа'},
-  {id:'data', size:'sm', title:'Данные'},
-  {id:'map', size:'lg', title:'Карта связей'},
-  {id:'pair', size:'lg', title:'Закономерность подробно'},
-  {id:'traps', size:'wide', title:'Обманчивые связи'},
-  {id:'proven', size:'wide', title:'Доказанные закономерности'},
-  {id:'check', size:'wide', title:'Проверить гипотезу'},
-  {id:'method', size:'wide', title:'Метод'},
+  {id:'summary', size:'wide'}, {id:'counts', size:'sm'}, {id:'data', size:'sm'}, {id:'map', size:'lg'}, {id:'pair', size:'lg'},
+  {id:'traps', size:'wide'}, {id:'proven', size:'wide'}, {id:'check', size:'wide'}, {id:'method', size:'wide'},
 ];
 const ORDER_KEY = 'provable.widgets.v2';
 function savedOrder(){ try { const o = JSON.parse(localStorage.getItem(ORDER_KEY)); if (Array.isArray(o) && o.length === WIDGETS.length && WIDGETS.every(w => o.includes(w.id))) return o; } catch (e) {} return WIDGETS.map(w => w.id); }
@@ -277,9 +282,9 @@ function buildGrid(){
   savedOrder().forEach((id, i) => {
     const w = WIDGETS.find(x => x.id === id);
     const el = document.createElement('section');
-    el.className = 'w ' + w.size; el.dataset.id = id; el.tabIndex = 0; el.setAttribute('role','listitem'); el.setAttribute('aria-label', w.title);
+    el.className = 'w ' + w.size; el.dataset.id = id; el.tabIndex = 0; el.setAttribute('role','listitem'); el.setAttribute('aria-label', t('w.' + id));
     el.style.animationDelay = (i * 0.05) + 's';
-    el.innerHTML = `<div class="wh"><h3>${w.title}</h3><span class="grip" aria-hidden="true">⋮⋮</span></div><div class="wb" id="w-${id}"></div>`;
+    el.innerHTML = `<div class="wh"><h3 data-i18n="w.${id}">${t('w.' + id)}</h3><span class="grip" aria-hidden="true">⋮⋮</span></div><div class="wb" id="w-${id}"></div>`;
     g.appendChild(el);
   });
   fitColumns();
@@ -349,18 +354,18 @@ function curveChart(p){
     <rect x="${P}" y="${P}" width="${W-2*P}" height="${H-2*P}" fill="none" stroke="#27272a"/>
     <line x1="${P}" y1="${sy(.5)}" x2="${W-P}" y2="${sy(.5)}" stroke="#27272a" stroke-dasharray="2 3"/>
     ${line(p.curve.all, 0, '#71717a', true)}${line(p.curve.within, .5, '#2979FF', false)}
-    <text x="${W/2}" y="${H-6}" text-anchor="middle" fill="#a1a1aa" font-size="10">«${esc(p.a)}»: от меньших к большим →</text>
+    <text x="${W/2}" y="${H-6}" text-anchor="middle" fill="#a1a1aa" font-size="10">${t('ch.x', {a: esc(p.a)})}</text>
     <text x="10" y="${H/2}" fill="#a1a1aa" font-size="10" transform="rotate(-90 10 ${H/2})" text-anchor="middle">«${esc(p.b)}» →</text></svg>`;
 }
 function scatter(p, rep){
-  const g = p.group[rep]; if (!g || !g.means) return '<p class="note">Средние не сравнивали: слишком мало значений категории.</p>';
+  const g = p.group[rep]; if (!g || !g.means) return `<p class="note">${t('p.fewgroups')}</p>`;
   const W = 300, H = 200, P = 26, xs = g.means.map(m => m[1]), ys = g.means.map(m => m[2]);
   const nx = (v, a) => { const lo = Math.min(...a), hi = Math.max(...a); return hi > lo ? (v - lo) / (hi - lo) : .5; };
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Средние по «${esc(REP.compare_group)}», ${esc(rep)}: ρ ${f2(g.rho)}">
     <rect x="${P}" y="${P}" width="${W-2*P}" height="${H-2*P}" fill="none" stroke="#27272a"/>
     ${g.means.map(([n,x,y]) => `<circle cx="${P + nx(x,xs)*(W-2*P)}" cy="${H - P - nx(y,ys)*(H-2*P)}" r="5" fill="#FFD600" fill-opacity=".85"><title>${esc(n)}: ${x} / ${y}</title></circle>`).join('')}
-    <text x="${W/2}" y="${H-6}" text-anchor="middle" fill="#a1a1aa" font-size="10">среднее «${esc(p.a)}» →</text>
-    <text x="10" y="${H/2}" fill="#a1a1aa" font-size="10" transform="rotate(-90 10 ${H/2})" text-anchor="middle">среднее «${esc(p.b)}» →</text></svg>`;
+    <text x="${W/2}" y="${H-6}" text-anchor="middle" fill="#a1a1aa" font-size="10">${t('ch.mean', {a: esc(p.a)})}</text>
+    <text x="10" y="${H/2}" fill="#a1a1aa" font-size="10" transform="rotate(-90 10 ${H/2})" text-anchor="middle">${t('ch.mean', {a: esc(p.b)})}</text></svg>`;
 }
 function matrix(){
   const V = REP.variables, k = V.length, lab = 158, cell = Math.max(14, Math.min(34, Math.floor(300 / k))), W = lab + k * cell + 4, H = 18 + k * cell + 4;
@@ -375,7 +380,7 @@ function matrix(){
       const p = find(a, b); if (!p){ s += `<rect x="${x+1}" y="${y+1}" width="${cell-2}" height="${cell-2}" rx="4" fill="#141417" stroke="#27272a"/>`; return; }
       const op = p.level === 'NONE' ? (isTrap(p) ? .55 : .14) : .35 + .65 * Math.min(1, Math.abs(p.level === 'UNIT' ? p.partial : grpRho(p)) / .5);
       const sel = SEL === p;
-      s += `<rect data-pair="${REP.pairs.indexOf(p)}" x="${x+1}" y="${y+1}" width="${cell-2}" height="${cell-2}" rx="4" fill="${COLOR[p.level]}" fill-opacity="${op.toFixed(2)}" ${sel ? 'stroke="#fff" stroke-width="2"' : ''}><title>${esc(a)} × ${esc(b)}: ${LV[p.level][1]}${isTrap(p) ? ' (ловушка)' : ''}</title></rect>`;
+      s += `<rect data-pair="${REP.pairs.indexOf(p)}" x="${x+1}" y="${y+1}" width="${cell-2}" height="${cell-2}" rx="4" fill="${COLOR[p.level]}" fill-opacity="${op.toFixed(2)}" ${sel ? 'stroke="#fff" stroke-width="2"' : ''}><title>${esc(a)} × ${esc(b)}: ${LV[p.level][1]}${isTrap(p) ? t('m.trap') : ''}</title></rect>`;
     });
   });
   return s + '</svg>';
@@ -384,58 +389,56 @@ function matrix(){
 /* ---------- содержимое виджетов ---------- */
 function W(id, html){ const el = $('#w-' + id); if (el) el.innerHTML = html; }
 function renderPair(){
-  const p = SEL; if (!p){ W('pair', '<p class="note">Выберите клетку на карте.</p>'); return; }
+  const p = SEL; if (!p){ W('pair', `<p class="note">${t('p.pick')}</p>`); return; }
   const reps = Object.keys(p.group); if (!reps.includes(SELREP)) SELREP = reps[0];
-  const say = p.level === 'UNIT' ? `Связь верна для каждого по отдельности: даже среди похожих (${LIKE()}) ρ = ${f2(p.partial,3)} (${strength(p.partial)}). Это можно утверждать.`
-    : p.level === 'GROUP' ? `Если смешать всех, ρ = ${f2(p.raw,3)}. Но среди похожих (${LIKE()}) — ${f2(p.partial,3)}, связи нет. Она есть только в среднем по «${esc(REP.compare_group)}»: писать можно только о средних по «${esc(REP.compare_group)}», но не о каждом по отдельности.`
-    : isTrap(p) ? `Если смешать всех, ρ = ${f2(p.raw,3)}. Но среди похожих (${LIKE()}) — ${f2(p.partial,3)}, и в среднем по «${esc(REP.compare_group)}» связь не устойчива. Это ловушка: вывод делать нельзя.`
-    : `Связи не видно ни у каждого по отдельности (ρ = ${f2(p.partial,3)}), ни в среднем по «${esc(REP.compare_group)}».`;
+  const g = esc(REP.compare_group), v = {like: LIKE(), r: f2(p.partial,3), r1: f2(p.raw,3), r2: f2(p.partial,3), s: strength(p.partial), g};
+  const say = t(p.level === 'UNIT' ? 'p.unit' : p.level === 'GROUP' ? 'p.group' : isTrap(p) ? 'p.trap' : 'p.none', v);
   W('pair', `<div class="row" style="justify-content:space-between"><b style="font-size:15px">${esc(p.a)} × ${esc(p.b)}</b><span class="badge b-${p.level}">${LV[p.level][0]} ${LV[p.level][1]}</span></div>
     <p class="note" style="margin:6px 0 8px">${say}</p>
-    <div class="two"><div><div class="note muted" style="font-size:12px">Серым — если смешать всех, синим — среди похожих</div>${curveChart(p)}</div>
-    <div><div class="row" style="justify-content:space-between"><span class="note muted" style="font-size:12px">Каждая точка — «${esc(REP.compare_group)}»${p.group[SELREP] ? ': ρ ' + f2(p.group[SELREP].rho) : ''}</span>
+    <div class="two"><div><div class="note muted" style="font-size:12px">${t('p.curve')}</div>${curveChart(p)}</div>
+    <div><div class="row" style="justify-content:space-between"><span class="note muted" style="font-size:12px">${t('p.dots', {g: esc(REP.compare_group)})}${p.group[SELREP] ? ': ρ ' + f2(p.group[SELREP].rho) : ''}</span>
       <span class="chips">${reps.length > 1 ? reps.map(r => `<button type="button" data-rep="${esc(r)}" class="${r === SELREP ? 'on' : ''}">${esc(r)}</button>`).join('') : ''}</span></div>${scatter(p, SELREP)}</div></div>`);
 }
 function select(p){ SEL = p; renderPair(); W('map', matrixBlock());
   document.querySelectorAll('.lst li[data-pair]').forEach(li => li.classList.toggle('sel', REP.pairs[+li.dataset.pair] === p)); }
 const matrixBlock = () => `<div style="flex:1;min-height:0;display:flex;align-items:center">${matrix()}</div>
-  <div class="legend"><span><i style="background:${COLOR.UNIT}"></i>верно для каждого</span><span><i style="background:${COLOR.GROUP}"></i>только в среднем по «${esc(REP.compare_group)}»</span><span><i style="background:${COLOR.NONE}"></i>не подтверждается (ярче — ловушка)</span></div>`;
+  <div class="legend"><span><i style="background:${COLOR.UNIT}"></i>${t('m.legend.unit')}</span><span><i style="background:${COLOR.GROUP}"></i>${t('m.legend.group', {g: esc(REP.compare_group)})}</span><span><i style="background:${COLOR.NONE}"></i>${t('m.legend.none')}</span></div>`;
 
 function render(){
   const R = REP, c = R.counts, pairs = R.pairs;
-  LV.GROUP[1] = `верно только в среднем по «${R.compare_group}»`;
-  $('#rtitle').textContent = `Результаты анализа: доказано ${c.UNIT + c.GROUP} из ${pairs.length}`;
-  $('#rmeta').textContent = `${fmt(R.rows)} строк · похожими считаются строки с одинаковыми: ${R.cell_groups.join(', ')} · средние по: ${R.compare_group}${R.repeat_by ? ' · повтор по: ' + R.repeat_by : ''}`;
+  setLV();
+  $('#rtitle').textContent = t('r.title', {k: c.UNIT + c.GROUP, n: pairs.length});
+  $('#rmeta').textContent = t('r.meta', {rows: fmt(R.rows), cells: R.cell_groups.join(', '), cmp: R.compare_group, rep: R.repeat_by ? t('r.meta.rep', {rep: R.repeat_by}) : ''});
   $('#step3').classList.remove('hidden'); step(3);
   buildGrid();
   const proven = pairs.filter(p => p.level !== 'NONE').sort((x,y) => Math.abs(y.level === 'UNIT' ? y.partial : grpRho(y)) - Math.abs(x.level === 'UNIT' ? x.partial : grpRho(x)));
   const traps = pairs.filter(isTrap).sort((x,y) => (Math.abs(y.raw) - Math.abs(y.partial)) - (Math.abs(x.raw) - Math.abs(x.partial)));
   const bestU = proven.find(p => p.level === 'UNIT'), worst = traps[0];
 
-  W('summary', `<div class="plain"><p>Проанализировано <b>${fmt(R.rows)}</b> строк и <b>${R.variables.length}</b> показателей — проверены все возможные закономерности между ними (${pairs.length}).</p>${c.UNIT + c.GROUP === 0 ? `<p><b>Доказанных закономерностей не найдено.</b> Показатели в таблице не связаны между собой — Provable не выдаёт выводы, которых нет в данных.</p>` : ''}
-    <p><b style="color:var(--good)">✓ ${c.UNIT}</b> — верно для каждого объекта по отдельности (семьи, человека, предприятия).${bestU ? ` Самая сильная: «${esc(bestU.a)}» и «${esc(bestU.b)}» (ρ ${f2(bestU.partial)}).` : ''}</p>
-    ${R.no_groups ? '<p>В таблице нет категорий (регион, отрасль, год), поэтому ловушку «разница между категориями» проверить нельзя — проверено только, есть ли связь вообще.</p>' : ''}<p${R.no_groups ? ' class="hidden"' : ''}><b style="color:var(--warn)">◐ ${c.GROUP}</b> — верно только в среднем по «${esc(R.compare_group)}»: это закономерности групп, а не отдельных объектов.</p>
-    <p><b style="color:var(--bad)">✕ ${traps.length}</b> — обманчивые: в общей таблице связь заметна, но для отдельных объектов не подтверждается.${worst ? ` Самая сильная: «${esc(worst.a)}» и «${esc(worst.b)}» (${f2(worst.raw)} → ${f2(worst.partial)}).` : ''}</p></div>`);
+  W('summary', `<div class="plain"><p>${t('r.s0', {rows: fmt(R.rows), vars: R.variables.length, n: pairs.length})}</p>${c.UNIT + c.GROUP === 0 ? `<p>${t('r.snone')}</p>` : ''}
+    <p><b style="color:var(--good)">✓ ${c.UNIT}</b> ${t('r.s1')}${bestU ? t('r.best', {a: esc(bestU.a), b: esc(bestU.b), r: f2(bestU.partial)}) : ''}</p>
+    ${R.no_groups ? `<p>${t('r.nogroups')}</p>` : ''}<p${R.no_groups ? ' class="hidden"' : ''}><b style="color:var(--warn)">◐ ${c.GROUP}</b> ${t('r.s2', {g: esc(R.compare_group)})}</p>
+    <p><b style="color:var(--bad)">✕ ${traps.length}</b> ${t('r.s3')}${worst ? t('r.worst', {a: esc(worst.a), b: esc(worst.b), r1: f2(worst.raw), r2: f2(worst.partial)}) : ''}</p></div>`);
   W('counts', `<div class="row" style="flex-wrap:nowrap;gap:14px;flex:1">${donut(c)}<div style="font-size:13px;display:grid;gap:6px">
-    <span><b style="color:var(--good)">${c.UNIT}</b> для каждого</span><span><b style="color:var(--warn)">${c.GROUP}</b> только в среднем</span><span><b style="color:var(--bad)">${c.NONE}</b> нет вывода</span></div></div>`);
-  W('data', `<div class="big">${fmt(R.rows)} <small>строк</small></div>
-    <div class="kv"><span>Показателей</span><span>${R.variables.length}</span></div><div class="kv"><span>Наборов «похожих»</span><span>${fmt(R.cells)}</span></div>
-    <div class="kv"><span>Сравнение</span><span>${esc(R.compare_group)}</span></div>${R.repeat_by ? `<div class="kv"><span>Повтор</span><span>${R.repeats.map(esc).join(', ')}</span></div>` : ''}`);
+    <span><b style="color:var(--good)">${c.UNIT}</b> ${t('c.unit')}</span><span><b style="color:var(--warn)">${c.GROUP}</b> ${t('c.group')}</span><span><b style="color:var(--bad)">${c.NONE}</b> ${t('c.none')}</span></div></div>`);
+  W('data', `<div class="big">${fmt(R.rows)} <small>${t('d.rows')}</small></div>
+    <div class="kv"><span>${t('d.vars')}</span><span>${R.variables.length}</span></div><div class="kv"><span>${t('d.cells')}</span><span>${fmt(R.cells)}</span></div>
+    <div class="kv"><span>${t('d.cmp')}</span><span>${esc(R.compare_group)}</span></div>${R.repeat_by ? `<div class="kv"><span>${t('d.rep')}</span><span>${R.repeats.map(esc).join(', ')}</span></div>` : ''}`);
   W('map', matrixBlock());
-  W('traps', traps.length ? `<p class="note" style="margin:0 0 6px">Серая точка — связь, если смешать всех; синяя — среди похожих (${LIKE()}). Чем длиннее линия, тем сильнее обманывает общая цифра.</p>${dumbbell(traps.slice(0, 8))}`
-    : '<p class="note">Ловушек не найдено: где связь видна по всем, она сохраняется и среди похожих.</p>');
-  W('proven', proven.length ? `<ul class="lst">${proven.map(p => `<li data-pair="${pairs.indexOf(p)}"><span class="dot" style="background:${COLOR[p.level]}"></span><span>${statement(p)}<br><span class="note muted" style="font-size:12px">${p.level === 'UNIT' ? `ρ среди похожих ${f2(p.partial,3)}, p ${p.p_perm < 0.006 ? '< 0,01' : '= ' + p.p_perm.toFixed(3)}` : `ρ средних по «${esc(REP.compare_group)}» ${grpTxt(p)}`}</span></span></li>`).join('')}</ul>`
-    : '<p class="note">Ни одна связь не подтверждена.</p>');
+  W('traps', traps.length ? `<p class="note" style="margin:0 0 6px">${t('t.note', {like: LIKE()})}</p>${dumbbell(traps.slice(0, 8))}`
+    : `<p class="note">${t('t.none')}</p>`);
+  W('proven', proven.length ? `<ul class="lst">${proven.map(p => `<li data-pair="${pairs.indexOf(p)}"><span class="dot" style="background:${COLOR[p.level]}"></span><span>${statement(p)}<br><span class="note muted" style="font-size:12px">${p.level === 'UNIT' ? t('pr.unit', {r: f2(p.partial,3), p: p.p_perm < 0.006 ? '< 0,01' : '= ' + p.p_perm.toFixed(3)}) : t('pr.group', {g: esc(REP.compare_group), v: grpTxt(p)})}</span></span></li>`).join('')}</ul>`
+    : `<p class="note">${t('pr.none')}</p>`);
   const opts = R.variables.map(v => `<option>${esc(v)}</option>`).join('');
-  W('check', `<div class="ctl"><div class="row"><select id="ca" aria-label="Первый показатель">${opts}</select><span class="note">и</span><select id="cb" aria-label="Второй показатель">${opts}</select></div>
-    <div class="row"><select id="clevel" aria-label="Уровень"><option value="UNIT">у каждого по отдельности</option><option value="GROUP">в среднем по категории</option></select>
-    <select id="cdir" aria-label="Утверждение"><option value="1">связаны прямо (больше → больше)</option><option value="-1">связаны обратно (больше → меньше)</option><option value="0">не связаны</option></select>
-    <button type="button" id="ccheck">Проверить</button></div><div id="cout"></div></div>`);
+  W('check', `<div class="ctl"><div class="row"><select id="ca" aria-label="Первый показатель">${opts}</select><span class="note">${t('ck.and')}</span><select id="cb" aria-label="Второй показатель">${opts}</select></div>
+    <div class="row"><select id="clevel" aria-label="Уровень"><option value="UNIT">${t('ck.unit')}</option><option value="GROUP">${t('ck.group')}</option></select>
+    <select id="cdir" aria-label="Утверждение"><option value="1">${t('ck.pos')}</option><option value="-1">${t('ck.neg')}</option><option value="0">${t('ck.zero')}</option></select>
+    <button type="button" id="ccheck">${t('ck.btn')}</button></div><div id="cout"></div></div>`);
   $('#cb').selectedIndex = 1; $('#ccheck').onclick = checkClaim;
-  W('method', `<p class="note" style="margin:0">Каждую строку сравниваем только с похожими — с теми же ${esc(R.cell_groups.join(', '))}, — чтобы разница между регионами или отраслями не выдавала себя за связь между отдельными семьями, людьми, организациями. Случайность исключаем ${R.n_perm} перестановками среди похожих; интервалы — бутстрап (${R.n_boot}). Связь для каждого: p < 0,01 и поправка Бенджамини — Хохберга на ${pairs.length} связей. Связь в среднем: по средним «${esc(R.compare_group)}»${R.repeat_by ? `, повторяется в каждом значении «${esc(R.repeat_by)}»` : ''}. «Подтверждено» значит «проходит тесты на этих данных», а не причинность. Seed ${R.seed}.</p>`);
+  W('method', `<p class="note" style="margin:0">${t('me.text', {cells: esc(R.cell_groups.join(', ')), perm: R.n_perm, boot: R.n_boot, n: pairs.length, g: esc(R.compare_group), rep: R.repeat_by ? t('me.rep', {rep: esc(R.repeat_by)}) : '', seed: R.seed})}</p>`);
 
-  $('#all').innerHTML = '<tr><th>Связь между</th><th>n</th><th>ρ по всем</th><th>ρ среди похожих [95% ДИ]</th><th>p</th><th>ρ средних по «'+esc(R.compare_group)+'»</th><th>Вердикт</th></tr>' + pairs.map(p =>
-    `<tr><td>${esc(p.a)} × ${esc(p.b)}${p.note ? `<div class="note">${p.note}</div>` : ''}</td><td class="num">${fmt(p.n)}</td><td class="num">${f2(p.raw,3)}</td><td class="num">${f2(p.partial,3)} [${f2(p.ci[0],3)}…${f2(p.ci[1],3)}]</td><td class="num">${p.p_perm.toFixed(3)}</td><td class="num">${grpTxt(p)}</td><td><span class="badge b-${p.level}">${LV[p.level][0]} ${LV[p.level][1]}</span></td></tr>`).join('');
+  $('#all').innerHTML = `<tr><th>${t('all.link')}</th><th>n</th><th>${t('all.raw')}</th><th>${t('all.within')}</th><th>p</th><th>${t('all.grp', {g: esc(R.compare_group)})}</th><th>${t('all.verdict')}</th></tr>` + pairs.map(p =>
+    `<tr><td>${esc(p.a)} × ${esc(p.b)}${p.note ? `<div class="note">${t('note.bh')}</div>` : ''}</td><td class="num">${fmt(p.n)}</td><td class="num">${f2(p.raw,3)}</td><td class="num">${f2(p.partial,3)} [${f2(p.ci[0],3)}…${f2(p.ci[1],3)}]</td><td class="num">${p.p_perm.toFixed(3)}</td><td class="num">${grpTxt(p)}</td><td><span class="badge b-${p.level}">${LV[p.level][0]} ${LV[p.level][1]}</span></td></tr>`).join('');
   select(worst || bestU || proven[0] || pairs[0]);
   $('#step3').scrollIntoView({behavior:'smooth'});
 }
@@ -446,20 +449,20 @@ function dumbbell(list){
     ${list.map((p, i) => { const y = 10 + i * rowH; const nm = `${p.a} × ${p.b}`; return `<g data-pair="${REP.pairs.indexOf(p)}" style="cursor:pointer">
       <text x="${lab}" y="${y+4}" text-anchor="end" fill="#c4c4cc" font-size="11">${esc(nm.length > 34 ? nm.slice(0,33) + '…' : nm)}<title>${esc(nm)}</title></text>
       <line x1="${sx(p.raw)}" y1="${y}" x2="${sx(p.partial)}" y2="${y}" stroke="#52525b" stroke-width="3"/>
-      <circle cx="${sx(p.raw)}" cy="${y}" r="5" fill="#a1a1aa"><title>если смешать всех ${f2(p.raw,3)}</title></circle><circle cx="${sx(p.partial)}" cy="${y}" r="5" fill="#2979FF"><title>среди похожих ${f2(p.partial,3)}</title></circle></g>`; }).join('')}</svg>`;
+      <circle cx="${sx(p.raw)}" cy="${y}" r="5" fill="#a1a1aa"><title>${t('t.all')} ${f2(p.raw,3)}</title></circle><circle cx="${sx(p.partial)}" cy="${y}" r="5" fill="#2979FF"><title>${t('t.within')} ${f2(p.partial,3)}</title></circle></g>`; }).join('')}</svg>`;
 }
 function checkClaim(){
   const a = $('#ca').value, b = $('#cb').value, lvl = $('#clevel').value, dir = +$('#cdir').value;
-  if (a === b){ $('#cout').innerHTML = '<div class="verdict-box">Выберите два разных показателя.</div>'; return; }
+  if (a === b){ $('#cout').innerHTML = `<div class="verdict-box">${t('ck.same')}</div>`; return; }
   const p = REP.pairs.find(x => (x.a === a && x.b === b) || (x.a === b && x.b === a));
-  if (!p){ $('#cout').innerHTML = '<div class="verdict-box">Для этих столбцов мало данных — вывод не делается.</div>'; return; }
+  if (!p){ $('#cout').innerHTML = `<div class="verdict-box">${t('ck.few')}</div>`; return; }
   let ok, why;
   const exists = lvl === 'UNIT' ? p.level === 'UNIT' : p.level !== 'NONE';
   const rho = lvl === 'UNIT' ? p.partial : grpRho(p);
-  if (dir === 0){ ok = !exists; why = exists ? `связь на этом уровне есть: ρ = ${f2(rho,3)}` : 'связь на этом уровне не подтверждается'; }
-  else if (!exists){ ok = false; why = lvl === 'UNIT' ? `для каждого по отдельности не подтверждается: среди похожих ρ = ${f2(p.partial,3)} (${LV[p.level][1]})` : 'в среднем по категории связь не подтверждается'; }
-  else { ok = Math.sign(rho) === dir; why = ok ? `подтверждается: ρ = ${f2(rho,3)}` : `направление обратное: ρ = ${f2(rho,3)}`; }
-  $('#cout').innerHTML = `<div class="verdict-box"><span class="badge ${ok ? 'b-UNIT' : 'b-NONE'}">${ok ? '✓ Согласуется с данными' : '✕ Не подтверждается'}</span> <span class="note">${why}</span></div>`;
+  if (dir === 0){ ok = !exists; why = exists ? t('ck.exists', {r: f2(rho,3)}) : t('ck.notexists'); }
+  else if (!exists){ ok = false; why = lvl === 'UNIT' ? t('ck.unitno', {r: f2(p.partial,3), lv: LV[p.level][1]}) : t('ck.groupno'); }
+  else { ok = Math.sign(rho) === dir; why = ok ? t('ck.yes', {r: f2(rho,3)}) : t('ck.rev', {r: f2(rho,3)}); }
+  $('#cout').innerHTML = `<div class="verdict-box"><span class="badge ${ok ? 'b-UNIT' : 'b-NONE'}">${ok ? t('ck.ok') : t('ck.bad')}</span> <span class="note">${why}</span></div>`;
   select(p);
 }
 /* клики по карте, ловушкам, списку и годам */
