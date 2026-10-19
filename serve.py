@@ -117,8 +117,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, APP.read_bytes(), "text/html; charset=utf-8")
         elif self.path in ("/audit", "/audit/"):
             self._send(200, AUDIT_PAGE.read_bytes(), "text/html; charset=utf-8")
-        elif self.path == "/audit_engine.js":
-            self._send(200, (HERE / "audit_engine.js").read_bytes(), "text/javascript; charset=utf-8")
+        elif self.path in ("/audit_engine.js", "/i18n.js"):
+            self._send(200, (HERE / self.path.lstrip("/")).read_bytes(), "text/javascript; charset=utf-8")
         elif self.path == "/api/health":
             ch = llm_api.chain()
             self._send(200, {"ok": bool(ch), "model": ch[0][1] if ch else None})

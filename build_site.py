@@ -25,6 +25,7 @@ audit = (HERE / "audit_app.html").read_text().replace('href="report"', 'href="re
 
 shutil.copy(HERE / "out" / "provable.html", SITE / "report.html")
 shutil.copy(HERE / "audit_engine.js", SITE / "audit_engine.js")
+shutil.copy(HERE / "i18n.js", SITE / "i18n.js")
 shutil.copy(HERE / "demo_data" / "предприятия_синтетика.csv", SITE / "demo" / "предприятия_синтетика.csv")
 (SITE / ".nojekyll").write_text("")
 print("готово:", sorted(str(p.relative_to(SITE)) for p in SITE.rglob("*") if p.is_file()))
