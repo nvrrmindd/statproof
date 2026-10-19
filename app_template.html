@@ -311,7 +311,8 @@ function render(q, vars){
   box.innerHTML = `<span class="badge b-${p.level}">${LEVEL[p.level][0]} ${LEVEL[p.level][1]}</span>
     <p class="note" style="margin:10px 0 0">Распознано: <b>${la}</b> (${p.form_a}) и <b>${lb}</b> (${p.form_b})</p>
     <p class="verdict">${verdict}</p>
-    <div class="scroll"><table><tr><th>Доказательство</th><th>Оценка</th><th>95% ДИ</th><th>Детали</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="note">${r[3]}</td></tr>`).join('')}</table></div>${caveat}
+    <div class="scroll"><table><tr><th>Доказательство</th><th>Оценка</th><th>95% ДИ</th><th>Детали</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="note">${r[3]}</td></tr>`).join('')}</table></div>
+    <p class="note" style="margin-top:8px"><b>Как читать:</b> ρ — сила связи от −1 до +1, около 0 — связи нет; 95% ДИ — диапазон, в котором с вероятностью 95% лежит настоящее значение; p — вероятность увидеть такую связь случайно, если её на самом деле нет (меньше 0,01 — связь не случайна); n — число домохозяйств, у которых есть оба показателя.</p>${caveat}
     ${/[әғқңөұүһі]/i.test(q) ? '<p class="note" style="margin-top:8px">Сұрақ қазақ тілінде түсінілді · вопрос понят на казахском</p>' : ''}
     <div id="ansplot" style="height:300px;margin-top:12px"></div>
     <p class="note">Доказательство глазами: каждая точка — среднее по региону. Наклон облака — связь между регионами (ρ = ${f2(p.reg['2024'])} в 2024). Внутри регионов, между семьями, ρ = ${f2(p.partial, 3)}.</p>`;
