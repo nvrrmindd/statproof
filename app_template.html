@@ -320,7 +320,7 @@ function render(q, vars){
     <p class="note">Доказательство глазами: каждая точка — среднее по региону. Наклон облака — связь между регионами (ρ = ${f2(p.reg['2024'])} в 2024). Внутри регионов, между семьями, ρ = ${f2(p.partial, 3)}.</p>`;
   drawAnswerPlot(p);
   if (AI){
-    const facts = {labels: [la, lb], level: p.level, verdict, claims: rows.map(r => ({what: r[0], value: r[1], ci: r[2]})), k_regions: 20, n: p.n};
+    const facts = {labels: [la, lb], level: p.level, verdict, claims: rows.map(r => ({what: r[0], value: r[1], ci: r[2]})), 'число регионов': 20, 'число домохозяйств': p.n};
     $('#explain').innerHTML = `<div class="chips" style="margin:0"><button class="chip" type="button" data-l="ru">Объяснить простыми словами (ИИ)</button><button class="chip" type="button" data-l="kk">Қазақша түсіндіру (ИИ)</button></div><div id="explain-out" style="margin-top:10px"></div>`;
     $('#explain').onclick = e => { const l = e.target.dataset && e.target.dataset.l; if (l) explainVerdict(facts, l); };
   }
