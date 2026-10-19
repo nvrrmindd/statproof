@@ -390,7 +390,13 @@ function understand(t, llmU, strategy){
 function claimVerdict(t, u){
   u = u || understandRules(t);
   const v = u.vars;
-  const nums = [...t.matchAll(/[−+-]?\d+(?:[.,]\d+)?/g)].map(m => ({raw: m[0], end: m.index + m[0].length}));
+  // числа, которые входят в названия показателей и шкалы («(0–11)», «до 18», «63+», «30–40 тыс.», «1 лучше … 5 хуже»), — не утверждаемые значения
+  const tn = t.replace(/\(\s*\d+\s*[–-]\s*\d+\s*\)|\(\s*\d+\s+лучше[^)]*\)|\(\s*\d\s*\)/g, m => ' '.repeat(m.length))
+              .replace(/(до|старше|от)\s+\d+(\s+лет)?/gi, m => ' '.repeat(m.length))
+              .replace(/\d+\s*\+/g, m => ' '.repeat(m.length))
+              .replace(/\d+\s*[–-]\s*\d+\s*тыс\.?(\s*тг)?/gi, m => ' '.repeat(m.length))
+              .replace(/\d+\s+лучше\s*…\s*\d+\s+хуже/gi, m => ' '.repeat(m.length));
+  const nums = [...tn.matchAll(/[−+-]?\d+(?:[.,]\d+)?/g)].map(m => ({raw: m[0], end: m.index + m[0].length}));
   const val = raw => parseFloat(raw.replace('−','-').replace('+','').replace(',','.'));
   const isYear = x => Number.isInteger(x) && x >= 2021 && x <= 2024;
   const tl = t.toLowerCase().replaceAll('ё','е');
@@ -411,7 +417,10 @@ function claimVerdict(t, u){
   // «всегда», «обязательно», «не всегда»: данные показывают связь в среднем, такое утверждение ими не доказать
   if (/(^|[^а-яa-z])(всегда|обязательно|автоматически|никогда|непременно)([^а-яa-z]|$)/.test(tl)) return {ok: null, vars: v, u, universal: true};
   const p = findPair(v[0], v[1]);
-  const facts = [p.raw, p.partial, ...p.raw_ci, ...p.partial_ci, ...Object.values(p.reg), ...(p.reg_ci ? Object.values(p.reg_ci).flat() : [])];
+  // число сверяется с величинами того уровня, о котором утверждение: семьи — ρ по семьям, регионы — ρ между регионами
+  const famFacts = [p.raw, p.partial, ...p.raw_ci, ...p.partial_ci];
+  const regFacts = [...Object.values(p.reg), ...(p.reg_ci ? Object.values(p.reg_ci).flat() : [])];
+  const facts = u.regional ? regFacts : famFacts;
   const shares = [];
   for (const k of [p.a, p.b]){ if (k in D.regions[0]) D.regions.forEach(r => shares.push(r[k])); if (k in D.gap) shares.push(D.gap[k]); }
   const rows = nums.map(n => {
@@ -587,6 +596,8 @@ if (D.eval){
   $('#qtable').innerHTML = `<tr><th>Контрольный набор</th><th>Версия 2</th><th>Версия 3</th></tr>` + R.map(([l,f]) => `<tr><td>${l}</td><td class="num">${f(e.v1)}</td><td class="num"><b>${f(e.v2)}</b></td></tr>`).join('');
   if (D.llm_eval){ const R = D.llm_eval.rules, L = D.llm_eval.llm;
     $('#qtable').insertAdjacentHTML('afterend', `<p class="note" style="margin-top:12px"><b>ИИ-режим (языковая модель Gemini, бесплатный лимит).</b> На новом контрольном наборе разговорных вопросов, в том числе на казахском, модель распознала <b>${L.questions_correct} из ${L.questions_total}</b> вопросов против ${R.questions_correct} из ${R.questions_total} у словаря. В проверке утверждений модель пропустила ${L.false_accepts} ложное утверждение, а правила — ${R.false_accepts}, поэтому утверждения и записки Provable проверяет только детерминированной логикой. В модель уходит только текст вопроса; числа и вердикты считает движок.</p>`); }
+  if (D.logic_eval){ const G = D.logic_eval;
+    $('#qtable').insertAdjacentHTML('afterend', `<p class="note" style="margin-top:12px"><b>Логика проверки на всех 253 парах.</b> Для каждой пары автоматически построены утверждения семи типов: о семьях, о регионах, с верным и неверным ρ, с верным и обратным направлением, «связи нет» — всего ${G.claims.toLocaleString('ru-RU')}. Вердикт верен в <b>${G.correct.toLocaleString('ru-RU')}</b> случаях, ложно принято — ${G.false_accepts}. Понимание языка здесь не проверяется: показатели передаются логике напрямую.</p>`); }
   if (D.explain_eval){ const X = D.explain_eval;
     $('#qtable').insertAdjacentHTML('afterend', `<p class="note" style="margin-top:12px"><b>ИИ-объяснения на русском и казахском.</b> Модель пересказала ${X.explanations} вердиктов; движок сверил каждое число. Прошли проверку ${X.passed}, заблокировано ${X.blocked}: модель написала «23 280 домохозяйств» вместо 23 279 из расчётов — такой текст на экран не попадает.</p>`); }
   if (D.team){ const I = D.team.independent, A = D.team.after;

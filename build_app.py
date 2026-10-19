@@ -30,6 +30,8 @@ def main():
                          "llm": json.loads((ev / "results_test3_llm_merge.json").read_text())["summary"]}
     if (ev / "explain_results.json").exists():
         f["explain_eval"] = json.loads((ev / "explain_results.json").read_text())["summary"]
+    if (ev / "logic_results.json").exists():
+        f["logic_eval"] = json.loads((ev / "logic_results.json").read_text())
     if (ev / "planted_results.json").exists():
         f["planted"] = json.loads((ev / "planted_results.json").read_text())["summary"]
     # средние по 20 регионам для каждого показателя — для графика-доказательства в ответе
