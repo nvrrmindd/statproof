@@ -3,3 +3,5 @@ __pycache__/
 .DS_Store
 out/households.csv
 eval/llm_cache.json
+.env
+eval/llm_cache*.json
