@@ -7,6 +7,7 @@
 Производные от микроданных организаторов примеры (домохозяйства, доходы людей) на сайт не попадают —
 только выдуманная таблица предприятий с известным ответом.
 """
+import re
 import shutil
 from pathlib import Path
 
@@ -17,7 +18,8 @@ if SITE.exists():
 (SITE / "demo").mkdir(parents=True)
 
 home = (HERE / "home.html").read_text()
-home = home.replace('href="audit"', 'href="audit.html"').replace('href="report"', 'href="report.html"')
+home = home.replace('href="audit"', 'href="audit.html"')
+home = re.sub(r'href="report(#[^"]*)?"', lambda m: f'href="report.html{m.group(1) or ""}"', home)
 (SITE / "index.html").write_text(home)
 
 audit = (HERE / "audit_app.html").read_text().replace('href="report"', 'href="report.html"')
