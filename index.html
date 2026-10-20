@@ -61,6 +61,8 @@ footer a{text-decoration:none}footer a:hover{color:#fff}
 .langs button{font:inherit;font-size:13px;font-weight:700;border:0;background:none;color:var(--ink-2);padding:4px 10px;border-radius:999px;cursor:pointer}
 .langs button.on{background:#fff;color:#0A0A0A}
 .links{align-items:center}
+.card.more{text-decoration:none;display:block;transition:border-color .2s,transform .2s}.card.more:hover{border-color:rgba(255,255,255,.35);transform:translateY(-2px)}
+.go{display:inline-block;margin-top:14px;font-weight:700;color:#fff}
 </style>
 <script src="i18n.js"></script>
 </head>
@@ -110,6 +112,17 @@ footer a{text-decoration:none}footer a:hover{color:#fff}
     <div class="card"><div class="num"><span data-i18n="step">ШАГ</span> 1</div><h3 data-i18n="s1.h">Загрузите CSV</h3><p data-i18n="s1.p">Перетащите файл в окно. Каждая строка — семья, человек, предприятие или школа.</p></div>
     <div class="card"><div class="num"><span data-i18n="step">ШАГ</span> 2</div><h3 data-i18n="s2.h">Проверьте столбцы</h3><p data-i18n="s2.p">Provable сам определит показатели (доход, возраст, оценки) и категории (регион, отрасль, год).</p></div>
     <div class="card"><div class="num"><span data-i18n="step">ШАГ</span> 3</div><h3 data-i18n="s3.h">Получите отчёт</h3><p data-i18n="s3.p">Доказанные закономерности, обманчивые связи, графики и выводы — с возможностью скачать.</p></div>
+  </div>
+</section>
+
+<section class="wrap" style="padding-top:0">
+  <p class="kicker" data-i18n="more.k">Ещё возможности</p>
+  <h2 data-i18n="more.h">Спросить, проверить, написать</h2>
+  <p class="sub" data-i18n="more.sub">Готово на примере обследования качества жизни домохозяйств.</p>
+  <div class="grid3">
+    <a class="card more" href="report.html#ask"><div class="ic" style="background:rgba(41,121,255,.15)">💬</div><h3 data-i18n="m1.h">Спросить данные</h3><p data-i18n="m1.p"></p><span class="go" data-i18n="open">Открыть →</span></a>
+    <a class="card more" href="report.html#checker"><div class="ic" style="background:rgba(255,128,171,.14)">✅</div><h3 data-i18n="m2.h">Проверить вывод или записку</h3><p data-i18n="m2.p"></p><span class="go" data-i18n="open">Открыть →</span></a>
+    <a class="card more" href="report.html#writer"><div class="ic" style="background:rgba(255,214,0,.13)">📝</div><h3 data-i18n="m3.h">Записка из доказанного</h3><p data-i18n="m3.p"></p><span class="go" data-i18n="open">Открыть →</span></a>
   </div>
 </section>
 
