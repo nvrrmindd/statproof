@@ -619,6 +619,7 @@ function verdictShort(r){
   if (r.levelBad) why.unshift(r.regional ? 'связь не подтверждена даже между регионами' : `вывод о семьях недопустим (уровень «${LEVEL[r.p.level][1]}»)`);
   return ['NONE', '✕ Не подтверждается: ' + why.join('; ')];
 }
+const escH = x => String(x).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function checkDoc(){
   const text = $('#doctext').value.trim();
   const sents = text.split(/(?<=[.!?])\s+|\n+/).map(x => x.trim()).filter(x => x.length > 3);
@@ -627,7 +628,7 @@ async function checkDoc(){
   const n = k => res.filter(([,r]) => k === 'ok' ? r.ok === true : k === 'bad' ? r.ok === false : r.ok === null).length;
   $('#docout').innerHTML = `<div class="legend" style="font-size:15px"><span><b style="color:var(--good)">✓ ${n('ok')}</b> подтверждается</span><span><b style="color:var(--bad)">✕ ${n('bad')}</b> не подтверждается</span><span><b>— ${n('na')}</b> нечего проверять</span></div>
     <div class="scroll" style="margin-top:10px"><table><tr><th>Утверждение</th><th>Вердикт</th></tr>${res.map(([t,r]) => { const [lv, txt] = verdictShort(r);
-      return `<tr><td>${t}</td><td style="color:var(--${lv==='HOUSEHOLD'?'good':r.ok===null?'muted':'bad'});min-width:220px">${txt}</td></tr>`; }).join('')}</table></div>`;
+      return `<tr><td>${escH(t)}</td><td style="color:var(--${lv==='HOUSEHOLD'?'good':r.ok===null?'muted':'bad'});min-width:220px">${txt}</td></tr>`; }).join('')}</table></div>`;
 }
 $('#docbtn').onclick = checkDoc;
 
